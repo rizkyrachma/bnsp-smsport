@@ -19,28 +19,37 @@ interface CreateBookingInput {
 export async function createBooking(input: CreateBookingInput) {
   const { userId, courtId, bookingDate, startTime, endTime } = input;
 
-  // §4.4: Validate against server time (Asia/Jakarta)
-  const now = new Date();
-  const nowJakarta = new Date(
-    now.toLocaleString("en-US", { timeZone: TIMEZONE })
-  );
+  // Query database server time to avoid client clock manipulation
+  const dbTimeResult = await prisma.$queryRaw<{ now: Date }[]>`SELECT NOW() as now`;
+  const dbNow = dbTimeResult[0]?.now || new Date();
 
-  const bookingDateObj = new Date(bookingDate + "T00:00:00");
-  const todayStr = nowJakarta.toISOString().slice(0, 10);
-  const todayDate = new Date(todayStr + "T00:00:00");
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+  const parts = formatter.formatToParts(dbNow);
+  const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
 
-  if (bookingDateObj < todayDate) {
+  const todayStr = `${partMap.year}-${partMap.month}-${partMap.day}`;
+  const currentHour = parseInt(partMap.hour, 10);
+
+  if (bookingDate < todayStr) {
     return { success: false, error: "Tidak bisa booking untuk tanggal yang sudah lewat." };
   }
 
-  if (bookingDateObj.getTime() === todayDate.getTime()) {
-    const currentHour = nowJakarta.getHours();
-    const currentMinute = nowJakarta.getMinutes();
-    const [startH, startM] = startTime.split(":").map(Number);
-    if (startH < currentHour || (startH === currentHour && startM <= currentMinute)) {
+  if (bookingDate === todayStr) {
+    const [startH] = startTime.split(":").map(Number);
+    if (startH <= currentHour) {
       return { success: false, error: "Jam booking sudah lewat untuk hari ini." };
     }
   }
+
+  const bookingDateObj = new Date(bookingDate + "T00:00:00");
 
   // Validate startTime < endTime
   if (startTime >= endTime) {

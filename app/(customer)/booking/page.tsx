@@ -13,21 +13,33 @@ function BookingPageContent() {
   const searchParams = useSearchParams();
   const initialCourtId = searchParams.get("courtId") || "";
 
-  // Today in YYYY-MM-DD
+  // Today in YYYY-MM-DD in Asia/Jakarta timezone
   const getTodayStr = () => {
     const now = new Date();
-    const jakartaTime = new Date(
-      now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
-    );
-    return jakartaTime.toISOString().slice(0, 10);
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Jakarta",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const parts = formatter.formatToParts(now);
+    const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+    return `${partMap.year}-${partMap.month}-${partMap.day}`;
   };
 
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayStr());
+
+  // Mount-time validation to reset if date is in the past
+  useEffect(() => {
+    const today = getTodayStr();
+    if (selectedDate < today) {
+      setSelectedDate(today);
+    }
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<"all" | "futsal" | "badminton">("all");
   const [schedules, setSchedules] = useState<CourtSchedule[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
-  const [mounted, setMounted] = useState<boolean>(false);
 
   // Selected reservation state
   const [selectedCourt, setSelectedCourt] = useState<CourtSchedule | null>(null);
@@ -60,14 +72,7 @@ function BookingPageContent() {
   }, [initialCourtId, selectedCourt]);
 
   useEffect(() => {
-    setMounted(true);
-    setSelectedDate(getTodayStr());
-  }, []);
-
-  useEffect(() => {
-    if (selectedDate) {
-      fetchSchedule(selectedDate);
-    }
+    fetchSchedule(selectedDate);
   }, [selectedDate, fetchSchedule]);
 
   // Handle slot click
@@ -170,10 +175,15 @@ function BookingPageContent() {
             <input
               id="date"
               type="date"
-              min={mounted ? getTodayStr() : undefined}
+              min={getTodayStr()}
               value={selectedDate}
               onChange={(e) => {
-                setSelectedDate(e.target.value);
+                const dateVal = e.target.value;
+                const todayVal = getTodayStr();
+                if (dateVal < todayVal) {
+                  return;
+                }
+                setSelectedDate(dateVal);
                 setSelectedSlot(null);
               }}
               className="bg-paper-white border border-fog rounded-xl px-4 py-2 text-sm font-medium text-carbon shadow-subtle focus:outline-none focus:ring-2 focus:ring-lavender"
@@ -363,10 +373,11 @@ function BookingPageContent() {
                       return (
                         <div
                           key={slot.start}
-                          className="p-3 rounded-2xl border border-fog bg-linen text-ash/60 flex flex-col justify-between h-20 cursor-not-allowed opacity-50"
+                          className="p-3 rounded-2xl bg-fog border border-ash/30 text-ash/60 flex flex-col justify-between h-20 pointer-events-none opacity-60"
+                          aria-disabled="true"
                         >
                           <span className="text-xs font-bold block">{slot.start} WIB</span>
-                          <span className="text-[10px] font-medium mt-1 px-2 py-0.5 rounded-full bg-fog/50 text-ash inline-block">
+                          <span className="text-[10px] font-medium mt-1 px-2 py-0.5 rounded-full bg-ash/10 text-ash/80 inline-block w-fit">
                             Sudah Lewat
                           </span>
                         </div>

@@ -26,15 +26,22 @@ export interface CourtSchedule {
 export async function getScheduleByDate(dateStr: string): Promise<CourtSchedule[]> {
   // 1. Server time in Asia/Jakarta (§4.4)
   const now = new Date();
-  const nowJakarta = new Date(
-    now.toLocaleString("en-US", { timeZone: TIMEZONE })
-  );
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+  const parts = formatter.formatToParts(now);
+  const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
 
-  const todayStr = nowJakarta.toISOString().slice(0, 10);
+  const todayStr = `${partMap.year}-${partMap.month}-${partMap.day}`;
   const isPastDate = dateStr < todayStr;
   const isToday = dateStr === todayStr;
-  const currentHour = nowJakarta.getHours();
-  const currentMinute = nowJakarta.getMinutes();
+  const currentHour = parseInt(partMap.hour, 10);
 
   // 2. Query all courts
   const courts = await prisma.court.findMany({
@@ -81,7 +88,7 @@ export async function getScheduleByDate(dateStr: string): Promise<CourtSchedule[
       }
 
       if (isToday) {
-        if (h < currentHour || (h === currentHour && currentMinute >= 0)) {
+        if (h <= currentHour) {
           // e.g. if now is 10:15, slot 10:00-11:00 is considered started/past
           return {
             time: timeLabel,
