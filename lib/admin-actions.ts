@@ -4,6 +4,8 @@ import { prisma } from "./prisma";
 import { getSession } from "./auth";
 import { TIMEZONE } from "./constants";
 
+type BookingWhereInput = NonNullable<Parameters<typeof prisma.booking.findMany>[0]>["where"];
+
 /**
  * Section 5: Role protection. Must be called at the beginning of EVERY admin action.
  */
@@ -22,7 +24,7 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
   await requireAdmin();
 
   // Date filters if applied
-  const whereBooking: Record<string, unknown> = {};
+  const whereBooking: BookingWhereInput = {};
   if (dateRange?.startDate || dateRange?.endDate) {
     whereBooking.bookingDate = {};
     if (dateRange.startDate) {
@@ -55,12 +57,15 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
   });
 
   // Calculate revenue total
-  const paidBookings = bookings.filter((b) => b.status === "paid");
-  const totalRevenue = paidBookings.reduce((sum, b) => sum + b.totalPrice, 0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const paidBookings = bookings.filter((b: any) => b.status === "paid");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const totalRevenue = paidBookings.reduce((sum: number, b: any) => sum + b.totalPrice, 0);
 
   // Revenue chart data (Group by date string)
   const revenueByDateMap = new Map<string, number>();
-  for (const b of paidBookings) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for (const b of paidBookings as any[]) {
     const dateStr = b.bookingDate.toISOString().slice(0, 10);
     revenueByDateMap.set(dateStr, (revenueByDateMap.get(dateStr) || 0) + b.totalPrice);
   }
@@ -111,7 +116,8 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
     },
   });
 
-  const courtsStatus = courts.map((c) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const courtsStatus = courts.map((c: any) => {
     // If court status in database is 'perbaikan', keep it
     if (c.status === "perbaikan") {
       return {
@@ -125,7 +131,8 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
     }
 
     // Check if there's a booking active at current hour
-    const active = todayActiveBookings.find((b) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const active = todayActiveBookings.find((b: any) => {
       if (b.courtId !== c.id) return false;
       const startH = b.startTime.getUTCHours();
       const endH = b.endTime.getUTCHours();
@@ -140,11 +147,11 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
       status: active ? ("dipesan" as const) : ("tersedia" as const),
       activeBooking: active
         ? {
-            id: active.id,
-            start: `${active.startTime.getUTCHours().toString().padStart(2, "0")}:00`,
-            end: `${active.endTime.getUTCHours().toString().padStart(2, "0")}:00`,
-            status: active.status,
-          }
+          id: active.id,
+          start: `${active.startTime.getUTCHours().toString().padStart(2, "0")}:00`,
+          end: `${active.endTime.getUTCHours().toString().padStart(2, "0")}:00`,
+          status: active.status,
+        }
         : null,
     };
   });
@@ -153,7 +160,8 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
     totalCustomers,
     totalRevenue,
     totalBookingsCount: bookings.length,
-    pendingVerificationsCount: bookings.filter((b) => b.status === "pending" && b.payment?.proofUrl).length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pendingVerificationsCount: bookings.filter((b: any) => b.status === "pending" && b.payment?.proofUrl).length,
     revenueChartData,
     courtBookingStats,
     courtsStatus,
@@ -180,9 +188,12 @@ export async function getCustomersList() {
     orderBy: { createdAt: "desc" },
   });
 
-  return customers.map((c) => {
-    const paidBookings = c.bookings.filter((b) => b.status === "paid");
-    const totalSpent = paidBookings.reduce((sum, b) => sum + b.totalPrice, 0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return customers.map((c: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const paidBookings = c.bookings.filter((b: any) => b.status === "paid");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const totalSpent = paidBookings.reduce((sum: number, b: any) => sum + b.totalPrice, 0);
 
     return {
       id: c.id,
@@ -194,7 +205,8 @@ export async function getCustomersList() {
       totalBookingsCount: c.bookings.length,
       paidBookingsCount: paidBookings.length,
       totalSpent,
-      recentBookings: c.bookings.slice(0, 5).map((b) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      recentBookings: c.bookings.slice(0, 5).map((b: any) => ({
         id: b.id,
         courtName: b.court.name,
         date: b.bookingDate.toISOString().slice(0, 10),
@@ -308,16 +320,18 @@ export async function getAdminBookings(filters?: {
 }) {
   await requireAdmin();
 
-  const whereClause: Record<string, unknown> = {};
+  const whereClause: BookingWhereInput = {};
 
   if (filters?.status && filters.status !== "all") {
-    whereClause.status = filters.status;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    whereClause.status = filters.status as any;
   }
 
   if (filters?.courtId && filters.courtId !== "all") {
     whereClause.courtId = filters.courtId;
   } else if (filters?.courtType && filters.courtType !== "all") {
-    whereClause.court = { type: filters.courtType };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    whereClause.court = { type: filters.courtType as any };
   }
 
   if (filters?.dateFrom || filters?.dateTo) {
@@ -354,7 +368,8 @@ export async function getAdminBookings(filters?: {
     ],
   });
 
-  return bookings.map((b) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return bookings.map((b: any) => ({
     id: b.id,
     userId: b.userId,
     userName: b.user.name,
@@ -371,11 +386,11 @@ export async function getAdminBookings(filters?: {
     createdAt: b.createdAt.toISOString(),
     payment: b.payment
       ? {
-          method: b.payment.paymentMethod || "transfer",
-          proofUrl: b.payment.proofUrl,
-          status: b.payment.paymentStatus,
-          paidAt: b.payment.paidAt ? b.payment.paidAt.toISOString() : null,
-        }
+        method: b.payment.paymentMethod || "transfer",
+        proofUrl: b.payment.proofUrl,
+        status: b.payment.paymentStatus,
+        paidAt: b.payment.paidAt ? b.payment.paidAt.toISOString() : null,
+      }
       : null,
   }));
 }
