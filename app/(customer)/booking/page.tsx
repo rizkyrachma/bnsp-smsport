@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useTransition } from "react";
+import { useState, useEffect, useCallback, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,7 +8,7 @@ import { COURT_IMAGES, BRAND_INFO } from "@/lib/assets";
 import { CourtSchedule, SlotStatus } from "@/lib/schedule";
 import ClientNavbar from "../_components/ClientNavbar";
 
-export default function BookingPage() {
+function BookingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialCourtId = searchParams.get("courtId") || "";
@@ -132,7 +132,8 @@ export default function BookingPage() {
     }
   };
 
-  const filteredSchedules = schedules.filter((c) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const filteredSchedules = schedules.filter((c: any) => {
     if (selectedCategory === "all") return true;
     return c.courtType === selectedCategory;
   });
@@ -192,7 +193,8 @@ export default function BookingPage() {
                   : "bg-paper-white text-graphite border border-fog hover:bg-mist"
               }`}
             >
-              Futsal ({schedules.filter((s) => s.courtType === "futsal").length})
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              Futsal ({schedules.filter((s: any) => s.courtType === "futsal").length})
             </button>
             <button
               type="button"
@@ -203,7 +205,8 @@ export default function BookingPage() {
                   : "bg-paper-white text-graphite border border-fog hover:bg-mist"
               }`}
             >
-              Badminton ({schedules.filter((s) => s.courtType === "badminton").length})
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              Badminton ({schedules.filter((s: any) => s.courtType === "badminton").length})
             </button>
           </div>
         </div>
@@ -240,7 +243,8 @@ export default function BookingPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {filteredSchedules.map((court) => {
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {filteredSchedules.map((court: any) => {
               const isFutsal = court.courtType === "futsal";
               const imageAsset = isFutsal ? COURT_IMAGES.futsal : COURT_IMAGES.badminton;
 
@@ -289,7 +293,8 @@ export default function BookingPage() {
 
                   {/* Slots Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                    {court.slots.map((slot) => {
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {court.slots.map((slot: any) => {
                       const isSelected =
                         selectedCourt?.courtId === court.courtId &&
                         selectedSlot?.start === slot.start;
@@ -394,7 +399,7 @@ export default function BookingPage() {
               {/* Duration selector */}
               <div className="flex items-center gap-2 bg-mist border border-fog rounded-full p-1 shadow-subtle">
                 <span className="text-xs font-semibold text-graphite px-3">Durasi:</span>
-                {[1, 2, 3, 4].map((dur) => {
+                {[1, 2, 3, 4].map((dur: number) => {
                   const isAvailable = checkConsecutiveAvailable(selectedCourt, selectedSlot, dur);
                   return (
                     <button
@@ -486,5 +491,19 @@ export default function BookingPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-paper-white flex items-center justify-center text-carbon font-bold">
+          Memuat Halaman Booking...
+        </div>
+      }
+    >
+      <BookingPageContent />
+    </Suspense>
   );
 }

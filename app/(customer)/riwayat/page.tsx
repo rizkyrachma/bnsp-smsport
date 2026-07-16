@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { BRAND_INFO } from "@/lib/assets";
@@ -29,7 +29,7 @@ interface BookingItem {
   } | null;
 }
 
-export default function RiwayatPage() {
+function RiwayatPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const payBookingId = searchParams.get("payBooking") || "";
@@ -500,5 +500,19 @@ export default function RiwayatPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function RiwayatPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-paper-white flex items-center justify-center text-carbon font-bold">
+          Memuat Riwayat Booking...
+        </div>
+      }
+    >
+      <RiwayatPageContent />
+    </Suspense>
   );
 }

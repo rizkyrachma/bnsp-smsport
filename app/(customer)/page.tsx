@@ -22,8 +22,10 @@ export default async function CustomerHomePage() {
   ]);
 
   // Group courts by type to calculate starting/average prices if available from DB
-  const futsalCourts = dbCourts.filter((c) => c.type === "futsal");
-  const badmintonCourts = dbCourts.filter((c) => c.type === "badminton");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const futsalCourts = dbCourts.filter((c: any) => c.type === "futsal");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const badmintonCourts = dbCourts.filter((c: any) => c.type === "badminton");
 
   const futsalPrice =
     futsalCourts.length > 0 ? futsalCourts[0].pricePerHour : 150000;

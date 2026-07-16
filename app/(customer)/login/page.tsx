@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { BRAND_INFO } from "@/lib/assets";
 
-export default function CustomerLoginPage() {
+function CustomerLoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "register";
@@ -232,5 +232,19 @@ export default function CustomerLoginPage() {
         <p>© 2026 {BRAND_INFO.name}. Sistem Reservasi Real-Time.</p>
       </footer>
     </div>
+  );
+}
+
+export default function CustomerLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-paper-white flex items-center justify-center text-carbon font-bold">
+          Memuat Halaman Login...
+        </div>
+      }
+    >
+      <CustomerLoginPageContent />
+    </Suspense>
   );
 }
