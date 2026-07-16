@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  admin
+  customer
+}
+
+enum CourtType {
+  futsal
+  badminton
+}
+
+enum CourtStatus {
+  tersedia
+  dipesan
+  perbaikan
+}
+
+enum BookingStatus {
+  pending
+  paid
+  cancelled
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  phone     String?
+  password  String
+  role      Role      @default(customer)
+  createdAt DateTime  @default(now()) @map("created_at")
+  bookings  Booking[]
+
+  @@map("users")
+}
+
+model Court {
+  id           String      @id @default(cuid())
+  name         String
+  type         CourtType
+  pricePerHour Int         @map("price_per_hour")
+  status       CourtStatus @default(tersedia)
+  bookings     Booking[]
+
+  @@map("courts")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  courtId     String        @map("court_id")
+  bookingDate DateTime      @map("booking_date") @db.Date
+  startTime   DateTime      @map("start_time") @db.Timetz()
+  endTime     DateTime      @map("end_time") @db.Timetz()
+  totalPrice  Int           @map("total_price")
+  status      BookingStatus @default(pending)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  court   Court    @relation(fields: [courtId], references: [id])
+  payment Payment?
+
+  @@map("bookings")
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  bookingId     String    @unique @map("booking_id")
+  paymentMethod String?   @map("payment_method")
+  amount        Int
+  proofUrl      String?   @map("proof_url")
+  paymentStatus String    @default("pending") @map("payment_status")
+  paidAt        DateTime? @map("paid_at")
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
