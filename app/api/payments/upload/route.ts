@@ -59,25 +59,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upsert payment record
-    const payment = await prisma.payment.upsert({
-      where: { bookingId },
-      update: {
-        paymentMethod,
-        amount: booking.totalPrice,
-        proofUrl: proofUrl || null,
-        paymentStatus: "pending",
-      },
-      create: {
-        bookingId,
-        paymentMethod,
-        amount: booking.totalPrice,
-        proofUrl: proofUrl || null,
-        paymentStatus: "pending",
-      },
-    });
+    const isQris = paymentMethod === "qris";
+    const paymentStatus = isQris ? "verified" : "pending";
+    const paidAt = isQris ? new Date() : null;
 
-    return NextResponse.json({ success: true, payment });
+    const [payment, updatedBooking] = await prisma.$transaction([
+      prisma.payment.upsert({
+        where: { bookingId },
+        update: {
+          paymentMethod,
+          amount: booking.totalPrice,
+          proofUrl: isQris ? "QRIS Auto-Paid" : (proofUrl || null),
+          paymentStatus,
+          paidAt,
+        },
+        create: {
+          bookingId,
+          paymentMethod,
+          amount: booking.totalPrice,
+          proofUrl: isQris ? "QRIS Auto-Paid" : (proofUrl || null),
+          paymentStatus,
+          paidAt,
+        },
+      }),
+      prisma.booking.update({
+        where: { id: bookingId },
+        data: {
+          status: isQris ? "paid" : "pending",
+        },
+      }),
+    ]);
+
+    return NextResponse.json({ success: true, payment, booking: updatedBooking });
   } catch (error) {
     return NextResponse.json(
       { error: "Terjadi kesalahan server saat menyimpan data pembayaran." },

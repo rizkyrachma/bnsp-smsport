@@ -399,15 +399,28 @@ function RiwayatPageContent() {
               )}
 
               {payError && (
-                <p className="text-red-600 text-xs bg-red-50 p-2.5 rounded-xl border border-red-200">
-                  ⚠️ {payError}
-                </p>
+                <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
+                  <div className="text-red-500 text-lg shrink-0">⚠️</div>
+                  <div>
+                    <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                    <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{payError}</p>
+                  </div>
+                </div>
               )}
 
               {paySuccess && (
-                <p className="text-mint text-xs font-bold bg-mint-wash p-3 rounded-xl border border-mint/20 text-center">
-                  ✅ Bukti pembayaran berhasil disimpan! Admin sedang memeriksa pesananmu.
-                </p>
+                <div className="bg-emerald-50 border border-emerald-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
+                  <div className="text-emerald-500 text-lg shrink-0">✅</div>
+                  <div>
+                    <h4 className="font-bold text-[10px] text-emerald-800 uppercase tracking-wider">Berhasil</h4>
+                    <p className="text-emerald-700 text-xs mt-0.5 leading-relaxed">
+                      {paymentMethod === "qris" 
+                        ? "Pembayaran QRIS Berhasil! Pemesanan Anda kini telah lunas."
+                        : "Bukti pembayaran berhasil disimpan! Admin sedang memeriksa pesananmu."
+                      }
+                    </p>
+                  </div>
+                </div>
               )}
 
               <button
@@ -415,7 +428,10 @@ function RiwayatPageContent() {
                 disabled={uploading || paySuccess}
                 className="w-full bg-lavender text-white py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50"
               >
-                {uploading ? "Mengirim Data..." : "Kirim Bukti Pembayaran"}
+                {uploading 
+                  ? (paymentMethod === "qris" ? "Memproses Pembayaran..." : "Mengirim Data...") 
+                  : (paymentMethod === "qris" ? "Selesaikan Pembayaran (Simulasi)" : "Kirim Bukti Pembayaran")
+                }
               </button>
             </form>
           </div>

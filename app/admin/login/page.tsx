@@ -9,6 +9,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -99,19 +100,32 @@ export default function AdminLoginPage() {
               <label htmlFor="admin-password" className="block text-xs font-bold text-graphite mb-1.5 uppercase tracking-wider">
                 Password Admin <span className="text-ember">*</span>
               </label>
-              <input
-                id="admin-password"
-                name="password"
-                type="password"
-                required
-                placeholder="••••••••"
-                className="w-full bg-linen border border-fog rounded-xl px-4 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:border-lavender transition placeholder-ash/60 shadow-subtle"
-              />
+              <div className="relative">
+                <input
+                  id="admin-password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="••••••••"
+                  className="w-full bg-linen border border-fog rounded-xl pl-4 pr-20 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:border-lavender transition placeholder-ash/60 shadow-subtle"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-ash hover:text-carbon transition text-[10px] font-bold uppercase tracking-wider"
+                >
+                  {showPassword ? "Sembunyikan" : "Tampilkan"}
+                </button>
+              </div>
             </div>
 
             {error && (
-              <div className="bg-ember/10 border border-ember/20 text-ember p-3 rounded-xl text-xs font-bold text-center">
-                {error}
+              <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
+                <div className="text-red-500 text-lg shrink-0">⚠️</div>
+                <div>
+                  <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                  <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{error}</p>
+                </div>
               </div>
             )}
 

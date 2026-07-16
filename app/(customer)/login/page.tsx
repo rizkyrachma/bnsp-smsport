@@ -13,6 +13,7 @@ function CustomerLoginPageContent() {
   const [isRegistering, setIsRegistering] = useState(initialTab);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setIsRegistering(searchParams.get("tab") === "register");
@@ -174,20 +175,32 @@ function CustomerLoginPageContent() {
               <label htmlFor="password" className="block text-xs font-bold text-carbon mb-1">
                 Password <span className="text-red-500">*</span>
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                placeholder="••••••••"
-                className="w-full bg-mist border border-fog rounded-xl px-4 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:bg-white transition shadow-subtle placeholder-ash"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="••••••••"
+                  className="w-full bg-mist border border-fog rounded-xl pl-4 pr-20 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:bg-white transition shadow-subtle placeholder-ash"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-ash hover:text-carbon transition text-[10px] font-bold uppercase tracking-wider"
+                >
+                  {showPassword ? "Sembunyikan" : "Tampilkan"}
+                </button>
+              </div>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-xs font-semibold text-center flex items-center justify-center gap-2">
-                <span>⚠️</span>
-                <span>{error}</span>
+              <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
+                <div className="text-red-500 text-lg shrink-0">⚠️</div>
+                <div>
+                  <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                  <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{error}</p>
+                </div>
               </div>
             )}
 
