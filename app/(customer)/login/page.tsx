@@ -182,14 +182,24 @@ function CustomerLoginPageContent() {
                   type={showPassword ? "text" : "password"}
                   required
                   placeholder="••••••••"
-                  className="w-full bg-mist border border-fog rounded-xl pl-4 pr-20 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:bg-white transition shadow-subtle placeholder-ash"
+                  className="w-full bg-mist border border-fog rounded-xl pl-4 pr-12 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:bg-white transition shadow-subtle placeholder-ash"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-ash hover:text-carbon transition text-[10px] font-bold uppercase tracking-wider"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-ash hover:text-carbon transition"
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
                 >
-                  {showPassword ? "Sembunyikan" : "Tampilkan"}
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12c1.388 4.178 5.325 7.178 9.963 7.178.966 0 1.9-.125 2.784-.36m3.111-1.246A10.743 10.743 0 0 0 22.066 12c-1.388-4.178-5.325-7.178-9.963-7.178-.966 0-1.9.125-2.784.36m-2.24 2.24L20.24 20.24M12.225 12.225a3 3 0 0 0-4.45-4.45" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                  )}
                 </button>
               </div>
             </div>

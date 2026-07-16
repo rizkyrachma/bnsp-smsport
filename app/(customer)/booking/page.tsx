@@ -22,11 +22,12 @@ function BookingPageContent() {
     return jakartaTime.toISOString().slice(0, 10);
   };
 
-  const [selectedDate, setSelectedDate] = useState<string>(getTodayStr());
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<"all" | "futsal" | "badminton">("all");
   const [schedules, setSchedules] = useState<CourtSchedule[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [mounted, setMounted] = useState<boolean>(false);
 
   // Selected reservation state
   const [selectedCourt, setSelectedCourt] = useState<CourtSchedule | null>(null);
@@ -59,7 +60,14 @@ function BookingPageContent() {
   }, [initialCourtId, selectedCourt]);
 
   useEffect(() => {
-    fetchSchedule(selectedDate);
+    setMounted(true);
+    setSelectedDate(getTodayStr());
+  }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchSchedule(selectedDate);
+    }
   }, [selectedDate, fetchSchedule]);
 
   // Handle slot click
@@ -162,7 +170,7 @@ function BookingPageContent() {
             <input
               id="date"
               type="date"
-              min={getTodayStr()}
+              min={mounted ? getTodayStr() : undefined}
               value={selectedDate}
               onChange={(e) => {
                 setSelectedDate(e.target.value);
