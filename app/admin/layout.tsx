@@ -10,9 +10,9 @@ export default async function AdminAuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-carbon text-white flex flex-col lg:flex-row font-sans selection:bg-iris selection:text-white">
+    <div className="min-h-screen bg-mist text-carbon flex flex-col lg:flex-row font-sans selection:bg-lavender selection:text-white">
       <AdminSidebar />
-      <div className="flex-grow min-w-0 flex flex-col">{children}</div>
+      <div className="flex-grow min-w-0 flex flex-col overflow-x-hidden">{children}</div>
     </div>
   );
 }

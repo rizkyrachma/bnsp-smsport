@@ -80,9 +80,9 @@ export default function AdminCustomersPage() {
   return (
     <main className="p-6 sm:p-8 space-y-8 max-w-7xl mx-auto w-full pb-20">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ash/20 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-fog pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-carbon tracking-tight">
             Kelola Pelanggan
           </h1>
           <p className="text-xs text-ash mt-1">
@@ -94,19 +94,19 @@ export default function AdminCustomersPage() {
         <div className="w-full sm:w-72">
           <input
             type="text"
-            placeholder="🔍 Cari nama, email, atau no. HP..."
+            placeholder="Cari nama, email, atau no. HP..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#222436] border border-ash/30 rounded-full px-4 py-2.5 text-xs text-white placeholder-ash/50 focus:outline-none focus:ring-2 focus:ring-iris focus:border-iris transition"
+            className="w-full bg-paper-white border border-fog rounded-full px-4 py-2.5 text-xs text-carbon placeholder-ash/60 focus:outline-none focus:ring-2 focus:ring-lavender focus:border-lavender transition shadow-subtle"
           />
         </div>
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-[#222436] border border-ash/20 rounded-3xl overflow-hidden shadow-subtle">
+      <div className="bg-paper-white border border-fog rounded-3xl overflow-hidden shadow-subtle">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-carbon/80 text-ash font-bold uppercase tracking-wider border-b border-ash/20">
+            <thead className="bg-linen text-graphite font-bold uppercase tracking-wider border-b border-fog">
               <tr>
                 <th className="py-4 px-6">Pelanggan</th>
                 <th className="py-4 px-6">Kontak & Telepon</th>
@@ -116,7 +116,7 @@ export default function AdminCustomersPage() {
                 <th className="py-4 px-6 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ash/10">
+            <tbody className="divide-y divide-fog">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-ash animate-pulse">
@@ -131,47 +131,47 @@ export default function AdminCustomersPage() {
                 </tr>
               ) : (
                 filteredCustomers.map((c) => (
-                  <tr key={c.id} className="hover:bg-carbon/40 transition">
+                  <tr key={c.id} className="hover:bg-mist transition">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-iris/20 text-iris font-bold flex items-center justify-center text-xs">
+                        <div className="w-8 h-8 rounded-full bg-lavender/10 text-lavender font-bold flex items-center justify-center text-xs border border-lavender/20">
                           {c.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-bold text-white text-sm">{c.name}</p>
+                          <p className="font-bold text-carbon text-sm">{c.name}</p>
                           <p className="text-[11px] text-ash">Terdaftar: {new Date(c.createdAt).toLocaleDateString("id-ID")}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <p className="text-white font-medium">{c.email}</p>
+                      <p className="text-carbon font-medium">{c.email}</p>
                       <p className="text-ash text-[11px]">{c.phone}</p>
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <span className="bg-carbon px-3 py-1 rounded-full border border-ash/20 font-bold text-white">
+                      <span className="bg-linen px-3 py-1 rounded-full border border-fog font-bold text-carbon">
                         {c.totalBookingsCount} kali
                       </span>
                       <p className="text-[10px] text-ash mt-0.5">({c.paidBookingsCount} lunas)</p>
                     </td>
-                    <td className="py-4 px-6 text-right font-black text-emerald-400 text-sm">
+                    <td className="py-4 px-6 text-right font-black text-mint text-sm">
                       Rp {c.totalSpent.toLocaleString("id-ID")}
                     </td>
                     <td className="py-4 px-6 text-center">
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider border ${
                           c.isBlocked
-                            ? "bg-red-500/15 text-red-400 border-red-500/30"
-                            : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                            ? "bg-ember/10 text-ember border-ember/20"
+                            : "bg-mint-wash text-mint border-mint/30"
                         }`}
                       >
-                        {c.isBlocked ? "🚫 DIBLOKIR" : "🟢 AKTIF"}
+                        {c.isBlocked ? "DIBLOKIR" : "AKTIF"}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-right space-x-2">
                       <button
                         type="button"
                         onClick={() => setSelectedCustomer(c)}
-                        className="bg-carbon hover:bg-carbon/80 text-iris border border-iris/30 px-3 py-1.5 rounded-xl font-bold transition"
+                        className="bg-linen hover:bg-mist text-graphite hover:text-carbon border border-fog px-3 py-1.5 rounded-xl font-bold transition"
                       >
                         Detail
                       </button>
@@ -181,8 +181,8 @@ export default function AdminCustomersPage() {
                         onClick={() => handleToggleBlock(c)}
                         className={`px-3 py-1.5 rounded-xl font-bold transition disabled:opacity-50 ${
                           c.isBlocked
-                            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
-                            : "bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25"
+                            ? "bg-mint-wash text-mint border border-mint/30 hover:opacity-80"
+                            : "bg-ember/10 text-ember border border-ember/20 hover:opacity-80"
                         }`}
                       >
                         {updatingId === c.id
@@ -202,46 +202,46 @@ export default function AdminCustomersPage() {
 
       {/* DETAIL CUSTOMER MODAL */}
       {selectedCustomer && (
-        <div className="fixed inset-0 z-50 bg-carbon/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-[#222436] border border-ash/20 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-subtle-3 space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-ash/20 pb-4">
+        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-subtle-3 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-fog pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-iris/20 text-iris font-black flex items-center justify-center text-lg">
+                <div className="w-12 h-12 rounded-full bg-lavender/10 text-lavender font-black flex items-center justify-center text-lg border border-lavender/20">
                   {selectedCustomer.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-white">{selectedCustomer.name}</h3>
+                  <h3 className="font-bold text-lg text-carbon">{selectedCustomer.name}</h3>
                   <p className="text-xs text-ash">{selectedCustomer.email} | {selectedCustomer.phone}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedCustomer(null)}
-                className="w-8 h-8 rounded-full bg-carbon text-ash hover:text-white flex items-center justify-center font-bold"
+                className="w-8 h-8 rounded-full bg-linen text-ash hover:text-carbon flex items-center justify-center font-bold border border-fog transition"
               >
                 ✕
               </button>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-carbon/60 border border-ash/20 p-3 rounded-2xl text-center">
+              <div className="bg-linen border border-fog p-3 rounded-2xl text-center">
                 <p className="text-[10px] text-ash font-bold uppercase">Total Pesanan</p>
-                <p className="text-xl font-black text-white mt-1">{selectedCustomer.totalBookingsCount}</p>
+                <p className="text-xl font-black text-carbon mt-1">{selectedCustomer.totalBookingsCount}</p>
               </div>
-              <div className="bg-carbon/60 border border-ash/20 p-3 rounded-2xl text-center">
+              <div className="bg-linen border border-fog p-3 rounded-2xl text-center">
                 <p className="text-[10px] text-ash font-bold uppercase">Pesanan Lunas</p>
-                <p className="text-xl font-black text-emerald-400 mt-1">{selectedCustomer.paidBookingsCount}</p>
+                <p className="text-xl font-black text-mint mt-1">{selectedCustomer.paidBookingsCount}</p>
               </div>
-              <div className="bg-carbon/60 border border-ash/20 p-3 rounded-2xl text-center">
+              <div className="bg-linen border border-fog p-3 rounded-2xl text-center">
                 <p className="text-[10px] text-ash font-bold uppercase">Total Belanja</p>
-                <p className="text-sm font-black text-iris mt-1.5">Rp {selectedCustomer.totalSpent.toLocaleString("id-ID")}</p>
+                <p className="text-sm font-black text-lavender mt-1.5">Rp {selectedCustomer.totalSpent.toLocaleString("id-ID")}</p>
               </div>
             </div>
 
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-ash mb-3">5 Riwayat Pesanan Terakhir</h4>
               {selectedCustomer.recentBookings.length === 0 ? (
-                <p className="text-xs text-ash text-center py-6 bg-carbon/40 rounded-2xl border border-ash/10">
+                <p className="text-xs text-ash text-center py-6 bg-linen rounded-2xl border border-fog">
                   Belum ada riwayat pesanan.
                 </p>
               ) : (
@@ -249,21 +249,21 @@ export default function AdminCustomersPage() {
                   {selectedCustomer.recentBookings.map((b) => (
                     <div
                       key={b.id}
-                      className="bg-carbon/80 border border-ash/20 rounded-2xl p-3 flex items-center justify-between"
+                      className="bg-linen border border-fog rounded-2xl p-3 flex items-center justify-between"
                     >
                       <div>
-                        <p className="font-bold text-xs text-white">{b.courtName}</p>
+                        <p className="font-bold text-xs text-carbon">{b.courtName}</p>
                         <p className="text-[11px] text-ash">Tanggal: {b.date}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-xs text-white">Rp {b.totalPrice.toLocaleString("id-ID")}</p>
+                        <p className="font-bold text-xs text-carbon">Rp {b.totalPrice.toLocaleString("id-ID")}</p>
                         <span
                           className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase inline-block mt-0.5 ${
                             b.status === "paid"
-                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                              ? "bg-mint-wash text-mint border border-mint/30"
                               : b.status === "pending"
-                              ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                              : "bg-red-500/15 text-red-400 border border-red-500/30"
+                              ? "bg-amber/10 text-amber border border-amber/20"
+                              : "bg-ember/10 text-ember border border-ember/20"
                           }`}
                         >
                           {b.status}
@@ -275,22 +275,22 @@ export default function AdminCustomersPage() {
               )}
             </div>
 
-            <div className="pt-4 border-t border-ash/20 flex justify-between items-center">
+            <div className="pt-4 border-t border-fog flex justify-between items-center">
               <button
                 type="button"
                 onClick={() => handleToggleBlock(selectedCustomer)}
                 className={`px-4 py-2 rounded-full font-bold text-xs transition ${
                   selectedCustomer.isBlocked
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                    : "bg-red-500/20 text-red-400 border border-red-500/40"
+                    ? "bg-mint-wash text-mint border border-mint/30 hover:opacity-80"
+                    : "bg-ember/10 text-ember border border-ember/20 hover:opacity-80"
                 }`}
               >
-                {selectedCustomer.isBlocked ? "✅ Aktifkan Akun Ini" : "🚫 Blokir & Nonaktifkan Akun Ini"}
+                {selectedCustomer.isBlocked ? "Aktifkan Akun Ini" : "Blokir & Nonaktifkan Akun Ini"}
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedCustomer(null)}
-                className="bg-carbon text-white px-6 py-2 rounded-full font-bold text-xs border border-ash/30 hover:bg-ash/20 transition"
+                className="bg-linen hover:bg-mist text-carbon px-6 py-2 rounded-full font-bold text-xs border border-fog transition"
               >
                 Tutup
               </button>

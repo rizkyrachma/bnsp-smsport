@@ -87,9 +87,9 @@ export default function AdminRiwayatPage() {
   return (
     <main className="p-6 sm:p-8 space-y-8 max-w-7xl mx-auto w-full pb-20">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ash/20 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-fog pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-carbon tracking-tight">
             Verifikasi &amp; Riwayat Seluruh Reservasi
           </h1>
           <p className="text-xs text-ash mt-1">
@@ -101,31 +101,31 @@ export default function AdminRiwayatPage() {
         <div className="w-full sm:w-72">
           <input
             type="text"
-            placeholder="🔍 Cari nama pelanggan atau email..."
+            placeholder="Cari nama pelanggan atau email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#222436] border border-ash/30 rounded-full px-4 py-2.5 text-xs text-white placeholder-ash/50 focus:outline-none focus:ring-2 focus:ring-iris transition"
+            className="w-full bg-paper-white border border-fog rounded-full px-4 py-2.5 text-xs text-carbon placeholder-ash/60 focus:outline-none focus:ring-2 focus:ring-lavender transition shadow-subtle"
           />
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-4 bg-[#222436] p-4 rounded-3xl border border-ash/20">
+      <div className="flex flex-wrap items-center gap-4 bg-linen p-4 rounded-3xl border border-fog">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-ash uppercase">Status:</span>
-          <div className="flex items-center gap-1 bg-carbon p-1 rounded-full border border-ash/20">
+          <div className="flex items-center gap-1 bg-paper-white p-1 rounded-full border border-fog">
             {[
               { label: "Semua", val: "all" },
-              { label: "⏳ Menunggu Verifikasi", val: "pending" },
-              { label: "🟢 Lunas", val: "paid" },
-              { label: "🔴 Dibatalkan", val: "cancelled" },
+              { label: "Menunggu Verifikasi", val: "pending" },
+              { label: "Lunas", val: "paid" },
+              { label: "Dibatalkan", val: "cancelled" },
             ].map((s) => (
               <button
                 key={s.val}
                 type="button"
                 onClick={() => setStatusFilter(s.val)}
                 className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                  statusFilter === s.val ? "bg-iris text-white shadow-subtle" : "text-ash hover:text-white"
+                  statusFilter === s.val ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
                 }`}
               >
                 {s.label}
@@ -136,18 +136,18 @@ export default function AdminRiwayatPage() {
 
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-ash uppercase">Kategori:</span>
-          <div className="flex items-center gap-1 bg-carbon p-1 rounded-full border border-ash/20">
+          <div className="flex items-center gap-1 bg-paper-white p-1 rounded-full border border-fog">
             {[
               { label: "Semua Lapangan", val: "all" },
-              { label: "⚽ Futsal", val: "futsal" },
-              { label: "🏸 Badminton", val: "badminton" },
+              { label: "Futsal", val: "futsal" },
+              { label: "Badminton", val: "badminton" },
             ].map((c) => (
               <button
                 key={c.val}
                 type="button"
                 onClick={() => setCourtTypeFilter(c.val)}
                 className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                  courtTypeFilter === c.val ? "bg-iris text-white shadow-subtle" : "text-ash hover:text-white"
+                  courtTypeFilter === c.val ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
                 }`}
               >
                 {c.label}
@@ -157,11 +157,11 @@ export default function AdminRiwayatPage() {
         </div>
       </div>
 
-      {/* Bookings List Table / Cards */}
-      <div className="bg-[#222436] border border-ash/20 rounded-3xl overflow-hidden shadow-subtle">
+      {/* Bookings List Table */}
+      <div className="bg-paper-white border border-fog rounded-3xl overflow-hidden shadow-subtle">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-carbon/80 text-ash font-bold uppercase tracking-wider border-b border-ash/20">
+            <thead className="bg-linen text-graphite font-bold uppercase tracking-wider border-b border-fog">
               <tr>
                 <th className="py-4 px-6">Pelanggan</th>
                 <th className="py-4 px-6">Lapangan &amp; Waktu</th>
@@ -171,7 +171,7 @@ export default function AdminRiwayatPage() {
                 <th className="py-4 px-6 text-right">Aksi Verifikasi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ash/10">
+            <tbody className="divide-y divide-fog">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-ash animate-pulse">
@@ -188,22 +188,22 @@ export default function AdminRiwayatPage() {
                 bookings.map((b) => {
                   const isPendingUpload = b.status === "pending" && b.payment?.proofUrl;
                   return (
-                    <tr key={b.id} className={`hover:bg-carbon/40 transition ${isPendingUpload ? "bg-amber-500/5" : ""}`}>
+                    <tr key={b.id} className={`hover:bg-mist transition ${isPendingUpload ? "bg-amber/5" : ""}`}>
                       <td className="py-4 px-6">
-                        <p className="font-bold text-white text-sm">{b.userName}</p>
+                        <p className="font-bold text-carbon text-sm">{b.userName}</p>
                         <p className="text-[11px] text-ash">{b.userEmail}</p>
-                        <p className="text-[11px] text-iris">{b.userPhone}</p>
+                        <p className="text-[11px] text-lavender font-semibold">{b.userPhone}</p>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="bg-carbon px-2.5 py-0.5 rounded-full text-[10px] font-bold text-ash border border-ash/20 uppercase">
+                        <span className="bg-linen px-2.5 py-0.5 rounded-full text-[10px] font-bold text-graphite border border-fog uppercase">
                           {b.courtType}
                         </span>
-                        <p className="font-bold text-white mt-1">{b.courtName}</p>
+                        <p className="font-bold text-carbon mt-1">{b.courtName}</p>
                         <p className="text-[11px] text-ash">
-                          📅 {b.bookingDate} | 🕒 {b.startTime} - {b.endTime} WIB
+                          {b.bookingDate} | {b.startTime} - {b.endTime} WIB
                         </p>
                       </td>
-                      <td className="py-4 px-6 text-right font-black text-white text-sm">
+                      <td className="py-4 px-6 text-right font-black text-carbon text-sm">
                         Rp {b.totalPrice.toLocaleString("id-ID")}
                       </td>
                       <td className="py-4 px-6 text-center">
@@ -211,9 +211,8 @@ export default function AdminRiwayatPage() {
                           <button
                             type="button"
                             onClick={() => setSelectedProof(b.payment!.proofUrl)}
-                            className="bg-iris/15 text-iris border border-iris/30 px-3 py-1 rounded-xl text-[11px] font-bold hover:bg-iris/25 transition inline-flex items-center gap-1 shadow-subtle"
+                            className="bg-lavender/10 text-lavender border border-lavender/20 px-3 py-1 rounded-xl text-[11px] font-bold hover:bg-lavender/20 transition inline-flex items-center gap-1 shadow-subtle"
                           >
-                            <span>👁️</span>
                             <span>Lihat Bukti Transfer</span>
                           </button>
                         ) : (
@@ -225,13 +224,13 @@ export default function AdminRiwayatPage() {
                         <span
                           className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-wider border ${
                             b.status === "paid"
-                              ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                              ? "bg-mint-wash text-mint border-mint/30"
                               : b.status === "pending"
-                              ? "bg-amber-500/15 text-amber-400 border-amber-500/30 animate-pulse"
-                              : "bg-red-500/15 text-red-400 border-red-500/30"
+                              ? "bg-amber/10 text-amber border-amber/20 animate-pulse"
+                              : "bg-ember/10 text-ember border-ember/20"
                           }`}
                         >
-                          {b.status === "paid" ? "🟢 LUNAS / TERVERIFIKASI" : b.status === "pending" ? "⏳ MENUNGGU / PENDING" : "🔴 DIBATALKAN"}
+                          {b.status === "paid" ? "LUNAS / TERVERIFIKASI" : b.status === "pending" ? "MENUNGGU / PENDING" : "DIBATALKAN"}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
@@ -241,15 +240,15 @@ export default function AdminRiwayatPage() {
                               type="button"
                               disabled={verifyingId === b.id}
                               onClick={() => handleVerify(b.id, "approve")}
-                              className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs shadow-subtle transition disabled:opacity-50 flex items-center gap-1"
+                              className="bg-mint hover:opacity-90 text-white px-3 py-1.5 rounded-xl font-bold text-xs shadow-subtle transition disabled:opacity-50"
                             >
-                              <span>✓ Setujui</span>
+                              ✓ Setujui
                             </button>
                             <button
                               type="button"
                               disabled={verifyingId === b.id}
                               onClick={() => setRejectionModal({ bookingId: b.id })}
-                              className="bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-xl font-bold text-xs transition disabled:opacity-50"
+                              className="bg-ember/10 hover:bg-ember/20 text-ember border border-ember/20 px-3 py-1.5 rounded-xl font-bold text-xs transition disabled:opacity-50"
                             >
                               ✕ Tolak
                             </button>
@@ -269,25 +268,25 @@ export default function AdminRiwayatPage() {
 
       {/* PROOF IMAGE MODAL */}
       {selectedProof && (
-        <div className="fixed inset-0 z-50 bg-carbon/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-[#222436] border border-ash/20 rounded-3xl max-w-lg w-full p-6 shadow-subtle-3 text-center space-y-4">
-            <div className="flex items-center justify-between border-b border-ash/20 pb-3">
-              <h3 className="font-bold text-base text-white">Bukti Transfer Pembayaran</h3>
+        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-lg w-full p-6 shadow-subtle-3 text-center space-y-4">
+            <div className="flex items-center justify-between border-b border-fog pb-3">
+              <h3 className="font-bold text-base text-carbon">Bukti Transfer Pembayaran</h3>
               <button
                 type="button"
                 onClick={() => setSelectedProof(null)}
-                className="w-8 h-8 rounded-full bg-carbon text-ash hover:text-white flex items-center justify-center font-bold"
+                className="w-8 h-8 rounded-full bg-linen text-ash hover:text-carbon flex items-center justify-center font-bold border border-fog"
               >
                 ✕
               </button>
             </div>
-            <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-ash/20 bg-carbon">
+            <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-fog bg-linen">
               <Image src={selectedProof} alt="Bukti Transfer" fill className="object-contain" />
             </div>
             <button
               type="button"
               onClick={() => setSelectedProof(null)}
-              className="w-full bg-iris text-white py-2.5 rounded-full font-bold text-xs shadow-subtle"
+              className="w-full bg-lavender text-white py-2.5 rounded-full font-bold text-xs shadow-subtle"
             >
               Tutup Preview
             </button>
@@ -297,9 +296,9 @@ export default function AdminRiwayatPage() {
 
       {/* REJECTION REASON MODAL */}
       {rejectionModal && (
-        <div className="fixed inset-0 z-50 bg-carbon/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-[#222436] border border-ash/20 rounded-3xl max-w-sm w-full p-6 shadow-subtle-3 space-y-4">
-            <h3 className="font-bold text-base text-white">Alasan Penolakan Pembayaran</h3>
+        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 shadow-subtle-3 space-y-4">
+            <h3 className="font-bold text-base text-carbon">Alasan Penolakan Pembayaran</h3>
             <p className="text-xs text-ash">
               Berikan alasan singkat mengapa bukti transfer ini ditolak (misal: nominal tidak sesuai atau gambar buram).
             </p>
@@ -307,7 +306,7 @@ export default function AdminRiwayatPage() {
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Contoh: Nominal transfer kurang dari tagihan / bukti transfer buram."
-              className="w-full bg-carbon border border-ash/30 rounded-2xl p-3 text-xs text-white placeholder-ash/50 focus:outline-none focus:ring-2 focus:ring-red-400 h-24"
+              className="w-full bg-linen border border-fog rounded-2xl p-3 text-xs text-carbon placeholder-ash/60 focus:outline-none focus:ring-2 focus:ring-ember h-24"
             />
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
@@ -316,7 +315,7 @@ export default function AdminRiwayatPage() {
                   setRejectionModal(null);
                   setRejectionReason("");
                 }}
-                className="px-4 py-2 rounded-full font-bold text-xs bg-carbon text-ash hover:text-white border border-ash/20"
+                className="px-4 py-2 rounded-full font-bold text-xs bg-linen text-graphite hover:text-carbon border border-fog"
               >
                 Batal
               </button>
@@ -324,7 +323,7 @@ export default function AdminRiwayatPage() {
                 type="button"
                 disabled={verifyingId === rejectionModal.bookingId}
                 onClick={() => handleVerify(rejectionModal.bookingId, "reject", rejectionReason)}
-                className="px-5 py-2 rounded-full font-bold text-xs bg-red-500 text-white shadow-subtle hover:bg-red-600 disabled:opacity-50"
+                className="px-5 py-2 rounded-full font-bold text-xs bg-ember text-white shadow-subtle hover:opacity-90 disabled:opacity-50"
               >
                 Konfirmasi Tolak
               </button>
