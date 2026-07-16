@@ -50,6 +50,12 @@ export async function createBooking(input: CreateBookingInput) {
   try {
     const booking = await prisma.$transaction(
       async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]> extends [infer T] ? T : never) => {
+        // Check if user is active/blocked
+        const user = await tx.user.findUnique({ where: { id: userId } });
+        if (!user || user.isBlocked) {
+          throw new Error("Akun Anda telah dinonaktifkan/diblokir oleh Admin.");
+        }
+
         // Row lock: check overlap with SELECT ... FOR UPDATE (§4.1)
         const conflicts = await tx.$queryRaw<{ id: string }[]>`
           SELECT id FROM bookings

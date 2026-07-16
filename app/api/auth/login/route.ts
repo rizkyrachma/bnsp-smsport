@@ -24,6 +24,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (user.isBlocked) {
+      return NextResponse.json(
+        { error: "Akun Anda telah dinonaktifkan/diblokir oleh Admin karena pelanggaran aturan/aktivitas bermasalah." },
+        { status: 403 }
+      );
+    }
+
     // Role-based automatic redirect (§2.2 user rule override: unified login page)
     const redirectUrl = user.role === "admin" ? "/admin/dashboard" : "/";
 

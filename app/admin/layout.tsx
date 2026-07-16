@@ -1,14 +1,18 @@
+import AdminSidebar from "./_components/AdminSidebar";
+
 /**
- * Admin layout — server-side role check as a second layer of protection
- * (middleware.ts is the first layer). §2.1: proteksi role admin di sini.
- * 
- * Note: /admin/login has its own layout (no auth check) via route group,
- * so this layout only applies to authenticated admin pages.
+ * Admin layout — wraps authenticated admin pages with the AdminSidebar & Dark Theme container.
+ * Note: AdminSidebar automatically hides itself when rendered on /admin/login.
  */
 export default async function AdminAuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-carbon text-white flex flex-col lg:flex-row font-sans selection:bg-iris selection:text-white">
+      <AdminSidebar />
+      <div className="flex-grow min-w-0 flex flex-col">{children}</div>
+    </div>
+  );
 }
