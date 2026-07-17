@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { BRAND_INFO } from "@/lib/assets";
 import ClientNavbar from "../_components/ClientNavbar";
+import CountdownBadge from "../_components/CountdownBadge";
 
 interface BookingItem {
   id: string;
@@ -291,10 +292,10 @@ function RiwayatPageContent() {
                       </span>
 
                       {isPending && (
-                        <span className="text-xs font-semibold px-3 py-0.5 rounded-full bg-amber/15 text-amber border border-amber/20 flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-amber animate-pulse" />
-                          {hasSubmittedProof ? "Menunggu Verifikasi Admin" : "Pending (Hold Slot 15 Menit)"}
-                        </span>
+                        <CountdownBadge
+                          createdAt={item.createdAt}
+                          onExpire={() => fetchBookings()}
+                        />
                       )}
 
                       {isPaid && (
@@ -425,7 +426,7 @@ function RiwayatPageContent() {
                     <div>
                       <h4 className="font-bold text-[10px] text-amber-800 uppercase tracking-wider">QRIS Kadaluarsa</h4>
                       <p className="text-amber-700 text-xs mt-0.5 leading-relaxed">
-                        Batas waktu pembayaran 15 menit telah habis. Kode QRIS sebelumnya tidak dapat digunakan lagi.
+                        Batas waktu pembayaran 10 menit telah habis. Kode QRIS sebelumnya tidak dapat digunakan lagi.
                       </p>
                     </div>
                   </div>
@@ -470,6 +471,15 @@ function RiwayatPageContent() {
                       </div>
                     ) : (
                       <>
+                        <div className="mb-2">
+                          <CountdownBadge
+                            createdAt={activePayBooking.createdAt}
+                            onExpire={() => {
+                              fetchBookings();
+                              setActivePayBooking((prev) => prev ? { ...prev, status: "cancelled" } : null);
+                            }}
+                          />
+                        </div>
                         <img 
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
                             typeof window !== "undefined"

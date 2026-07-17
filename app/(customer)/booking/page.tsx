@@ -475,7 +475,7 @@ function BookingPageContent() {
                   {selectedCourt.courtName} — Jam {selectedSlot.start} WIB
                 </h3>
                 <p className="text-xs text-graphite mt-0.5">
-                  Hold slot otomatis 15 menit setelah konfirmasi.
+                  Hold slot otomatis 10 menit setelah konfirmasi.
                 </p>
               </div>
             </div>

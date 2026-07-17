@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
             <div class="bg-white border border-red-200/60 rounded-3xl p-8 max-w-sm w-full text-center shadow-lg">
               <div class="text-red-500 text-5xl mb-4">⏳</div>
               <h1 class="text-xl font-bold text-red-800">QRIS Sudah Kadaluarsa</h1>
-              <p class="text-xs text-red-600 mt-2 leading-relaxed">Batas waktu pembayaran 15 menit telah habis. Silakan reaktivasi pesanan Anda kembali dari menu Riwayat Booking di aplikasi.</p>
+              <p class="text-xs text-red-600 mt-2 leading-relaxed">Batas waktu pembayaran 10 menit telah habis. Silakan reaktivasi pesanan Anda kembali dari menu Riwayat Booking di aplikasi.</p>
             </div>
           </body>
         </html>`,
@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
         `<html>
           <body style="font-family: sans-serif; text-align: center; padding: 50px;">
             <h2>⏳ Transaksi Kadaluarsa</h2>
-            <p>Batas waktu pembayaran 15 menit telah habis.</p>
+            <p>Batas waktu pembayaran 10 menit telah habis.</p>
           </body>
         </html>`,
         { headers: { "Content-Type": "text/html" }, status: 400 }

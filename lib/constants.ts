@@ -1,5 +1,5 @@
 /** Booking hold duration before auto-cancel (in minutes) */
-export const HOLD_DURATION_MINUTES = 15;
+export const HOLD_DURATION_MINUTES = 10;
 
 /** Booking hold duration in milliseconds */
 export const HOLD_DURATION_MS = HOLD_DURATION_MINUTES * 60 * 1000;

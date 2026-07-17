@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { getAdminBookings, verifyPaymentAction } from "@/lib/admin-actions";
+import CountdownBadge from "@/app/(customer)/_components/CountdownBadge";
 
 interface AdminBookingItem {
   id: string;
@@ -232,17 +233,22 @@ export default function AdminRiwayatPage() {
                         Rp {b.totalPrice.toLocaleString("id-ID")}
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-wider border ${
-                            b.status === "paid"
-                              ? "bg-mint-wash text-mint border-mint/30"
-                              : b.status === "pending"
-                              ? "bg-amber/10 text-amber border-amber/20 animate-pulse"
-                              : "bg-ember/10 text-ember border-ember/20"
-                          }`}
-                        >
-                          {b.status === "paid" ? "LUNAS / TERVERIFIKASI" : b.status === "pending" ? "MENUNGGU / PENDING" : "DIBATALKAN"}
-                        </span>
+                        {b.status === "pending" ? (
+                          <CountdownBadge
+                            createdAt={b.createdAt}
+                            onExpire={() => fetchBookings()}
+                          />
+                        ) : (
+                          <span
+                            className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-wider border ${
+                              b.status === "paid"
+                                ? "bg-mint-wash text-mint border-mint/30"
+                                : "bg-ember/10 text-ember border-ember/20"
+                            }`}
+                          >
+                            {b.status === "paid" ? "LUNAS / TERVERIFIKASI" : "DIBATALKAN"}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );

@@ -86,7 +86,7 @@ export default async function CustomerHomePage() {
               <svg className="w-4 h-4 text-mint" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              Hold Slot Otomatis 15 Menit
+              Hold Slot Otomatis 10 Menit
             </span>
             <span className="flex items-center gap-2">
               <svg className="w-4 h-4 text-mint" fill="currentColor" viewBox="0 0 20 20">
@@ -160,7 +160,7 @@ export default async function CustomerHomePage() {
               </div>
               <h3 className="font-bold text-carbon text-lg mb-2">Pembayaran Mudah</h3>
               <p className="text-graphite text-sm leading-relaxed">
-                Mendukung pembayaran langsung serta fitur penahanan slot otomatis selama 15 menit agar kamu punya waktu bayar.
+                Mendukung pembayaran langsung serta fitur penahanan slot otomatis selama 10 menit agar kamu punya waktu bayar.
               </p>
             </div>
 
@@ -264,7 +264,7 @@ export default async function CustomerHomePage() {
 
             <div className="bg-paper-white border border-fog rounded-2xl p-8 shadow-subtle-2 flex flex-col justify-between">
               <p className="text-graphite text-sm italic leading-relaxed mb-6">
-                &ldquo;Sistem hold slot 15 menitnya sangat membantu saat harus koordinasi udunan dulu sama teman-teman tim sebelum transfer pembayaran.&rdquo;
+                &ldquo;Sistem hold slot 10 menitnya sangat membantu saat harus koordinasi udunan dulu sama teman-teman tim sebelum transfer pembayaran.&rdquo;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-mint/20 text-mint font-bold flex items-center justify-center text-sm">
