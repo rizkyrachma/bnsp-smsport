@@ -4,6 +4,7 @@ import { prisma } from "./prisma";
 import { getSession } from "./auth";
 import { TIMEZONE } from "./constants";
 import { hash } from "bcryptjs";
+import { formatJamWIB, formatTanggalWIB } from "./timezone";
 
 type BookingWhereInput = NonNullable<Parameters<typeof prisma.booking.findMany>[0]>["where"];
 
@@ -29,10 +30,10 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
   if (dateRange?.startDate || dateRange?.endDate) {
     whereBooking.bookingDate = {};
     if (dateRange.startDate) {
-      (whereBooking.bookingDate as Record<string, unknown>).gte = new Date(dateRange.startDate + "T00:00:00");
+      (whereBooking.bookingDate as Record<string, unknown>).gte = new Date(dateRange.startDate + "T00:00:00Z");
     }
     if (dateRange.endDate) {
-      (whereBooking.bookingDate as Record<string, unknown>).lte = new Date(dateRange.endDate + "T00:00:00");
+      (whereBooking.bookingDate as Record<string, unknown>).lte = new Date(dateRange.endDate + "T00:00:00Z");
     }
   }
 
@@ -338,10 +339,10 @@ export async function getAdminBookings(filters?: {
   if (filters?.dateFrom || filters?.dateTo) {
     whereClause.bookingDate = {};
     if (filters.dateFrom) {
-      (whereClause.bookingDate as Record<string, unknown>).gte = new Date(filters.dateFrom + "T00:00:00");
+      (whereClause.bookingDate as Record<string, unknown>).gte = new Date(filters.dateFrom + "T00:00:00Z");
     }
     if (filters.dateTo) {
-      (whereClause.bookingDate as Record<string, unknown>).lte = new Date(filters.dateTo + "T00:00:00");
+      (whereClause.bookingDate as Record<string, unknown>).lte = new Date(filters.dateTo + "T00:00:00Z");
     }
   }
 
@@ -379,9 +380,9 @@ export async function getAdminBookings(filters?: {
     courtId: b.courtId,
     courtName: b.court.name,
     courtType: b.court.type,
-    bookingDate: b.bookingDate.toISOString().slice(0, 10),
-    startTime: `${b.startTime.getUTCHours().toString().padStart(2, "0")}:${b.startTime.getUTCMinutes().toString().padStart(2, "0")}`,
-    endTime: `${b.endTime.getUTCHours().toString().padStart(2, "0")}:${b.endTime.getUTCMinutes().toString().padStart(2, "0")}`,
+    bookingDate: formatTanggalWIB(b.bookingDate),
+    startTime: formatJamWIB(b.startTime),
+    endTime: formatJamWIB(b.endTime),
     totalPrice: b.totalPrice,
     status: b.status,
     createdAt: b.createdAt.toISOString(),

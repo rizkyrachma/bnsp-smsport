@@ -6,6 +6,7 @@ import Link from "next/link";
 import { BRAND_INFO } from "@/lib/assets";
 import ClientNavbar from "../_components/ClientNavbar";
 import CountdownBadge from "../_components/CountdownBadge";
+import { formatJamWIB } from "@/lib/timezone";
 
 interface BookingItem {
   id: string;
@@ -146,10 +147,10 @@ function RiwayatPageContent() {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     });
-    // Extract HH:mm
-    const startH = new Date(startStr).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-    const endH = new Date(endStr).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    const startH = formatJamWIB(startStr);
+    const endH = formatJamWIB(endStr);
     return `${dateFormatted} | ${startH} - ${endH} WIB`;
   };
 
@@ -602,14 +603,15 @@ function RiwayatPageContent() {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
+                      timeZone: "UTC",
                     })}
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-fog/40">
                   <span className="text-graphite">Waktu Main:</span>
                   <span className="font-bold text-carbon">
-                    {new Date(ticketBooking.startTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} -{" "}
-                    {new Date(ticketBooking.endTime).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB
+                    {formatJamWIB(ticketBooking.startTime)} -{" "}
+                    {formatJamWIB(ticketBooking.endTime)} WIB
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-fog/40">

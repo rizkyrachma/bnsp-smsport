@@ -2,6 +2,7 @@
 
 import { prisma } from "./prisma";
 import { HOLD_DURATION_MS, TIMEZONE } from "./constants";
+import { wibToUTC, utcToWIB } from "./timezone";
 
 interface CreateBookingInput {
   userId: string;
@@ -23,20 +24,9 @@ export async function createBooking(input: CreateBookingInput) {
   const dbTimeResult = await prisma.$queryRaw<{ now: Date }[]>`SELECT NOW() as now`;
   const dbNow = dbTimeResult[0]?.now || new Date();
 
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: TIMEZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  });
-  const parts = formatter.formatToParts(dbNow);
-  const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
-
-  const todayStr = `${partMap.year}-${partMap.month}-${partMap.day}`;
-  const currentHour = parseInt(partMap.hour, 10);
+  const dbNowWIB = utcToWIB(dbNow);
+  const todayStr = dbNowWIB.format("YYYY-MM-DD");
+  const currentHour = dbNowWIB.hour();
 
   if (bookingDate < todayStr) {
     return { success: false, error: "Tidak bisa booking untuk tanggal yang sudah lewat." };
@@ -49,7 +39,7 @@ export async function createBooking(input: CreateBookingInput) {
     }
   }
 
-  const bookingDateObj = new Date(bookingDate + "T00:00:00");
+  const bookingDateObj = new Date(bookingDate + "T00:00:00Z");
 
   // Validate startTime < endTime
   if (startTime >= endTime) {
@@ -96,8 +86,8 @@ export async function createBooking(input: CreateBookingInput) {
             userId,
             courtId,
             bookingDate: bookingDateObj,
-            startTime: new Date(`1970-01-01T${startTime}:00Z`),
-            endTime: new Date(`1970-01-01T${endTime}:00Z`),
+            startTime: wibToUTC("1970-01-01", startTime),
+            endTime: wibToUTC("1970-01-01", endTime),
             totalPrice,
             status: "pending",
           },

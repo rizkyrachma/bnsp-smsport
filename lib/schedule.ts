@@ -2,6 +2,7 @@
 
 import { prisma } from "./prisma";
 import { TIMEZONE } from "./constants";
+import { utcToWIB } from "./timezone";
 
 export interface SlotStatus {
   time: string; // "08:00 - 09:00"
@@ -24,24 +25,11 @@ export interface CourtSchedule {
  * Enforces server-side time check (Asia/Jakarta) for past dates/times (§4.4).
  */
 export async function getScheduleByDate(dateStr: string): Promise<CourtSchedule[]> {
-  // 1. Server time in Asia/Jakarta (§4.4)
-  const now = new Date();
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: TIMEZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  });
-  const parts = formatter.formatToParts(now);
-  const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
-
-  const todayStr = `${partMap.year}-${partMap.month}-${partMap.day}`;
+  const nowWIB = utcToWIB(new Date());
+  const todayStr = nowWIB.format("YYYY-MM-DD");
   const isPastDate = dateStr < todayStr;
   const isToday = dateStr === todayStr;
-  const currentHour = parseInt(partMap.hour, 10);
+  const currentHour = nowWIB.hour();
 
   // 2. Query all courts
   const courts = await prisma.court.findMany({
@@ -50,7 +38,7 @@ export async function getScheduleByDate(dateStr: string): Promise<CourtSchedule[
 
   // 3. Query active bookings on that date (pending or paid)
   // We parse dateStr to DB date
-  const dateObj = new Date(dateStr + "T00:00:00");
+  const dateObj = new Date(dateStr + "T00:00:00Z");
   const bookings = await prisma.booking.findMany({
     where: {
       bookingDate: dateObj,
@@ -105,9 +93,10 @@ export async function getScheduleByDate(dateStr: string): Promise<CourtSchedule[
 
       const isBooked = bookings.some((b) => {
         if (b.courtId !== court.id) return false;
-        // Parse booking startTime / endTime from Date object
-        const bStartMinutes = b.startTime.getUTCHours() * 60 + b.startTime.getUTCMinutes();
-        const bEndMinutes = b.endTime.getUTCHours() * 60 + b.endTime.getUTCMinutes();
+        const startWIB = utcToWIB(b.startTime);
+        const endWIB = utcToWIB(b.endTime);
+        const bStartMinutes = startWIB.hour() * 60 + startWIB.minute();
+        const bEndMinutes = endWIB.hour() * 60 + endWIB.minute();
 
         return startMinutes < bEndMinutes && endMinutes > bStartMinutes;
       });

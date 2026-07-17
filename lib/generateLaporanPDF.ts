@@ -1,6 +1,8 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+import { utcToWIB } from "./timezone";
+
 interface ReportItem {
   id: string;
   userName: string;
@@ -21,12 +23,10 @@ const BULAN = [
 ];
 
 function formatToWIB(date: Date) {
-  // Convert current server time/browser time to WIB (UTC+7)
-  const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-  const wibTime = new Date(utc + (3600000 * 7));
-  const day = wibTime.getDate();
-  const month = BULAN[wibTime.getMonth()];
-  const year = wibTime.getFullYear();
+  const wibTime = utcToWIB(date);
+  const day = wibTime.date();
+  const month = BULAN[wibTime.month()];
+  const year = wibTime.year();
   return `${day} ${month} ${year}`;
 }
 
