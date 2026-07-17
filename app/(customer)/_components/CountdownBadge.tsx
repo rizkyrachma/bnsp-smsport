@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { HOLD_DURATION_MINUTES } from "@/lib/constants";
 
 interface CountdownBadgeProps {
@@ -12,6 +12,11 @@ export default function CountdownBadge({ createdAt, onExpire }: CountdownBadgePr
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isExpired, setIsExpired] = useState<boolean>(false);
 
+  const onExpireRef = useRef(onExpire);
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
+
   useEffect(() => {
     const calculateTimeLeft = () => {
       const createdTime = new Date(createdAt).getTime();
@@ -22,8 +27,8 @@ export default function CountdownBadge({ createdAt, onExpire }: CountdownBadgePr
       if (diff <= 0) {
         setTimeLeft(0);
         setIsExpired(true);
-        if (onExpire) {
-          onExpire();
+        if (onExpireRef.current) {
+          onExpireRef.current();
         }
         return false;
       }
@@ -44,7 +49,7 @@ export default function CountdownBadge({ createdAt, onExpire }: CountdownBadgePr
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [createdAt, onExpire]);
+  }, [createdAt]);
 
   if (isExpired || timeLeft <= 0) {
     return (
