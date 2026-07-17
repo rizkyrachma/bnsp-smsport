@@ -25,6 +25,13 @@ async function requireAdmin() {
 export async function getAdminDashboardData(dateRange?: { startDate?: string; endDate?: string }) {
   await requireAdmin();
 
+  try {
+    const { cancelExpiredBookings } = await import("./booking");
+    await cancelExpiredBookings();
+  } catch (err) {
+    console.error("Gagal auto-cancel booking expired di dashboard:", err);
+  }
+
   // Date filters if applied
   const whereBooking: BookingWhereInput = {};
   if (dateRange?.startDate || dateRange?.endDate) {
@@ -321,6 +328,13 @@ export async function getAdminBookings(filters?: {
   dateTo?: string;
 }) {
   await requireAdmin();
+
+  try {
+    const { cancelExpiredBookings } = await import("./booking");
+    await cancelExpiredBookings();
+  } catch (err) {
+    console.error("Gagal auto-cancel booking expired di riwayat:", err);
+  }
 
   const whereClause: BookingWhereInput = {};
 
