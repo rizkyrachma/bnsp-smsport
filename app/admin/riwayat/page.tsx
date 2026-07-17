@@ -166,7 +166,6 @@ export default function AdminRiwayatPage() {
                 <th className="py-4 px-6">Pelanggan</th>
                 <th className="py-4 px-6">Lapangan &amp; Waktu</th>
                 <th className="py-4 px-6 text-right">Total Biaya</th>
-                <th className="py-4 px-6 text-center">Metode &amp; Bukti</th>
                 <th className="py-4 px-6 text-center">Status Pesanan</th>
                 <th className="py-4 px-6 text-right">Aksi Verifikasi</th>
               </tr>
@@ -174,13 +173,13 @@ export default function AdminRiwayatPage() {
             <tbody className="divide-y divide-fog">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-ash animate-pulse">
+                  <td colSpan={5} className="py-12 text-center text-ash animate-pulse">
                     Memuat riwayat reservasi dari database...
                   </td>
                 </tr>
               ) : bookings.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-ash">
+                  <td colSpan={5} className="py-12 text-center text-ash">
                     Belum ada data reservasi yang sesuai dengan filter pencarian Anda.
                   </td>
                 </tr>
@@ -205,20 +204,6 @@ export default function AdminRiwayatPage() {
                       </td>
                       <td className="py-4 px-6 text-right font-black text-carbon text-sm">
                         Rp {b.totalPrice.toLocaleString("id-ID")}
-                      </td>
-                      <td className="py-4 px-6 text-center">
-                        {b.payment?.proofUrl ? (
-                          <button
-                            type="button"
-                            onClick={() => setSelectedProof(b.payment!.proofUrl)}
-                            className="bg-lavender/10 text-lavender border border-lavender/20 px-3 py-1 rounded-xl text-[11px] font-bold hover:bg-lavender/20 transition inline-flex items-center gap-1 shadow-subtle"
-                          >
-                            <span>Lihat Bukti Transfer</span>
-                          </button>
-                        ) : (
-                          <span className="text-ash text-[11px] italic">Belum Ada Bukti</span>
-                        )}
-                        <p className="text-[10px] text-ash mt-0.5 uppercase">{b.payment?.method || "-"}</p>
                       </td>
                       <td className="py-4 px-6 text-center">
                         <span

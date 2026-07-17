@@ -204,32 +204,23 @@ export default function AdminLaporanPage() {
         </div>
       </div>
 
-      {/* PRINT / PDF HEADER */}
-      <div className="hidden print:block text-center border-b border-gray-400 pb-4 mb-6 text-black">
-        <h2 className="text-xl font-bold uppercase">{BRAND_INFO.name} — LAPORAN RESERVASI &amp; PENDAPATAN</h2>
-        <p className="text-xs">
-          Periode: {dateFrom || "Awal"} s/d {dateTo || "Sekarang"} | Kategori: {courtTypeFilter.toUpperCase()} | Status: {statusFilter.toUpperCase()}
-        </p>
-        <p className="text-[10px] text-gray-600 mt-1">Dicetak pada: {new Date().toLocaleString("id-ID")}</p>
-      </div>
-
       {/* Summary Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 print:grid-cols-3 print:gap-2">
-        <div className="bg-paper-white print:bg-white print:border-gray-300 print:text-black border border-fog rounded-3xl p-6 shadow-subtle">
-          <p className="text-xs print:text-[10px] font-bold uppercase text-ash print:text-gray-600">Total Reservasi Terfilter</p>
-          <p className="text-3xl print:text-xl font-black text-carbon print:text-black mt-2">{items.length} sesi</p>
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle">
+          <p className="text-xs font-bold uppercase text-ash">Total Reservasi Terfilter</p>
+          <p className="text-3xl font-black text-carbon mt-2">{items.length} sesi</p>
         </div>
 
-        <div className="bg-paper-white print:bg-white print:border-gray-300 print:text-black border border-fog rounded-3xl p-6 shadow-subtle">
-          <p className="text-xs print:text-[10px] font-bold uppercase text-ash print:text-gray-600">Total Pendapatan (Lunas)</p>
-          <p className="text-3xl print:text-xl font-black text-mint print:text-black mt-2">
+        <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle">
+          <p className="text-xs font-bold uppercase text-ash">Total Pendapatan (Lunas)</p>
+          <p className="text-3xl font-black text-mint mt-2">
             Rp {totalRevenue.toLocaleString("id-ID")}
           </p>
         </div>
 
-        <div className="bg-paper-white print:bg-white print:border-gray-300 print:text-black border border-fog rounded-3xl p-6 shadow-subtle">
-          <p className="text-xs print:text-[10px] font-bold uppercase text-ash print:text-gray-600">Rata-Rata per Sesi Lunas</p>
-          <p className="text-3xl print:text-xl font-black text-lavender print:text-black mt-2">
+        <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle">
+          <p className="text-xs font-bold uppercase text-ash">Rata-Rata per Sesi Lunas</p>
+          <p className="text-3xl font-black text-lavender mt-2">
             Rp {avgTicket.toLocaleString("id-ID")}
           </p>
         </div>

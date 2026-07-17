@@ -428,10 +428,51 @@ function RiwayatPageContent() {
         </div>
       )}
 
-      {/* PRINTABLE E-TICKET MODAL (§6 Customer) */}
+      {/* PRINTABLE E-TICKET MOD      {/* PRINTABLE E-TICKET MODAL (§6 Customer) */}
       {ticketBooking && (
-        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-paper-white border border-fog rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-subtle-3 relative">
+        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 print-overlay">
+          <style dangerouslySetInnerHTML={{ __html: `
+            @media print {
+              /* Hide all page layouts */
+              nav, footer, main {
+                display: none !important;
+              }
+              /* Make print overlay background white and fill window */
+              .print-overlay {
+                position: absolute !important;
+                background: white !important;
+                inset: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                backdrop-filter: none !important;
+              }
+              /* Style the e-ticket card container as a structural Courier thermal receipt */
+              #tiket-booking-container {
+                max-width: 380px !important;
+                margin: 20px auto !important;
+                border: 2px dashed #000000 !important;
+                border-radius: 0px !important;
+                box-shadow: none !important;
+                padding: 24px !important;
+                background: white !important;
+                color: black !important;
+                font-family: Courier, monospace !important;
+              }
+              /* Force all inner elements to be pure black for thermal printing */
+              #tiket-booking-container * {
+                color: black !important;
+                background: transparent !important;
+                border-color: #000000 !important;
+              }
+              /* Hide action buttons and close buttons */
+              .print-actions {
+                display: none !important;
+              }
+            }
+          ` }} />
+          
+          <div id="tiket-booking-container" className="bg-paper-white border border-fog rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-subtle-3 relative">
             <div id="tiket-booking" className="space-y-6">
               <div className="text-center pb-6 border-b border-fog">
                 <span className="w-12 h-12 rounded-full bg-lavender text-white font-black text-lg inline-flex items-center justify-center shadow-subtle mb-3">
@@ -442,7 +483,7 @@ function RiwayatPageContent() {
                   E-Tiket Resmi / Lunas
                 </span>
               </div>
-
+ 
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between py-1 border-b border-fog/40">
                   <span className="text-graphite">Nomor Reservasi:</span>
@@ -479,14 +520,14 @@ function RiwayatPageContent() {
                   </span>
                 </div>
               </div>
-
+ 
               <div className="bg-linen p-4 rounded-2xl border border-fog text-center text-[11px] text-graphite space-y-1">
                 <p className="font-bold text-carbon">Petunjuk Kedatangan:</p>
                 <p>Tunjukkan e-tiket ini kepada petugas front office minimal 10 menit sebelum jam bermainmu dimulai.</p>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 mt-6 pt-4 border-t border-fog">
+ 
+            <div className="flex items-center gap-3 mt-6 pt-4 border-t border-fog print-actions">
               <button
                 type="button"
                 onClick={() => window.print()}
