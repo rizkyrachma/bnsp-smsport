@@ -11,20 +11,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  turbopack: {},
-  webpack: (config, { dev }) => {
-    if (dev) {
-      config.watchOptions = {
-        ...config.watchOptions,
-        ignored: [
-          "**/node_modules/**",
-          "**/.next/**",
-          "**/my-app/**",
-        ],
-      };
-    }
-    return config;
-  },
 };
 
 export default nextConfig;
