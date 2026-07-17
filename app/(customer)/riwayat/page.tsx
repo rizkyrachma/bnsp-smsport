@@ -111,38 +111,23 @@ function RiwayatPageContent() {
     fetchBookings();
   }, [fetchBookings]);
 
-  // Handle manual transfer proof upload / QRIS simulation (§6 & §4.2)
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activePayBooking) return;
+  // Handle reactivating a cancelled/expired booking to get a new 15-minute slot and new QRIS
+  const handleReactivate = async (bookingId: string) => {
     setUploading(true);
     setPayError("");
-    setPaySuccess(false);
-
     try {
-      const res = await fetch("/api/payments/upload", {
+      const res = await fetch("/api/bookings/reactivate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bookingId: activePayBooking.id,
-          paymentMethod,
-          proofUrl: proofInput || (paymentMethod !== "bank_transfer" ? "https://placehold.co/400x400?text=QRIS/VA+Success" : ""),
-        }),
+        body: JSON.stringify({ bookingId }),
       });
-
       const data = await res.json();
       if (!res.ok) {
-        setPayError(data.error || "Gagal mengirim bukti pembayaran.");
+        setPayError(data.error || "Gagal mengaktifkan kembali booking.");
         return;
       }
-
-      setPaySuccess(true);
-      setTimeout(() => {
-        setActivePayBooking(null);
-        setProofInput("");
-        setPaySuccess(false);
-        fetchBookings();
-      }, 1500);
+      setActivePayBooking(data.booking);
+      fetchBookings();
     } catch {
       setPayError("Terjadi kesalahan jaringan.");
     } finally {
@@ -279,7 +264,7 @@ function RiwayatPageContent() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                      {isPending && !hasSubmittedProof && (
+                      {isPending && (
                         <button
                           type="button"
                           onClick={() => {
@@ -289,11 +274,11 @@ function RiwayatPageContent() {
                           }}
                           className="w-full sm:w-auto bg-lavender text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition"
                         >
-                          Bayar / Unggah Bukti
+                          Lanjutkan Pembayaran
                         </button>
                       )}
 
-                      {isPending && hasSubmittedProof && (
+                      {isCancelled && (
                         <button
                           type="button"
                           onClick={() => {
@@ -301,9 +286,9 @@ function RiwayatPageContent() {
                             setPayError("");
                             setPaySuccess(false);
                           }}
-                          className="w-full sm:w-auto bg-mist text-graphite border border-fog px-4 py-2.5 rounded-full font-semibold text-xs hover:bg-fog/40 transition"
+                          className="w-full sm:w-auto bg-amber text-carbon px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition"
                         >
-                          Lihat / Ubah Bukti
+                          Perbarui Pembayaran
                         </button>
                       )}
 
@@ -360,70 +345,102 @@ function RiwayatPageContent() {
               </div>
             </div>
 
-            <form onSubmit={handlePaymentSubmit} className="space-y-5">
-              <div className="text-center">
-                <span className="block text-xs font-bold text-carbon mb-1 uppercase tracking-wider">
-                  Metode Pembayaran: QRIS Instan
-                </span>
-                <p className="text-[11px] text-ash mb-4">
-                  Silakan scan kode QR di bawah dengan aplikasi mobile banking atau dompet digital Anda.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center justify-center p-4 bg-mist border border-fog rounded-2xl shadow-subtle space-y-4">
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-                    typeof window !== "undefined"
-                      ? `${window.location.origin}/api/payments/checkout?bookingId=${activePayBooking.id}`
-                      : ""
-                  )}`}
-                  alt="QRIS Dinamis"
-                  className="w-48 h-48 object-contain bg-white p-2 rounded-xl border border-fog"
-                />
-                
-                <div className="text-center space-y-1">
-                  <p className="text-[10px] text-ash font-medium">Atau klik link di bawah untuk simulasi scan di HP:</p>
-                  <a 
-                    href={typeof window !== "undefined" ? `/api/payments/checkout?bookingId=${activePayBooking.id}` : "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-bold text-lavender hover:underline block pt-0.5"
-                  >
-                    Simulasi Pembayaran (Buka Tautan Pembayaran)
-                  </a>
-                </div>
-              </div>
-
-              {payError && (
-                <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
-                  <div className="text-red-500 text-lg shrink-0">⚠️</div>
-                  <div>
-                    <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
-                    <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{payError}</p>
+            <div className="space-y-5">
+              {activePayBooking.status === "cancelled" ? (
+                <div className="space-y-4">
+                  <div className="bg-amber/10 border border-amber/30 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
+                    <div className="text-amber text-lg shrink-0">⏳</div>
+                    <div>
+                      <h4 className="font-bold text-[10px] text-amber-800 uppercase tracking-wider">QRIS Kadaluarsa</h4>
+                      <p className="text-amber-700 text-xs mt-0.5 leading-relaxed">
+                        Batas waktu pembayaran 15 menit telah habis. Kode QRIS sebelumnya tidak dapat digunakan lagi.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
 
-              {paySuccess && (
-                <div className="bg-emerald-50 border border-emerald-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
-                  <div className="text-emerald-500 text-lg shrink-0">✅</div>
-                  <div>
-                    <h4 className="font-bold text-[10px] text-emerald-800 uppercase tracking-wider">Berhasil</h4>
-                    <p className="text-emerald-700 text-xs mt-0.5 leading-relaxed">
-                      Pembayaran QRIS Berhasil! Pemesanan Anda kini telah lunas.
+                  {payError && (
+                    <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
+                      <div className="text-red-500 text-lg shrink-0">⚠️</div>
+                      <div>
+                        <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                        <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{payError}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={uploading}
+                    onClick={() => handleReactivate(activePayBooking.id)}
+                    className="w-full bg-lavender text-white py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50"
+                  >
+                    {uploading ? "Memproses..." : "Generate QRIS Baru"}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="text-center">
+                    <span className="block text-xs font-bold text-carbon mb-1 uppercase tracking-wider">
+                      Metode Pembayaran: QRIS Instan
+                    </span>
+                    <p className="text-[11px] text-ash mb-4">
+                      Silakan scan kode QR di bawah dengan aplikasi mobile banking atau dompet digital Anda.
                     </p>
                   </div>
-                </div>
+
+                  <div className="flex flex-col items-center justify-center p-4 bg-mist border border-fog rounded-2xl shadow-subtle space-y-4">
+                    {paySuccess ? (
+                      <div className="flex flex-col items-center py-4 space-y-2">
+                        <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl font-bold shadow-inner border border-emerald-100/50">
+                          ✓
+                        </div>
+                        <span className="text-xs font-bold text-emerald-800">Pembayaran Berhasil!</span>
+                      </div>
+                    ) : (
+                      <>
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+                            typeof window !== "undefined"
+                              ? `${window.location.origin}/api/payments/checkout?bookingId=${activePayBooking.id}`
+                              : ""
+                          )}`}
+                          alt="QRIS Dinamis"
+                          className="w-48 h-48 object-contain bg-white p-2 rounded-xl border border-fog"
+                        />
+                        
+                        <div className="text-center space-y-1 w-full">
+                          <div className="flex items-center justify-center gap-2 py-1">
+                            <div className="w-4 h-4 border-2 border-lavender border-t-transparent rounded-full animate-spin" />
+                            <span className="text-xs font-semibold text-graphite">Menunggu pembayaran...</span>
+                          </div>
+                          <p className="text-xs font-black text-carbon mt-1">
+                            Total: Rp {activePayBooking.totalPrice.toLocaleString("id-ID")}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {payError && (
+                    <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
+                      <div className="text-red-500 text-lg shrink-0">⚠️</div>
+                      <div>
+                        <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                        <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{payError}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               <button
-                type="submit"
-                disabled={uploading || paySuccess}
-                className="w-full bg-lavender text-white py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50"
+                type="button"
+                onClick={() => setActivePayBooking(null)}
+                className="w-full bg-white text-graphite border border-fog py-3.5 rounded-full font-bold text-xs hover:bg-mist transition"
               >
-                {uploading ? "Memproses Pembayaran..." : "Selesaikan Pembayaran (Simulasi)"}
+                Tutup
               </button>
-            </form>
+            </div>
           </div>
         </div>
       )}
