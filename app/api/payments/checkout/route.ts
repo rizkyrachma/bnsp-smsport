@@ -102,6 +102,21 @@ export async function GET(request: NextRequest) {
           <title>Konfirmasi Pembayaran - SM Sport Center</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <script src="https://cdn.tailwindcss.com"></script>
+          <script>
+            tailwind.config = {
+              theme: {
+                extend: {
+                  colors: {
+                    lavender: '#918df6',
+                    carbon: '#181925',
+                    ash: '#828282',
+                    mist: '#f3f4f6',
+                    fog: '#e5e7eb',
+                  }
+                }
+              }
+            }
+          </script>
         </head>
         <body class="bg-[#fafafa] flex items-center justify-center min-h-screen p-4 font-sans text-[#181925]">
           <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-xl flex flex-col items-center">
@@ -243,6 +258,21 @@ function renderSuccessPage(bookingId: string, courtName: string, dateStr: string
       <title>Pembayaran Sukses - SM Sport Center</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <script src="https://cdn.tailwindcss.com"></script>
+      <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                lavender: '#918df6',
+                carbon: '#181925',
+                ash: '#828282',
+                mist: '#f3f4f6',
+                fog: '#e5e7eb',
+              }
+            }
+          }
+        }
+      </script>
       <style>
         @keyframes checkmark {
           0% { transform: scale(0); opacity: 0; }

@@ -256,9 +256,9 @@ function RiwayatPageContent() {
                       <span className="text-xl font-black text-carbon">
                         Rp {item.totalPrice.toLocaleString("id-ID")}
                       </span>
-                      {hasSubmittedProof && (
+                      {isPaid && (
                         <span className="text-[11px] text-mint font-semibold block mt-0.5">
-                          ✓ Bukti diunggah
+                          ✓ Pembayaran Berhasil
                         </span>
                       )}
                     </div>
