@@ -119,17 +119,11 @@ export default function AdminSidebar() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-1.5 pt-1">
-            <Link
-              href="/"
-              className="text-center text-[11px] font-bold bg-paper-white hover:bg-mist text-graphite hover:text-carbon py-2 rounded-xl border border-fog transition"
-            >
-              Portal User
-            </Link>
+          <div className="pt-1">
             <button
               type="button"
               onClick={handleLogout}
-              className="text-center text-[11px] font-bold bg-ember/10 hover:bg-ember/20 text-ember py-2 rounded-xl border border-ember/20 transition"
+              className="w-full text-center text-[11px] font-bold bg-ember/10 hover:bg-ember/20 text-ember py-2.5 rounded-xl border border-ember/20 transition"
             >
               Keluar
             </button>

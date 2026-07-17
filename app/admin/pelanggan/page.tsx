@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getCustomersList, toggleBlockCustomer } from "@/lib/admin-actions";
+import { 
+  getCustomersList, 
+  toggleBlockCustomer,
+  createCustomerAction,
+  updateCustomerAction,
+  deleteCustomerAction
+} from "@/lib/admin-actions";
 
 interface CustomerItem {
   id: string;
@@ -30,6 +36,17 @@ export default function AdminCustomersPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
+
+  // CRUD modal state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+
+  // Form fields
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formPassword, setFormPassword] = useState("");
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -66,6 +83,76 @@ export default function AdminCustomersPage() {
       }
     } catch {
       setActionError("Gagal memperbarui status blokir akun.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleOpenAddModal = () => {
+    setFormName("");
+    setFormEmail("");
+    setFormPhone("");
+    setFormPassword("");
+    setIsAddModalOpen(true);
+  };
+
+  const handleOpenEditModal = (c: CustomerItem) => {
+    setSelectedCustomerId(c.id);
+    setFormName(c.name);
+    setFormEmail(c.email);
+    setFormPhone(c.phone);
+    setFormPassword(""); // leave blank unless changing
+    setIsEditModalOpen(true);
+  };
+
+  const handleAddCustomerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName.trim() || !formEmail.trim() || !formPhone.trim()) {
+      alert("Nama, Email, dan Telepon wajib diisi.");
+      return;
+    }
+    setActionError("");
+    setLoading(true);
+    try {
+      await createCustomerAction(formName, formEmail, formPhone, formPassword || undefined);
+      setIsAddModalOpen(false);
+      await fetchCustomers();
+    } catch (err: any) {
+      setActionError(err.message || "Gagal menambah data pelanggan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditCustomerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCustomerId || !formName.trim() || !formEmail.trim() || !formPhone.trim()) return;
+    setActionError("");
+    setLoading(true);
+    try {
+      await updateCustomerAction(selectedCustomerId, formName, formEmail, formPhone, formPassword || undefined);
+      setIsEditModalOpen(false);
+      await fetchCustomers();
+    } catch (err: any) {
+      setActionError(err.message || "Gagal memperbarui data pelanggan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCustomer = async (userId: string, userName: string) => {
+    const isConfirmed = window.confirm(
+      `HAPUS PELANGGAN ${userName}?\nPERINGATAN: Menghapus pelanggan akan menghapus seluruh riwayat pesanan & transaksi terkait secara permanen.`
+    );
+    if (!isConfirmed) return;
+
+    setActionError("");
+    setUpdatingId(userId);
+    try {
+      await deleteCustomerAction(userId);
+      await fetchCustomers();
+    } catch {
+      setActionError("Gagal menghapus pelanggan.");
     } finally {
       setUpdatingId(null);
     }
@@ -124,38 +211,50 @@ export default function AdminCustomersPage() {
             Kelola Pelanggan
           </h1>
           <p className="text-xs text-ash mt-1">
-            Pantau seluruh pengguna terdaftar, riwayat transaksi, dan kelola pemblokiran akun bermasalah.
+            Tambah, edit, hapus, pantau seluruh pengguna terdaftar, riwayat transaksi, dan kelola pemblokiran akun bermasalah.
           </p>
         </div>
+        <button
+          type="button"
+          onClick={handleOpenAddModal}
+          className="bg-lavender text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition flex items-center gap-2 self-start sm:self-auto"
+        >
+          <span>+ Tambah Pelanggan</span>
+        </button>
+      </div>
 
-        {/* Search Input */}
-        <div className="w-full sm:w-72">
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-linen p-4 rounded-3xl border border-fog">
+        <div className="flex-grow max-w-md">
           <input
             type="text"
-            placeholder="Cari nama, email, atau no. HP..."
+            placeholder="Cari pelanggan berdasarkan nama, email, atau telepon..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-paper-white border border-fog rounded-full px-4 py-2.5 text-xs text-carbon placeholder-ash/60 focus:outline-none focus:ring-2 focus:ring-lavender focus:border-lavender transition shadow-subtle"
+            className="w-full bg-paper-white border border-fog rounded-full px-4 py-2.5 text-xs text-carbon placeholder-ash/60 focus:outline-none focus:ring-2 focus:ring-lavender transition shadow-subtle"
           />
+        </div>
+        <div className="text-xs font-medium text-graphite self-center">
+          Total Terfilter: <strong className="text-carbon">{filteredCustomers.length}</strong> pelanggan
         </div>
       </div>
 
-      {/* Main Table Container */}
+      {/* Customers List Table */}
       <div className="bg-paper-white border border-fog rounded-3xl overflow-hidden shadow-subtle">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-linen text-graphite font-bold uppercase tracking-wider border-b border-fog">
               <tr>
                 <th className="py-4 px-6">Pelanggan</th>
-                <th className="py-4 px-6">Kontak & Telepon</th>
-                <th className="py-4 px-6 text-center">Total Pesanan</th>
-                <th className="py-4 px-6 text-right">Total Pengeluaran (Lunas)</th>
-                <th className="py-4 px-6 text-center">Status Akun</th>
+                <th className="py-4 px-6">Kontak</th>
+                <th className="py-4 px-6 text-center">Frekuensi Booking</th>
+                <th className="py-4 px-6 text-right">Total Transaksi</th>
+                <th className="py-4 px-6 text-center">Status</th>
                 <th className="py-4 px-6 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-fog">
-              {loading ? (
+              {loading && customers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-ash animate-pulse">
                     Memuat daftar pelanggan dari database...
@@ -164,7 +263,7 @@ export default function AdminCustomersPage() {
               ) : filteredCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-ash">
-                    Tidak ditemukan pelanggan yang cocok dengan pencarian Anda.
+                    Belum ada data pelanggan yang sesuai dengan kriteria pencarian Anda.
                   </td>
                 </tr>
               ) : (
@@ -205,29 +304,40 @@ export default function AdminCustomersPage() {
                         {c.isBlocked ? "DIBLOKIR" : "AKTIF"}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-right space-x-2">
+                    <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
                       <button
                         type="button"
                         onClick={() => setSelectedCustomer(c)}
-                        className="bg-linen hover:bg-mist text-graphite hover:text-carbon border border-fog px-3 py-1.5 rounded-xl font-bold transition"
+                        className="bg-linen hover:bg-mist text-graphite hover:text-carbon border border-fog px-2.5 py-1.5 rounded-xl font-bold transition text-[11px]"
                       >
                         Detail
                       </button>
                       <button
                         type="button"
+                        onClick={() => handleOpenEditModal(c)}
+                        className="bg-linen hover:bg-mist text-lavender border border-fog px-2.5 py-1.5 rounded-xl font-bold transition text-[11px]"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
                         disabled={updatingId === c.id}
                         onClick={() => handleToggleBlock(c)}
-                        className={`px-3 py-1.5 rounded-xl font-bold transition disabled:opacity-50 ${
+                        className={`px-2.5 py-1.5 rounded-xl font-bold transition text-[11px] disabled:opacity-50 ${
                           c.isBlocked
                             ? "bg-mint-wash text-mint border border-mint/30 hover:opacity-80"
                             : "bg-ember/10 text-ember border border-ember/20 hover:opacity-80"
                         }`}
                       >
-                        {updatingId === c.id
-                          ? "..."
-                          : c.isBlocked
-                          ? "Aktifkan"
-                          : "Blokir"}
+                        {c.isBlocked ? "Aktifkan" : "Blokir"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={updatingId === c.id}
+                        onClick={() => handleDeleteCustomer(c.id, c.name)}
+                        className="text-red-500 hover:text-red-700 bg-red-50 border border-red-100 hover:bg-red-100 px-2.5 py-1.5 rounded-xl font-bold transition text-[11px] disabled:opacity-50"
+                      >
+                        Hapus
                       </button>
                     </td>
                   </tr>
@@ -279,32 +389,25 @@ export default function AdminCustomersPage() {
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-ash mb-3">5 Riwayat Pesanan Terakhir</h4>
               {selectedCustomer.recentBookings.length === 0 ? (
-                <p className="text-xs text-ash text-center py-6 bg-linen rounded-2xl border border-fog">
-                  Belum ada riwayat pesanan.
-                </p>
+                <p className="text-center text-xs text-ash py-6">Belum ada riwayat pesanan.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {selectedCustomer.recentBookings.map((b) => (
-                    <div
-                      key={b.id}
-                      className="bg-linen border border-fog rounded-2xl p-3 flex items-center justify-between"
-                    >
+                    <div key={b.id} className="bg-linen border border-fog p-3.5 rounded-2xl flex items-center justify-between text-xs">
                       <div>
-                        <p className="font-bold text-xs text-carbon">{b.courtName}</p>
-                        <p className="text-[11px] text-ash">Tanggal: {b.date}</p>
+                        <p className="font-bold text-carbon">{b.courtName}</p>
+                        <p className="text-[10px] text-ash mt-0.5">{b.date}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-xs text-carbon">Rp {b.totalPrice.toLocaleString("id-ID")}</p>
-                        <span
-                          className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase inline-block mt-0.5 ${
-                            b.status === "paid"
-                              ? "bg-mint-wash text-mint border border-mint/30"
-                              : b.status === "pending"
-                              ? "bg-amber/10 text-amber border border-amber/20"
-                              : "bg-ember/10 text-ember border border-ember/20"
-                          }`}
-                        >
-                          {b.status}
+                        <p className="font-black text-carbon">Rp {b.totalPrice.toLocaleString("id-ID")}</p>
+                        <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border mt-1 ${
+                          b.status === "paid"
+                            ? "bg-mint-wash text-mint border-mint/20"
+                            : b.status === "pending"
+                            ? "bg-amber/10 text-amber border-amber/20 animate-pulse"
+                            : "bg-ember/10 text-ember border-ember/20"
+                        }`}>
+                          {b.status === "paid" ? "Lunas" : b.status === "pending" ? "Pending" : "Batal"}
                         </span>
                       </div>
                     </div>
@@ -313,26 +416,158 @@ export default function AdminCustomersPage() {
               )}
             </div>
 
-            <div className="pt-4 border-t border-fog flex justify-between items-center">
-              <button
-                type="button"
-                onClick={() => handleToggleBlock(selectedCustomer)}
-                className={`px-4 py-2 rounded-full font-bold text-xs transition ${
-                  selectedCustomer.isBlocked
-                    ? "bg-mint-wash text-mint border border-mint/30 hover:opacity-80"
-                    : "bg-ember/10 text-ember border border-ember/20 hover:opacity-80"
-                }`}
-              >
-                {selectedCustomer.isBlocked ? "Aktifkan Akun Ini" : "Blokir & Nonaktifkan Akun Ini"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedCustomer(null)}
-                className="bg-linen hover:bg-mist text-carbon px-6 py-2 rounded-full font-bold text-xs border border-fog transition"
-              >
-                Tutup
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedCustomer(null)}
+              className="w-full bg-white text-graphite border border-fog py-3 rounded-full font-bold text-xs hover:bg-mist transition"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ADD CUSTOMER MODAL */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-4">
+            <h3 className="font-bold text-lg text-carbon">Tambah Pelanggan Baru</h3>
+            <form onSubmit={handleAddCustomerSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nama Lengkap</label>
+                <input
+                  type="text"
+                  required
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder="Contoh: Budi Santoso"
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={formEmail}
+                  onChange={(e) => setFormEmail(e.target.value)}
+                  placeholder="budi@example.com"
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nomor Telepon</label>
+                <input
+                  type="text"
+                  required
+                  value={formPhone}
+                  onChange={(e) => setFormPhone(e.target.value)}
+                  placeholder="081234567890"
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Password (Opsional)</label>
+                <input
+                  type="password"
+                  value={formPassword}
+                  onChange={(e) => setFormPassword(e.target.value)}
+                  placeholder="Default: 123456"
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="flex-1 bg-white text-graphite border border-fog py-2.5 rounded-full font-bold hover:bg-mist transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-lavender text-white py-2.5 rounded-full font-bold hover:opacity-95 transition disabled:opacity-50"
+                >
+                  Simpan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT CUSTOMER MODAL */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-4">
+            <h3 className="font-bold text-lg text-carbon">Edit Data Pelanggan</h3>
+            <form onSubmit={handleEditCustomerSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nama Lengkap</label>
+                <input
+                  type="text"
+                  required
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={formEmail}
+                  onChange={(e) => setFormEmail(e.target.value)}
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nomor Telepon</label>
+                <input
+                  type="text"
+                  required
+                  value={formPhone}
+                  onChange={(e) => setFormPhone(e.target.value)}
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Ubah Password (Opsional)</label>
+                <input
+                  type="password"
+                  value={formPassword}
+                  onChange={(e) => setFormPassword(e.target.value)}
+                  placeholder="Isi hanya jika ingin mengganti password"
+                  className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 bg-white text-graphite border border-fog py-2.5 rounded-full font-bold hover:bg-mist transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-lavender text-white py-2.5 rounded-full font-bold hover:opacity-95 transition disabled:opacity-50"
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

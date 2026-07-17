@@ -37,6 +37,8 @@ function RiwayatPageContent() {
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [courtTypeFilter, setCourtTypeFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<string>("");
 
   // Payment upload modal state
   const [activePayBooking, setActivePayBooking] = useState<BookingItem | null>(null);
@@ -150,6 +152,24 @@ function RiwayatPageContent() {
     return `${dateFormatted} | ${startH} - ${endH} WIB`;
   };
 
+  // Client-side filtering for user bookings
+  const filteredBookings = bookings.filter((item) => {
+    if (courtTypeFilter !== "all" && item.court.type.toLowerCase() !== courtTypeFilter) {
+      return false;
+    }
+    if (dateFilter) {
+      const itemDate = new Date(item.bookingDate);
+      const year = itemDate.getFullYear();
+      const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+      const day = String(itemDate.getDate()).padStart(2, '0');
+      const itemDateStr = `${year}-${month}-${day}`;
+      if (itemDateStr !== dateFilter) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-paper-white text-carbon flex flex-col font-sans">
       {/* Navbar */}
@@ -201,7 +221,59 @@ function RiwayatPageContent() {
           </div>
         ) : (
           <div className="space-y-6">
-            {bookings.map((item) => {
+            {/* Filter Bar */}
+            <div className="flex flex-wrap items-center gap-4 bg-linen p-4 rounded-3xl border border-fog mb-6">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-ash uppercase">Kategori:</span>
+                <div className="flex items-center gap-1 bg-paper-white p-1 rounded-full border border-fog">
+                  {[
+                    { label: "Semua Lapangan", val: "all" },
+                    { label: "Futsal", val: "futsal" },
+                    { label: "Badminton", val: "badminton" },
+                  ].map((c) => (
+                    <button
+                      key={c.val}
+                      type="button"
+                      onClick={() => setCourtTypeFilter(c.val)}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                        courtTypeFilter === c.val ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-ash uppercase">Tanggal Booking:</span>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="bg-paper-white border border-fog rounded-full px-3 py-1.5 text-xs font-bold text-carbon focus:outline-none focus:ring-2 focus:ring-lavender transition shadow-subtle"
+                />
+                {dateFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setDateFilter("")}
+                    className="text-[10px] text-red-500 font-bold hover:underline"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {filteredBookings.length === 0 ? (
+              <div className="bg-linen border border-fog rounded-3xl p-12 text-center max-w-lg mx-auto">
+                <h3 className="font-bold text-carbon text-sm">Tidak Ada Riwayat Booking Cocok</h3>
+                <p className="text-graphite text-xs mt-1">
+                  Ubah filter kategori atau tanggal Anda untuk melihat data reservasi.
+                </p>
+              </div>
+            ) : (
+              filteredBookings.map((item) => {
               const isPending = item.status === "pending";
               const isPaid = item.status === "paid";
               const isCancelled = item.status === "cancelled";
@@ -306,7 +378,7 @@ function RiwayatPageContent() {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </div>
         )}
       </main>

@@ -3,6 +3,7 @@
 import { prisma } from "./prisma";
 import { getSession } from "./auth";
 import { TIMEZONE } from "./constants";
+import { hash } from "bcryptjs";
 
 type BookingWhereInput = NonNullable<Parameters<typeof prisma.booking.findMany>[0]>["where"];
 
@@ -393,4 +394,90 @@ export async function getAdminBookings(filters?: {
       }
       : null,
   }));
+}
+
+/**
+ * 6. COURTS CRUD OPERATIONS
+ */
+export async function createCourt(name: string, type: "futsal" | "badminton", pricePerHour: number, status: "tersedia" | "perbaikan") {
+  await requireAdmin();
+  const court = await prisma.court.create({
+    data: { name, type, pricePerHour, status },
+  });
+  return { success: true, court };
+}
+
+export async function updateCourt(courtId: string, name: string, type: "futsal" | "badminton", pricePerHour: number, status: "tersedia" | "perbaikan") {
+  await requireAdmin();
+  const court = await prisma.court.update({
+    where: { id: courtId },
+    data: { name, type, pricePerHour, status },
+  });
+  return { success: true, court };
+}
+
+export async function deleteCourt(courtId: string) {
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const bookings = await tx.booking.findMany({ where: { courtId }, select: { id: true } });
+    const bookingIds = bookings.map((b) => b.id);
+    await tx.payment.deleteMany({ where: { bookingId: { in: bookingIds } } });
+    await tx.booking.deleteMany({ where: { courtId } });
+    await tx.court.delete({ where: { id: courtId } });
+  });
+  return { success: true };
+}
+
+/**
+ * 7. CUSTOMERS CRUD OPERATIONS
+ */
+export async function createCustomerAction(name: string, email: string, phone: string, password?: string) {
+  await requireAdmin();
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    throw new Error("Email sudah terdaftar.");
+  }
+  const pass = password || "123456";
+  const hashedPassword = await hash(pass, 12);
+  const customer = await prisma.user.create({
+    data: {
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      role: "customer",
+    },
+  });
+  return { success: true, customer };
+}
+
+export async function updateCustomerAction(userId: string, name: string, email: string, phone: string, password?: string) {
+  await requireAdmin();
+  const existing = await prisma.user.findFirst({
+    where: { email, id: { not: userId } },
+  });
+  if (existing) {
+    throw new Error("Email sudah digunakan pengguna lain.");
+  }
+  const data: any = { name, email, phone };
+  if (password && password.trim() !== "") {
+    data.password = await hash(password, 12);
+  }
+  const customer = await prisma.user.update({
+    where: { id: userId },
+    data,
+  });
+  return { success: true, customer };
+}
+
+export async function deleteCustomerAction(userId: string) {
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const bookings = await tx.booking.findMany({ where: { userId }, select: { id: true } });
+    const bookingIds = bookings.map((b) => b.id);
+    await tx.payment.deleteMany({ where: { bookingId: { in: bookingIds } } });
+    await tx.booking.deleteMany({ where: { userId } });
+    await tx.user.delete({ where: { id: userId } });
+  });
+  return { success: true };
 }
