@@ -42,6 +42,18 @@ export default function AdminCustomersPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
   // Form fields
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
@@ -65,30 +77,37 @@ export default function AdminCustomersPage() {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  const handleToggleBlock = async (c: CustomerItem) => {
+  const handleToggleBlock = (c: CustomerItem) => {
     const nextState = !c.isBlocked;
+    const confirmTitle = nextState ? "Blokir Pelanggan" : "Aktifkan Pelanggan";
     const confirmMsg = nextState
       ? `Apakah Anda yakin ingin MEMBLOKIR/MENONAKTIFKAN akun ${c.name}? Pengguna ini tidak akan bisa login atau memesan lapangan lagi.`
       : `Apakah Anda yakin ingin MENGAKTIFKAN KEMBALI akun ${c.name}?`;
 
-    if (!window.confirm(confirmMsg)) return;
-
-    setActionError("");
-    setUpdatingId(c.id);
-    try {
-      await toggleBlockCustomer(c.id, nextState);
-      await fetchCustomers();
-      if (selectedCustomer?.id === c.id) {
-        setSelectedCustomer((prev) => (prev ? { ...prev, isBlocked: nextState } : null));
-      }
-    } catch {
-      setActionError("Gagal memperbarui status blokir akun.");
-    } finally {
-      setUpdatingId(null);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: confirmTitle,
+      message: confirmMsg,
+      onConfirm: async () => {
+        setActionError("");
+        setUpdatingId(c.id);
+        try {
+          await toggleBlockCustomer(c.id, nextState);
+          await fetchCustomers();
+          if (selectedCustomer?.id === c.id) {
+            setSelectedCustomer((prev) => (prev ? { ...prev, isBlocked: nextState } : null));
+          }
+        } catch {
+          setActionError("Gagal memperbarui status blokir akun.");
+        } finally {
+          setUpdatingId(null);
+        }
+      },
+    });
   };
 
   const handleOpenAddModal = () => {
+    setActionError("");
     setFormName("");
     setFormEmail("");
     setFormPhone("");
@@ -97,6 +116,7 @@ export default function AdminCustomersPage() {
   };
 
   const handleOpenEditModal = (c: CustomerItem) => {
+    setActionError("");
     setSelectedCustomerId(c.id);
     setFormName(c.name);
     setFormEmail(c.email);
@@ -108,7 +128,7 @@ export default function AdminCustomersPage() {
   const handleAddCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim() || !formEmail.trim() || !formPhone.trim()) {
-      alert("Nama, Email, dan Telepon wajib diisi.");
+      setActionError("Nama, Email, dan Telepon wajib diisi.");
       return;
     }
     setActionError("");
@@ -140,22 +160,24 @@ export default function AdminCustomersPage() {
     }
   };
 
-  const handleDeleteCustomer = async (userId: string, userName: string) => {
-    const isConfirmed = window.confirm(
-      `HAPUS PELANGGAN ${userName}?\nPERINGATAN: Menghapus pelanggan akan menghapus seluruh riwayat pesanan & transaksi terkait secara permanen.`
-    );
-    if (!isConfirmed) return;
-
-    setActionError("");
-    setUpdatingId(userId);
-    try {
-      await deleteCustomerAction(userId);
-      await fetchCustomers();
-    } catch {
-      setActionError("Gagal menghapus pelanggan.");
-    } finally {
-      setUpdatingId(null);
-    }
+  const handleDeleteCustomer = (userId: string, userName: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Hapus Pelanggan",
+      message: `HAPUS PELANGGAN ${userName}?\nPERINGATAN: Menghapus pelanggan akan menghapus seluruh riwayat pesanan & transaksi terkait secara permanen.`,
+      onConfirm: async () => {
+        setActionError("");
+        setUpdatingId(userId);
+        try {
+          await deleteCustomerAction(userId);
+          await fetchCustomers();
+        } catch {
+          setActionError("Gagal menghapus pelanggan.");
+        } finally {
+          setUpdatingId(null);
+        }
+      },
+    });
   };
 
   const filteredCustomers = customers.filter((c) => {
@@ -432,6 +454,11 @@ export default function AdminCustomersPage() {
         <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-4">
             <h3 className="font-bold text-lg text-carbon">Tambah Pelanggan Baru</h3>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 text-left text-red-700 text-xs leading-relaxed animate-fade-in">
+                ⚠️ {actionError}
+              </div>
+            )}
             <form onSubmit={handleAddCustomerSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nama Lengkap</label>
@@ -506,6 +533,11 @@ export default function AdminCustomersPage() {
         <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-4">
             <h3 className="font-bold text-lg text-carbon">Edit Data Pelanggan</h3>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 text-left text-red-700 text-xs leading-relaxed animate-fade-in">
+                ⚠️ {actionError}
+              </div>
+            )}
             <form onSubmit={handleEditCustomerSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nama Lengkap</label>
@@ -568,6 +600,40 @@ export default function AdminCustomersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CONFIRMATION MODAL */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-6">
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
+                ⚠️
+              </div>
+              <h3 className="font-bold text-base text-carbon">{confirmModal.title}</h3>
+              <p className="text-xs text-ash leading-relaxed whitespace-pre-line">{confirmModal.message}</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                className="flex-1 bg-white text-graphite border border-fog py-2.5 rounded-full font-bold text-xs hover:bg-mist transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  confirmModal.onConfirm();
+                  setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                }}
+                className="flex-1 bg-lavender text-white py-2.5 rounded-full font-bold text-xs hover:opacity-95 transition cursor-pointer"
+              >
+                Konfirmasi
+              </button>
+            </div>
           </div>
         </div>
       )}

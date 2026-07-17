@@ -36,6 +36,18 @@ export default function AdminJadwalPage() {
   const [formPrice, setFormPrice] = useState(100000);
   const [formStatus, setFormStatus] = useState<"tersedia" | "perbaikan">("tersedia");
 
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
   const fetchCourts = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -53,29 +65,32 @@ export default function AdminJadwalPage() {
     fetchCourts();
   }, [fetchCourts]);
 
-  const handleStatusChange = async (courtId: string, nextStatus: "tersedia" | "dipesan" | "perbaikan") => {
+  const handleStatusChange = (courtId: string, nextStatus: "tersedia" | "dipesan" | "perbaikan") => {
     const court = courts.find((c) => c.id === courtId);
     const courtName = court ? court.name : "Lapangan";
     const statusText = nextStatus === "tersedia" ? "TERSEDIA" : "DALAM PERBAIKAN";
-    
-    const isConfirmed = window.confirm(
-      `Apakah Anda yakin ingin mengubah status ${courtName} menjadi "${statusText}"?`
-    );
-    if (!isConfirmed) return;
 
-    setActionError("");
-    setUpdatingId(courtId);
-    try {
-      await updateCourtStatus(courtId, nextStatus);
-      await fetchCourts();
-    } catch {
-      setActionError("Gagal memperbarui status lapangan.");
-    } finally {
-      setUpdatingId(null);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Ubah Status Lapangan",
+      message: `Apakah Anda yakin ingin mengubah status ${courtName} menjadi "${statusText}"?`,
+      onConfirm: async () => {
+        setActionError("");
+        setUpdatingId(courtId);
+        try {
+          await updateCourtStatus(courtId, nextStatus);
+          await fetchCourts();
+        } catch {
+          setActionError("Gagal memperbarui status lapangan.");
+        } finally {
+          setUpdatingId(null);
+        }
+      },
+    });
   };
 
   const handleOpenAddModal = () => {
+    setActionError("");
     setFormName("");
     setFormType("futsal");
     setFormPrice(100000);
@@ -84,6 +99,7 @@ export default function AdminJadwalPage() {
   };
 
   const handleOpenEditModal = (c: CourtInfo) => {
+    setActionError("");
     setSelectedCourtId(c.id);
     setFormName(c.name);
     setFormType(c.type === "badminton" ? "badminton" : "futsal");
@@ -95,7 +111,7 @@ export default function AdminJadwalPage() {
   const handleAddCourtSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) {
-      alert("Nama lapangan wajib diisi.");
+      setActionError("Nama lapangan wajib diisi.");
       return;
     }
     setActionError("");
@@ -127,22 +143,24 @@ export default function AdminJadwalPage() {
     }
   };
 
-  const handleDeleteCourt = async (courtId: string, courtName: string) => {
-    const isConfirmed = window.confirm(
-      `HAPUS LAPANGAN ${courtName}?\nPERINGATAN: Menghapus lapangan akan menghapus seluruh data reservasi terkait secara permanen.`
-    );
-    if (!isConfirmed) return;
-
-    setActionError("");
-    setUpdatingId(courtId);
-    try {
-      await deleteCourt(courtId);
-      await fetchCourts();
-    } catch {
-      setActionError("Gagal menghapus lapangan.");
-    } finally {
-      setUpdatingId(null);
-    }
+  const handleDeleteCourt = (courtId: string, courtName: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Hapus Lapangan",
+      message: `HAPUS LAPANGAN ${courtName}?\nPERINGATAN: Menghapus lapangan akan menghapus seluruh data reservasi terkait secara permanen.`,
+      onConfirm: async () => {
+        setActionError("");
+        setUpdatingId(courtId);
+        try {
+          await deleteCourt(courtId);
+          await fetchCourts();
+        } catch {
+          setActionError("Gagal menghapus lapangan.");
+        } finally {
+          setUpdatingId(null);
+        }
+      },
+    });
   };
 
   return (
@@ -331,6 +349,11 @@ export default function AdminJadwalPage() {
         <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-4">
             <h3 className="font-bold text-lg text-carbon">Tambah Lapangan Baru</h3>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 text-left text-red-700 text-xs leading-relaxed animate-fade-in">
+                ⚠️ {actionError}
+              </div>
+            )}
             <form onSubmit={handleAddCourtSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nama Lapangan</label>
@@ -406,6 +429,11 @@ export default function AdminJadwalPage() {
         <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-4">
             <h3 className="font-bold text-lg text-carbon">Edit Lapangan</h3>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 text-left text-red-700 text-xs leading-relaxed animate-fade-in">
+                ⚠️ {actionError}
+              </div>
+            )}
             <form onSubmit={handleEditCourtSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nama Lapangan</label>
@@ -471,6 +499,40 @@ export default function AdminJadwalPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CONFIRMATION MODAL */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-6">
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
+                ⚠️
+              </div>
+              <h3 className="font-bold text-base text-carbon">{confirmModal.title}</h3>
+              <p className="text-xs text-ash leading-relaxed whitespace-pre-line">{confirmModal.message}</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                className="flex-1 bg-white text-graphite border border-fog py-2.5 rounded-full font-bold text-xs hover:bg-mist transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  confirmModal.onConfirm();
+                  setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                }}
+                className="flex-1 bg-lavender text-white py-2.5 rounded-full font-bold text-xs hover:opacity-95 transition cursor-pointer"
+              >
+                Konfirmasi
+              </button>
+            </div>
           </div>
         </div>
       )}
