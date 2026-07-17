@@ -14,9 +14,9 @@ export const COURT_IMAGES = {
     caption: "Lapangan interlock standar profesional (Foto Ilustrasi)",
   },
   badminton: {
-    url: "https://placehold.co/800x500/fafafa/181925?text=Lapangan+Badminton+(Foto+Ilustrasi)",
-    alt: "Foto Ilustrasi Lapangan Badminton SM Sport Center",
-    caption: "Karpet vinyl anti-slip spesifikasi turnamen (Foto Ilustrasi)",
+    url: "/images/badminton.png",
+    alt: "Lapangan Badminton SM Sport Center",
+    caption: "Karpet vinyl anti-slip spesifikasi turnamen",
   },
   heroBanner: {
     url: "https://placehold.co/1200x600/181925/ffffff?text=SM+Sport+Center+Venue+(Foto+Ilustrasi)",
