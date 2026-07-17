@@ -40,13 +40,6 @@ export default async function CustomerHomePage() {
       <main className="flex-grow">
         {/* 2. HERO SECTION */}
         <section className="py-20 md:py-28 px-4 text-center max-w-5xl mx-auto">
-          {/* Announcement Chip */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-fog bg-linen text-xs md:text-sm font-medium mb-8 shadow-subtle">
-            <span className="bg-sky/15 text-sky font-bold px-2 py-0.5 rounded-full text-xs">
-              NEW
-            </span>
-            <span className="text-carbon">Sistem Reservasi Real-time Anti Double-Booking Aktif</span>
-          </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-carbon leading-[1.12] max-w-4xl mx-auto">
             {BRAND_INFO.tagline}
