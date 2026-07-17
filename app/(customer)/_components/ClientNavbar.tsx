@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BRAND_INFO } from "@/lib/assets";
@@ -46,11 +47,9 @@ export default function ClientNavbar({ activePage = "home", initialSession = nul
         <Link
           href="/"
           onClick={handleBerandaClick}
-          className="flex items-center gap-2 font-bold text-lg text-carbon tracking-tight"
+          className="flex items-center gap-1.5 font-black text-lg text-[#1A237E] tracking-tight"
         >
-          <span className="w-8 h-8 rounded-full bg-lavender text-white flex items-center justify-center font-black text-sm shadow-subtle">
-            SM
-          </span>
+          <Image src="/images/logo.png" alt="SM Sports Logo" width={44} height={44} className="object-contain" priority />
           <span>{BRAND_INFO.name}</span>
         </Link>
 
@@ -58,17 +57,15 @@ export default function ClientNavbar({ activePage = "home", initialSession = nul
           <Link
             href="/"
             onClick={handleBerandaClick}
-            className={`transition ${
-              activePage === "home" ? "text-lavender font-bold" : "text-graphite hover:text-carbon"
-            }`}
+            className={`transition ${activePage === "home" ? "text-lavender font-bold" : "text-graphite hover:text-carbon"
+              }`}
           >
             Beranda
           </Link>
           <Link
             href="/booking"
-            className={`transition ${
-              activePage === "booking" ? "text-lavender font-bold" : "text-graphite hover:text-carbon"
-            }`}
+            className={`transition ${activePage === "booking" ? "text-lavender font-bold" : "text-graphite hover:text-carbon"
+              }`}
           >
             Jadwal &amp; Booking
           </Link>
@@ -87,9 +84,8 @@ export default function ClientNavbar({ activePage = "home", initialSession = nul
           )}
           <Link
             href="/riwayat"
-            className={`transition ${
-              activePage === "riwayat" ? "text-lavender font-bold" : "text-graphite hover:text-carbon"
-            }`}
+            className={`transition ${activePage === "riwayat" ? "text-lavender font-bold" : "text-graphite hover:text-carbon"
+              }`}
           >
             Riwayat Saya
           </Link>

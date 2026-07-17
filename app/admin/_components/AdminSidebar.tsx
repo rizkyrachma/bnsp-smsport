@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { BRAND_INFO } from "@/lib/assets";
 
@@ -73,9 +74,7 @@ export default function AdminSidebar() {
         <div>
           {/* Brand Header */}
           <div className="p-6 border-b border-fog flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-lavender text-white flex items-center justify-center font-black text-sm shadow-subtle flex-shrink-0">
-              SM
-            </div>
+            <Image src="/images/logo.png" alt="SM Sports Logo" width={40} height={40} className="object-contain flex-shrink-0" />
             <div>
               <h2 className="font-bold text-sm tracking-tight text-carbon leading-tight">{BRAND_INFO.name}</h2>
               <span className="text-[10px] font-bold tracking-wider text-lavender uppercase bg-lavender/10 px-2 py-0.5 rounded-full border border-lavender/20 inline-block mt-1">
