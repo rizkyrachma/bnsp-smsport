@@ -287,7 +287,7 @@ export default async function CustomerHomePage() {
             <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-sky/10 blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-2xl mx-auto">
-              <span className="text-xs font-bold uppercase tracking-widest text-lavender block mb-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#60b8f0] block mb-3">
                 Jangan Sampai Kehabisan Slot
               </span>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">
