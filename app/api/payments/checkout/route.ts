@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
               theme: {
                 extend: {
                   colors: {
-                    lavender: '#918df6',
+                    lavender: '#21257c',
                     carbon: '#181925',
                     ash: '#828282',
                     mist: '#f3f4f6',
@@ -263,7 +263,7 @@ function renderSuccessPage(bookingId: string, courtName: string, dateStr: string
           theme: {
             extend: {
               colors: {
-                lavender: '#918df6',
+                lavender: '#21257c',
                 carbon: '#181925',
                 ash: '#828282',
                 mist: '#f3f4f6',

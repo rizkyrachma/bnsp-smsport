@@ -255,8 +255,8 @@ export default function AdminDashboardPage() {
                 <AreaChart data={data.revenueChartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#918df6" stopOpacity={0.5} />
-                      <stop offset="95%" stopColor="#918df6" stopOpacity={0.0} />
+                      <stop offset="5%" stopColor="#21257c" stopOpacity={0.5} />
+                      <stop offset="95%" stopColor="#21257c" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="label" stroke="#999999" fontSize={11} tickLine={false} />
@@ -280,7 +280,7 @@ export default function AdminDashboardPage() {
                   <Area
                     type="monotone"
                     dataKey="amount"
-                    stroke="#918df6"
+                    stroke="#21257c"
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorRevenue)"
@@ -338,7 +338,7 @@ export default function AdminDashboardPage() {
                     {data.courtBookingStats.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={entry.type === "futsal" ? "#918df6" : "#2c78fc"}
+                        fill={entry.type === "futsal" ? "#21257c" : "#2c78fc"}
                       />
                     ))}
                   </Bar>

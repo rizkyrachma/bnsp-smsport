@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -7,6 +8,7 @@ import { BRAND_INFO } from "@/lib/assets";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // If on admin login page, don't show sidebar
   if (pathname === "/admin/login") {
@@ -67,10 +69,12 @@ export default function AdminSidebar() {
     window.location.href = "/";
   };
 
+  const activeItem = navItems.find((item) => pathname.startsWith(item.href)) || navItems[0];
+
   return (
     <>
       {/* Sidebar for Desktop — Fixed height h-screen, no independent vertical scroll, engineered white canvas style */}
-      <aside className="hidden lg:flex flex-col justify-between w-64 bg-paper-white border-r border-fog text-carbon h-screen sticky top-0 flex-shrink-0 z-30 overflow-hidden">
+      <aside className="hidden md:flex flex-col justify-between w-64 bg-paper-white border-r border-fog text-carbon h-screen sticky top-0 flex-shrink-0 z-30 overflow-hidden">
         <div>
           {/* Brand Header */}
           <div className="p-6 border-b border-fog flex items-center gap-3">
@@ -122,7 +126,7 @@ export default function AdminSidebar() {
             <button
               type="button"
               onClick={handleLogout}
-              className="w-full text-center text-[11px] font-bold bg-ember/10 hover:bg-ember/20 text-ember py-2.5 rounded-xl border border-ember/20 transition"
+              className="w-full text-center text-[11px] font-bold bg-ember/10 hover:bg-ember/20 text-ember py-2.5 rounded-xl border border-ember/20 transition cursor-pointer"
             >
               Keluar
             </button>
@@ -131,42 +135,71 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Mobile / Tablet Header */}
-      <header className="lg:hidden sticky top-0 z-40 bg-paper-white/95 backdrop-blur-md border-b border-fog px-4 py-3 flex flex-col gap-3">
+      <header className="md:hidden sticky top-0 z-40 bg-paper-white/95 backdrop-blur-md border-b border-fog px-4 py-3 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-sm text-carbon">
-            <span className="w-7 h-7 rounded-full bg-lavender text-white flex items-center justify-center font-black text-xs shadow-subtle">
-              SM
+            <Image src="/images/logo.png" alt="SM Sports Logo" width={28} height={28} className="object-contain flex-shrink-0" />
+            <span className="truncate max-w-[150px] sm:max-w-none">
+              {BRAND_INFO.name} 
+              <span className="text-[10px] text-lavender bg-lavender/10 px-1.5 py-0.5 rounded-full ml-1.5 font-bold">ADMIN</span>
             </span>
-            <span>{BRAND_INFO.name} <span className="text-[10px] text-lavender bg-lavender/10 px-1.5 py-0.5 rounded-full ml-1 font-bold">ADMIN</span></span>
           </div>
           <button
             type="button"
             onClick={handleLogout}
-            className="text-xs font-bold text-ember bg-ember/10 border border-ember/20 px-3 py-1.5 rounded-full transition"
+            className="text-xs font-bold text-ember bg-ember/10 border border-ember/20 px-3 py-1.5 rounded-full transition cursor-pointer"
           >
             Keluar
           </button>
         </div>
 
-        {/* Horizontal Nav without scrollbar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {navItems.map((item) => {
-            const isActive = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition flex-shrink-0 ${
-                  isActive
-                    ? "bg-lavender text-white shadow-subtle"
-                    : "bg-linen text-graphite border border-fog"
-                }`}
-              >
-                {item.icon}
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
+        {/* Dropdown Menu Toggle */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="w-full bg-linen border border-fog rounded-2xl px-4 py-3 text-xs font-bold text-carbon flex items-center justify-between shadow-subtle hover:bg-mist transition cursor-pointer"
+          >
+            <span className="flex items-center gap-2">
+              {activeItem.icon}
+              <span>{activeItem.name}</span>
+            </span>
+            <svg className={`w-4 h-4 text-graphite transition-transform duration-200 ${isMobileMenuOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {/* Backdrop element to close the dropdown when clicking outside */}
+          {isMobileMenuOpen && (
+            <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setIsMobileMenuOpen(false)} />
+          )}
+
+          <div
+            className={`absolute left-0 right-0 mt-1 bg-paper-white border border-fog rounded-2xl shadow-subtle-3 z-50 py-1.5 overflow-hidden transition-all duration-200 origin-top transform ${
+              isMobileMenuOpen
+                ? "opacity-100 scale-y-100 translate-y-0 visible"
+                : "opacity-0 scale-y-95 -translate-y-2 invisible pointer-events-none"
+            }`}
+          >
+            {navItems.map((item) => {
+              const isActive = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3.5 text-xs font-bold transition ${
+                    isActive
+                      ? "bg-lavender text-white shadow-subtle"
+                      : "text-graphite hover:text-carbon hover:bg-linen"
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </header>
     </>
