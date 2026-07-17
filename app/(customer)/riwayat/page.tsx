@@ -40,7 +40,7 @@ function RiwayatPageContent() {
 
   // Payment upload modal state
   const [activePayBooking, setActivePayBooking] = useState<BookingItem | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<string>("bank_transfer");
+  const [paymentMethod, setPaymentMethod] = useState<string>("qris");
   const [proofInput, setProofInput] = useState<string>("");
   const [uploading, setUploading] = useState<boolean>(false);
   const [payError, setPayError] = useState<string>("");
@@ -48,6 +48,35 @@ function RiwayatPageContent() {
 
   // E-Ticket view state
   const [ticketBooking, setTicketBooking] = useState<BookingItem | null>(null);
+
+  // Polling hook to automatically verify payment when scanned on mobile phone
+  useEffect(() => {
+    if (!activePayBooking || activePayBooking.status !== "pending") return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/bookings");
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.bookings || [];
+          setBookings(list);
+          const currentBooking = list.find((b: BookingItem) => b.id === activePayBooking.id);
+          if (currentBooking && currentBooking.status === "paid") {
+            setPaySuccess(true);
+            setTimeout(() => {
+              setActivePayBooking(null);
+              setPaySuccess(false);
+            }, 2500);
+            clearInterval(interval);
+          }
+        }
+      } catch (err) {
+        console.error("Error polling booking status:", err);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [activePayBooking]);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
@@ -332,71 +361,38 @@ function RiwayatPageContent() {
             </div>
 
             <form onSubmit={handlePaymentSubmit} className="space-y-5">
-              <div>
-                <label className="block text-xs font-bold text-carbon mb-2 uppercase tracking-wider">
-                  Pilih Jalur Pembayaran:
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("bank_transfer")}
-                    className={`p-3 rounded-xl border text-left text-xs font-semibold transition ${
-                      paymentMethod === "bank_transfer"
-                        ? "bg-lavender/10 border-lavender text-lavender ring-2 ring-lavender/20"
-                        : "bg-paper-white border-fog text-graphite hover:bg-mist"
-                    }`}
-                  >
-                    <span>🏧 Transfer Bank / Manual</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("qris")}
-                    className={`p-3 rounded-xl border text-left text-xs font-semibold transition ${
-                      paymentMethod === "qris"
-                        ? "bg-lavender/10 border-lavender text-lavender ring-2 ring-lavender/20"
-                        : "bg-paper-white border-fog text-graphite hover:bg-mist"
-                    }`}
-                  >
-                    <span>📱 QRIS / Virtual Account</span>
-                  </button>
-                </div>
+              <div className="text-center">
+                <span className="block text-xs font-bold text-carbon mb-1 uppercase tracking-wider">
+                  Metode Pembayaran: QRIS Instan
+                </span>
+                <p className="text-[11px] text-ash mb-4">
+                  Silakan scan kode QR di bawah dengan aplikasi mobile banking atau dompet digital Anda.
+                </p>
               </div>
 
-              {paymentMethod === "bank_transfer" ? (
-                <div className="space-y-4">
-                  <div className="bg-mist p-4 rounded-xl border border-fog text-xs space-y-1">
-                    <span className="font-bold text-carbon block mb-1">Tujuan Transfer Resmi:</span>
-                    <p className="text-graphite">Bank BCA: <strong className="text-carbon">8899-0011-22</strong></p>
-                    <p className="text-graphite">Bank Mandiri: <strong className="text-carbon">1300-8888-9999</strong></p>
-                    <p className="text-ash pt-1">a.n. SM Sport Center Official</p>
-                  </div>
-
-                  <div>
-                    <label htmlFor="proof" className="block text-xs font-bold text-carbon mb-1">
-                      Link / Bukti Foto Transfer (URL atau Keterangan):
-                    </label>
-                    <input
-                      id="proof"
-                      type="text"
-                      required
-                      placeholder="Contoh: https://i.imgur.com/... atau transfer BCA a.n. Rizky"
-                      value={proofInput}
-                      onChange={(e) => setProofInput(e.target.value)}
-                      className="w-full bg-paper-white border border-fog rounded-xl px-3 py-2 text-xs text-carbon focus:outline-none focus:ring-2 focus:ring-lavender"
-                    />
-                    <p className="text-[11px] text-ash mt-1">
-                      Admin akan segera memverifikasi bukti yang kamu kirim dalam waktu singkat.
-                    </p>
-                  </div>
+              <div className="flex flex-col items-center justify-center p-4 bg-mist border border-fog rounded-2xl shadow-subtle space-y-4">
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/api/payments/checkout?bookingId=${activePayBooking.id}`
+                      : ""
+                  )}`}
+                  alt="QRIS Dinamis"
+                  className="w-48 h-48 object-contain bg-white p-2 rounded-xl border border-fog"
+                />
+                
+                <div className="text-center space-y-1">
+                  <p className="text-[10px] text-ash font-medium">Atau klik link di bawah untuk simulasi scan di HP:</p>
+                  <a 
+                    href={typeof window !== "undefined" ? `/api/payments/checkout?bookingId=${activePayBooking.id}` : "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-bold text-lavender hover:underline block pt-0.5"
+                  >
+                    Simulasi Pembayaran (Buka Tautan Pembayaran)
+                  </a>
                 </div>
-              ) : (
-                <div className="bg-mist p-4 rounded-xl border border-fog text-center text-xs space-y-2">
-                  <span className="font-bold text-carbon block">Simulasi QRIS / Virtual Account</span>
-                  <p className="text-graphite leading-relaxed">
-                    Integrasi payment gateway otomatis siap diaktifkan. Untuk tahap pengujian ini, kamu bisa langsung klik tombol verifikasi di bawah.
-                  </p>
-                </div>
-              )}
+              </div>
 
               {payError && (
                 <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
@@ -414,10 +410,7 @@ function RiwayatPageContent() {
                   <div>
                     <h4 className="font-bold text-[10px] text-emerald-800 uppercase tracking-wider">Berhasil</h4>
                     <p className="text-emerald-700 text-xs mt-0.5 leading-relaxed">
-                      {paymentMethod === "qris" 
-                        ? "Pembayaran QRIS Berhasil! Pemesanan Anda kini telah lunas."
-                        : "Bukti pembayaran berhasil disimpan! Admin sedang memeriksa pesananmu."
-                      }
+                      Pembayaran QRIS Berhasil! Pemesanan Anda kini telah lunas.
                     </p>
                   </div>
                 </div>
@@ -428,10 +421,7 @@ function RiwayatPageContent() {
                 disabled={uploading || paySuccess}
                 className="w-full bg-lavender text-white py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50"
               >
-                {uploading 
-                  ? (paymentMethod === "qris" ? "Memproses Pembayaran..." : "Mengirim Data...") 
-                  : (paymentMethod === "qris" ? "Selesaikan Pembayaran (Simulasi)" : "Kirim Bukti Pembayaran")
-                }
+                {uploading ? "Memproses Pembayaran..." : "Selesaikan Pembayaran (Simulasi)"}
               </button>
             </form>
           </div>
