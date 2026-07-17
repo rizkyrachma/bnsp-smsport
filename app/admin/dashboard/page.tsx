@@ -182,8 +182,8 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* 4 KPI Summary Cards (DESIGN.md White Canvas Theme) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 3 KPI Summary Cards (DESIGN.md White Canvas Theme) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-ash">Total Pelanggan</span>
@@ -228,31 +228,6 @@ export default function AdminDashboardPage() {
           <div className="mt-4">
             <p className="text-3xl font-black text-carbon">{data.totalBookingsCount}</p>
             <p className="text-[11px] text-ash mt-1">Total seluruh pesanan masuk</p>
-          </div>
-        </div>
-
-        <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-ash">Menunggu Verifikasi</span>
-            <div className="w-9 h-9 rounded-2xl bg-amber/10 text-amber flex items-center justify-center font-bold">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-4 flex items-end justify-between">
-            <div>
-              <p className="text-3xl font-black text-amber">{data.pendingVerificationsCount}</p>
-              <p className="text-[11px] text-ash mt-1">Bukti transfer baru unggah</p>
-            </div>
-            {data.pendingVerificationsCount > 0 && (
-              <Link
-                href="/admin/riwayat"
-                className="text-[11px] font-bold text-lavender hover:underline bg-lavender/10 px-3 py-1 rounded-full border border-lavender/20"
-              >
-                Periksa →
-              </Link>
-            )}
           </div>
         </div>
       </div>
