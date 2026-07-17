@@ -37,6 +37,7 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
   const [dateFilter, setDateFilter] = useState<"all" | "7days" | "30days">("all");
   const [updatingCourtId, setUpdatingCourtId] = useState<string | null>(null);
 
@@ -68,13 +69,14 @@ export default function AdminDashboardPage() {
   }, [fetchDashboard]);
 
   const handleToggleStatus = async (courtId: string, currentStatus: string) => {
+    setActionError("");
     setUpdatingCourtId(courtId);
     try {
       const nextStatus = currentStatus === "perbaikan" ? "tersedia" : "perbaikan";
       await updateCourtStatus(courtId, nextStatus);
       await fetchDashboard();
     } catch {
-      alert("Gagal mengubah status lapangan.");
+      setActionError("Gagal mengubah status lapangan.");
     } finally {
       setUpdatingCourtId(null);
     }
@@ -120,6 +122,23 @@ export default function AdminDashboardPage() {
 
   return (
     <main className="p-6 sm:p-8 space-y-8 max-w-7xl mx-auto w-full pb-20">
+      {actionError && (
+        <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative">
+          <div className="text-red-500 text-xl shrink-0">⚠️</div>
+          <div className="flex-1">
+            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="text-red-700 text-xs mt-1 leading-relaxed">{actionError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionError("")}
+            className="text-red-400 hover:text-red-600 text-xs font-bold w-6 h-6 rounded-full bg-red-100/50 hover:bg-red-100 flex items-center justify-center transition absolute top-4 right-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Top Header & Date Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-fog pb-6">
         <div>

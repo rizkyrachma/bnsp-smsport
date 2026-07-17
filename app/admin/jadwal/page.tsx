@@ -16,14 +16,17 @@ export default function AdminJadwalPage() {
   const [courts, setCourts] = useState<CourtInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
 
   const fetchCourts = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const data = await getAdminDashboardData();
       setCourts(data.courtsStatus);
     } catch {
-      alert("Gagal memuat status lapangan.");
+      setError("Gagal memuat status lapangan.");
     } finally {
       setLoading(false);
     }
@@ -43,12 +46,13 @@ export default function AdminJadwalPage() {
     );
     if (!isConfirmed) return;
 
+    setActionError("");
     setUpdatingId(courtId);
     try {
       await updateCourtStatus(courtId, nextStatus);
       await fetchCourts();
     } catch {
-      alert("Gagal memperbarui status lapangan.");
+      setActionError("Gagal memperbarui status lapangan.");
     } finally {
       setUpdatingId(null);
     }
@@ -56,6 +60,40 @@ export default function AdminJadwalPage() {
 
   return (
     <main className="p-6 sm:p-8 space-y-8 max-w-7xl mx-auto w-full pb-20">
+      {error && (
+        <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative">
+          <div className="text-red-500 text-xl shrink-0">⚠️</div>
+          <div className="flex-1">
+            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="text-red-700 text-xs mt-1 leading-relaxed">{error}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setError("")}
+            className="text-red-400 hover:text-red-600 text-xs font-bold w-6 h-6 rounded-full bg-red-100/50 hover:bg-red-100 flex items-center justify-center transition absolute top-4 right-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative">
+          <div className="text-red-500 text-xl shrink-0">⚠️</div>
+          <div className="flex-1">
+            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="text-red-700 text-xs mt-1 leading-relaxed">{actionError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionError("")}
+            className="text-red-400 hover:text-red-600 text-xs font-bold w-6 h-6 rounded-full bg-red-100/50 hover:bg-red-100 flex items-center justify-center transition absolute top-4 right-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="border-b border-fog pb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-carbon tracking-tight">
           Manajemen &amp; Blokir Jadwal Lapangan

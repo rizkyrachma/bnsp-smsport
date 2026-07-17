@@ -37,9 +37,11 @@ export default function AdminRiwayatPage() {
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [rejectionModal, setRejectionModal] = useState<{ bookingId: string } | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string>("");
+  const [alertState, setAlertState] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
+    setAlertState(null);
     try {
       const res = await getAdminBookings({
         status: statusFilter,
@@ -48,7 +50,7 @@ export default function AdminRiwayatPage() {
       });
       setBookings(res);
     } catch {
-      alert("Gagal memuat daftar riwayat reservasi.");
+      setAlertState({ message: "Gagal memuat daftar riwayat reservasi.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -66,19 +68,20 @@ export default function AdminRiwayatPage() {
 
     if (!window.confirm(confirmMsg)) return;
 
+    setAlertState(null);
     setVerifyingId(bookingId);
     try {
       const res = await verifyPaymentAction(bookingId, action, reason);
       if (res.success) {
-        alert(res.message);
+        setAlertState({ message: res.message || "Persetujuan berhasil.", type: "success" });
         await fetchBookings();
         setRejectionModal(null);
         setRejectionReason("");
       } else {
-        alert(res.error || "Gagal memverifikasi pembayaran.");
+        setAlertState({ message: res.error || "Gagal memverifikasi pembayaran.", type: "error" });
       }
     } catch {
-      alert("Terjadi kesalahan jaringan.");
+      setAlertState({ message: "Terjadi kesalahan jaringan.", type: "error" });
     } finally {
       setVerifyingId(null);
     }
@@ -86,6 +89,41 @@ export default function AdminRiwayatPage() {
 
   return (
     <main className="p-6 sm:p-8 space-y-8 max-w-7xl mx-auto w-full pb-20">
+      {alertState && (
+        <div className={`border rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative animate-fade-in ${
+          alertState.type === "success" 
+            ? "bg-emerald-50 border-emerald-200/60 text-emerald-800" 
+            : "bg-red-50 border-red-200/60 text-red-800"
+        }`}>
+          <div className="text-xl shrink-0">
+            {alertState.type === "success" ? "✅" : "⚠️"}
+          </div>
+          <div className="flex-1">
+            <h4 className={`font-bold text-[10px] uppercase tracking-wider ${
+              alertState.type === "success" ? "text-emerald-800" : "text-red-800"
+            }`}>
+              {alertState.type === "success" ? "Berhasil" : "Kesalahan"}
+            </h4>
+            <p className={`text-xs mt-1 leading-relaxed ${
+              alertState.type === "success" ? "text-emerald-700" : "text-red-700"
+            }`}>
+              {alertState.message}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAlertState(null)}
+            className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center transition absolute top-4 right-4 ${
+              alertState.type === "success" 
+                ? "bg-emerald-100/50 hover:bg-emerald-100 text-emerald-500 hover:text-emerald-700" 
+                : "bg-red-100/50 hover:bg-red-100 text-red-500 hover:text-red-700"
+            }`}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-fog pb-6">
         <div>

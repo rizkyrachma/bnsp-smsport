@@ -32,9 +32,11 @@ export default function AdminLaporanPage() {
   const [courtTypeFilter, setCourtTypeFilter] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [error, setError] = useState("");
 
   const fetchReport = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const res = await getAdminBookings({
         status: statusFilter,
@@ -44,7 +46,7 @@ export default function AdminLaporanPage() {
       });
       setItems(res);
     } catch {
-      alert("Gagal memuat data laporan.");
+      setError("Gagal memuat data laporan.");
     } finally {
       setLoading(false);
     }
@@ -59,8 +61,9 @@ export default function AdminLaporanPage() {
   const avgTicket = paidCount > 0 ? Math.round(totalRevenue / paidCount) : 0;
 
   const handleExportCSV = () => {
+    setError("");
     if (items.length === 0) {
-      alert("Tidak ada data untuk diekspor.");
+      setError("Tidak ada data untuk diekspor.");
       return;
     }
 
@@ -116,6 +119,23 @@ export default function AdminLaporanPage() {
 
   return (
     <main className="p-6 sm:p-8 space-y-8 max-w-7xl mx-auto w-full pb-20">
+      {error && (
+        <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative print:hidden animate-fade-in">
+          <div className="text-red-500 text-xl shrink-0">⚠️</div>
+          <div className="flex-1">
+            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="text-red-700 text-xs mt-1 leading-relaxed">{error}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setError("")}
+            className="text-red-400 hover:text-red-600 text-xs font-bold w-6 h-6 rounded-full bg-red-100/50 hover:bg-red-100 flex items-center justify-center transition absolute top-4 right-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-fog pb-6">
         <div>
