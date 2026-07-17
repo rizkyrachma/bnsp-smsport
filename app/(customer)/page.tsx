@@ -257,7 +257,7 @@ export default async function CustomerHomePage() {
 
             <div className="bg-paper-white border border-fog rounded-2xl p-8 shadow-subtle-2 flex flex-col justify-between">
               <p className="text-graphite text-sm italic leading-relaxed mb-6">
-                &ldquo;Sistem hold slot 10 menitnya sangat membantu saat harus koordinasi udunan dulu sama teman-teman tim sebelum transfer pembayaran.&rdquo;
+                &ldquo;Sistem hold slot 10 menitnya sangat membantu saat harus koordinasi patungan dulu sama teman-teman tim sebelum transfer pembayaran.&rdquo;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-mint/20 text-mint font-bold flex items-center justify-center text-sm">
