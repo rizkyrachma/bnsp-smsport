@@ -78,9 +78,59 @@ function BookingPageContent() {
   // Handle slot click
   const handleSelectSlot = (court: CourtSchedule, slot: SlotStatus) => {
     if (slot.status !== "tersedia") return;
+    
     setSelectedCourt(court);
     setSelectedSlot(slot);
-    setDurationHours(1);
+    setBookingError("");
+
+    const targetDuration = durationHours; // Keep the active duration
+    const isAvailable = checkConsecutiveAvailable(court, slot, targetDuration);
+
+    if (!isAvailable) {
+      // Find the first blocked slot or if it exceeds operational time
+      const startIndex = court.slots.findIndex((s) => s.start === slot.start);
+      let blockedSlot = null;
+      let isOutOfBounds = false;
+
+      for (let i = 0; i < targetDuration; i++) {
+        const index = startIndex + i;
+        if (index >= court.slots.length) {
+          isOutOfBounds = true;
+          break;
+        }
+        const currentSlot = court.slots[index];
+        if (currentSlot.status !== "tersedia") {
+          blockedSlot = currentSlot;
+          break;
+        }
+      }
+
+      let errorMsg = "";
+      if (isOutOfBounds) {
+        errorMsg = `Durasi ${targetDuration} jam tidak tersedia, melebihi jam operasional tutup (22:00).`;
+      } else if (blockedSlot) {
+        const statusText = blockedSlot.status === "dipesan" ? "sudah dipesan" : "sedang dalam perawatan";
+        errorMsg = `Durasi ${targetDuration} jam tidak tersedia, jam ${blockedSlot.start} ${statusText}.`;
+      } else {
+        errorMsg = `Durasi ${targetDuration} jam tidak tersedia.`;
+      }
+
+      // Find the max available duration
+      let maxAvailable = 1;
+      for (let d = targetDuration - 1; d >= 1; d--) {
+        if (checkConsecutiveAvailable(court, slot, d)) {
+          maxAvailable = d;
+          break;
+        }
+      }
+
+      setDurationHours(maxAvailable);
+      setBookingError(errorMsg);
+    }
+  };
+
+  const handleSelectDuration = (dur: number) => {
+    setDurationHours(dur);
     setBookingError("");
   };
 
@@ -104,6 +154,22 @@ function BookingPageContent() {
     return endH.toString().padStart(2, "0") + ":00";
   };
 
+  // Generate list of selected slots based on start slot and duration
+  const getSelectedTimeRange = () => {
+    if (!selectedCourt || !selectedSlot) return [];
+    const startIndex = selectedCourt.slots.findIndex((s) => s.start === selectedSlot.start);
+    if (startIndex === -1) return [];
+    const range = [];
+    for (let i = 0; i < durationHours; i++) {
+      const s = selectedCourt.slots[startIndex + i];
+      if (s) {
+        range.push(s.start);
+      }
+    }
+    return range;
+  };
+
+  const selectedTimeRange = getSelectedTimeRange();
   const totalPrice = selectedCourt ? selectedCourt.pricePerHour * durationHours : 0;
   const endTime = selectedSlot ? calculateEndTime(selectedSlot.start, durationHours) : "";
 
@@ -315,7 +381,7 @@ function BookingPageContent() {
                     {court.slots.map((slot: any) => {
                       const isSelected =
                         selectedCourt?.courtId === court.courtId &&
-                        selectedSlot?.start === slot.start;
+                        selectedTimeRange.includes(slot.start);
 
                       if (slot.status === "tersedia") {
                         return (
@@ -425,7 +491,7 @@ function BookingPageContent() {
                       key={dur}
                       type="button"
                       disabled={!isAvailable}
-                      onClick={() => setDurationHours(dur)}
+                      onClick={() => handleSelectDuration(dur)}
                       className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${
                         durationHours === dur
                           ? "bg-lavender text-white shadow-subtle"
@@ -451,7 +517,7 @@ function BookingPageContent() {
 
                 <button
                   type="button"
-                  disabled={submitting}
+                  disabled={submitting || !!bookingError}
                   onClick={handleConfirmBooking}
                   className="bg-lavender text-white px-6 py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50 flex items-center gap-2"
                 >
