@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { getAdminBookings } from "@/lib/admin-actions";
 import { BRAND_INFO } from "@/lib/assets";
+import { generateLaporanPDF } from "@/lib/generateLaporanPDF";
 
 interface ReportItem {
   id: string;
@@ -110,7 +111,7 @@ export default function AdminLaporanPage() {
   };
 
   const handlePrintPDF = () => {
-    window.print();
+    generateLaporanPDF(items, dateFrom, dateTo);
   };
 
   return (

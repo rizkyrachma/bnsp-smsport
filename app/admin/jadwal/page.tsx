@@ -34,6 +34,15 @@ export default function AdminJadwalPage() {
   }, [fetchCourts]);
 
   const handleStatusChange = async (courtId: string, nextStatus: "tersedia" | "dipesan" | "perbaikan") => {
+    const court = courts.find((c) => c.id === courtId);
+    const courtName = court ? court.name : "Lapangan";
+    const statusText = nextStatus === "tersedia" ? "TERSEDIA" : "DALAM PERBAIKAN";
+    
+    const isConfirmed = window.confirm(
+      `Apakah Anda yakin ingin mengubah status ${courtName} menjadi "${statusText}"?`
+    );
+    if (!isConfirmed) return;
+
     setUpdatingId(courtId);
     try {
       await updateCourtStatus(courtId, nextStatus);
