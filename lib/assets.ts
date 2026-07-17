@@ -9,9 +9,9 @@
 
 export const COURT_IMAGES = {
   futsal: {
-    url: "https://placehold.co/800x500/181925/918df6?text=Lapangan+Futsal+(Foto+Ilustrasi)",
-    alt: "Foto Ilustrasi Lapangan Futsal SM Sport Center",
-    caption: "Lapangan interlock standar profesional (Foto Ilustrasi)",
+    url: "/images/futsal.png",
+    alt: "Lapangan Futsal SM Sport Center",
+    caption: "Lapangan interlock standar profesional",
   },
   badminton: {
     url: "/images/badminton.png",
