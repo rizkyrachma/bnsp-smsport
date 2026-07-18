@@ -28,7 +28,7 @@ export const BRAND_INFO = {
   name: "SM Sport Center",
   tagline: "Reservasi Lapangan Futsal & Badminton Jadi Mudah",
   address: "Jl. Olahraga No. 88, Kota, Jawa Barat",
-  phone: "0812-3456-7890",
-  whatsapp: "6281234567890",
+  phone: "085781958188",
+  whatsapp: "6285781958188",
   operatingHours: "08:00 - 23:00 WIB (Buka Setiap Hari)",
 };

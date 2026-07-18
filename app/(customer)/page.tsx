@@ -358,10 +358,18 @@ export default async function CustomerHomePage() {
                 <span>{BRAND_INFO.address}</span>
               </li>
               <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-ash" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                <svg className="w-4 h-4 text-[#25D366] shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M11.996 0C5.372 0 0 5.373 0 11.998c0 2.115.552 4.18 1.602 6.002L.052 24l6.16-1.616a11.954 11.954 0 005.784 1.488h.005c6.624 0 11.996-5.373 11.996-11.998A11.996 11.996 0 0011.996 0zM11.996 21.84h-.004a9.96 9.96 0 01-5.075-1.385l-.364-.216-3.771.989 1.006-3.673-.237-.377a9.957 9.957 0 01-1.523-5.26c0-5.49 4.467-9.958 9.968-9.958 2.662 0 5.163 1.037 7.045 2.92 1.882 1.883 2.918 4.383 2.918 7.046 0 5.491-4.468 9.959-9.963 9.959zm5.464-7.464c-.299-.15-1.768-.872-2.042-.971-.274-.1-.474-.15-.674.15-.2.299-.773.971-.948 1.171-.174.199-.349.224-.648.075-.299-.15-1.261-.465-2.401-1.482-.888-.792-1.488-1.77-1.662-2.07-.174-.299-.019-.461.131-.611.135-.135.299-.35.449-.524.15-.175.2-.299.299-.499.1-.199.05-.374-.025-.524-.075-.15-.674-1.623-.923-2.223-.243-.585-.49-.505-.674-.514-.174-.009-.374-.009-.574-.009-.2 0-.524.075-.798.374-.274.299-1.048 1.024-1.048 2.498 0 1.474 1.073 2.897 1.223 3.097.15.199 2.112 3.224 5.116 4.521.715.309 1.273.493 1.708.631.718.228 1.371.196 1.888.119.578-.086 1.768-.722 2.017-1.421.249-.699.249-1.298.174-1.421-.074-.124-.274-.199-.573-.349z" />
                 </svg>
-                <span>Telepon/WA: {BRAND_INFO.phone}</span>
+                <a
+                  href={`https://wa.me/${BRAND_INFO.whatsapp}?text=${encodeURIComponent("Halo Admin SM Sport Center, saya ingin bertanya terkait jadwal dan reservasi lapangan.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition underline decoration-dotted underline-offset-4 text-[#25D366] font-semibold"
+                  title="Klik untuk chat langsung ke WhatsApp Admin"
+                >
+                  Telepon/WA: {BRAND_INFO.phone}
+                </a>
               </li>
             </ul>
           </div>
