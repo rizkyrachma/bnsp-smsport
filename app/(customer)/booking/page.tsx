@@ -48,6 +48,7 @@ function BookingPageContent() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [bookingError, setBookingError] = useState<string>("");
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   const fetchSchedule = useCallback(async (dateStr: string) => {
     setLoading(true);
@@ -82,6 +83,7 @@ function BookingPageContent() {
     setSelectedCourt(court);
     setSelectedSlot(slot);
     setBookingError("");
+    setShowConfirmModal(false);
 
     const targetDuration = durationHours; // Keep the active duration
     const isAvailable = checkConsecutiveAvailable(court, slot, targetDuration);
@@ -195,6 +197,7 @@ function BookingPageContent() {
 
       if (!res.ok) {
         if (res.status === 401) {
+          setShowConfirmModal(false);
           setShowLoginModal(true);
           return;
         }
@@ -204,7 +207,8 @@ function BookingPageContent() {
         return;
       }
 
-      // Success -> redirect to history page / payment modal
+      // Success -> close modal and redirect to history page / payment modal
+      setShowConfirmModal(false);
       router.push(`/riwayat?payBooking=${data.booking.id}`);
     } catch {
       setBookingError("Terjadi kesalahan jaringan saat memproses booking.");
@@ -520,7 +524,7 @@ function BookingPageContent() {
                 <button
                   type="button"
                   disabled={submitting || !!bookingError}
-                  onClick={handleConfirmBooking}
+                  onClick={() => setShowConfirmModal(true)}
                   className="bg-lavender text-white px-6 py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50 flex items-center gap-2"
                 >
                   {submitting ? (
@@ -576,6 +580,123 @@ function BookingPageContent() {
                 className="w-full bg-mist text-graphite border border-fog py-2.5 rounded-full font-semibold text-xs hover:bg-fog transition"
               >
                 Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRMATION CARD MODAL */}
+      {showConfirmModal && selectedCourt && selectedSlot && (
+        <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-paper-white border border-fog rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-subtle-3 overflow-hidden relative text-left">
+            <div className="flex items-center justify-between">
+              <span className="bg-lavender/15 text-lavender px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                Ringkasan Reservasi
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setBookingError("");
+                }}
+                className="w-8 h-8 rounded-full bg-mist text-graphite hover:bg-fog transition flex items-center justify-center text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <h3 className="text-xl font-black text-carbon mt-3 tracking-tight">
+              Konfirmasi Pesanan Anda
+            </h3>
+            <p className="text-xs text-graphite mt-1 leading-relaxed">
+              Periksa kembali detail reservasi lapangan sebelum melanjutkan ke proses pembayaran.
+            </p>
+
+            {/* Detail Box */}
+            <div className="bg-linen border border-fog/80 rounded-2xl p-5 mt-5 space-y-3.5 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-graphite font-medium">Lapangan</span>
+                <span className="font-bold text-carbon text-right">
+                  {selectedCourt.courtName} ({selectedCourt.courtType.toUpperCase()})
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-graphite font-medium">Tanggal</span>
+                <span className="font-bold text-carbon">{selectedDate}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-graphite font-medium">Jam &amp; Durasi</span>
+                <span className="font-bold text-carbon">
+                  {selectedSlot.start} - {endTime} WIB ({durationHours} Jam)
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-graphite font-medium">Tarif per Jam</span>
+                <span className="font-semibold text-carbon">
+                  Rp {selectedCourt.pricePerHour.toLocaleString("id-ID")}
+                </span>
+              </div>
+              <hr className="border-fog/60 my-1" />
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-carbon font-bold text-sm">Total Biaya</span>
+                <span className="text-lg font-black text-lavender">
+                  Rp {totalPrice.toLocaleString("id-ID")}
+                </span>
+              </div>
+            </div>
+
+            {/* Info Tahan Slot */}
+            <div className="bg-lavender/5 border border-lavender/20 rounded-xl p-3.5 mt-4 flex gap-2.5 items-start">
+              <span className="text-base leading-none">💡</span>
+              <p className="text-[11px] text-carbon/80 leading-relaxed">
+                Setelah tombol di bawah ditekan, slot ini akan ditahan otomatis selama{" "}
+                <strong className="text-carbon font-bold">10 menit</strong> untuk proses pembayaran.
+              </p>
+            </div>
+
+            {/* Error Message if booking rejected */}
+            {bookingError && (
+              <div className="w-full mt-4 bg-red-50 border border-red-200/60 rounded-2xl p-3.5 flex gap-2.5 text-left shadow-sm">
+                <div className="text-red-500 text-base shrink-0">⚠️</div>
+                <div>
+                  <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">
+                    Pesanan Ditolak
+                  </h4>
+                  <p className="text-red-700 text-xs mt-0.5 leading-relaxed font-semibold">
+                    {bookingError}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2.5 mt-6">
+              <button
+                type="button"
+                disabled={submitting || !!bookingError}
+                onClick={handleConfirmBooking}
+                className="w-full bg-lavender text-white py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Memproses Booking...</span>
+                  </>
+                ) : (
+                  <span>Lanjut Bayar &amp; Konfirmasi</span>
+                )}
+              </button>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setBookingError("");
+                }}
+                className="w-full bg-mist text-graphite border border-fog py-2.5 rounded-full font-semibold text-xs hover:bg-fog transition disabled:opacity-50"
+              >
+                Periksa Kembali / Batal
               </button>
             </div>
           </div>
