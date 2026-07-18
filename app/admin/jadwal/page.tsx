@@ -331,7 +331,7 @@ export default function AdminJadwalPage() {
                       className={`py-2 px-3 rounded-2xl text-xs font-bold transition disabled:opacity-40 ${
                         c.status === "perbaikan"
                           ? "bg-amber text-carbon font-black shadow-subtle"
-                          : "bg-linen hover:bg-mist text-amber border border-amber/30"
+                          : "bg-linen hover:bg-mist text-[#78350f] border border-amber/30"
                       }`}
                     >
                       Perbaikan

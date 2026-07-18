@@ -53,8 +53,8 @@ export default function CountdownBadge({ createdAt, onExpire }: CountdownBadgePr
 
   if (isExpired || timeLeft <= 0) {
     return (
-      <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-red-50 text-red-500 border border-red-200/60 flex items-center gap-1.5 whitespace-nowrap">
-        <span className="w-2 h-2 rounded-full bg-red-500" />
+      <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200/60 flex items-center gap-1.5 whitespace-nowrap">
+        <span className="w-2 h-2 rounded-full bg-red-600" />
         Expired
       </span>
     );
@@ -65,8 +65,8 @@ export default function CountdownBadge({ createdAt, onExpire }: CountdownBadgePr
   const formattedTime = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
   return (
-    <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-amber/15 text-amber border border-amber/20 flex items-center gap-1.5 whitespace-nowrap">
-      <span className="w-2 h-2 rounded-full bg-amber animate-pulse" />
+    <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-[#fef3c7] text-[#78350f] border border-amber/30 flex items-center gap-1.5 whitespace-nowrap">
+      <span className="w-2 h-2 rounded-full bg-[#d97706] animate-pulse" />
       Pending (Sisa {formattedTime})
     </span>
   );

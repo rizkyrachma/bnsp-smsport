@@ -419,8 +419,8 @@ function BookingPageContent() {
                             key={slot.start}
                             className="p-3 rounded-2xl border border-fog bg-mist text-ash flex flex-col justify-between h-20 cursor-not-allowed opacity-80"
                           >
-                            <span className="text-xs font-bold block">{slot.start} WIB</span>
-                            <span className="text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-fog/70 text-graphite inline-block">
+                            <span className="text-xs font-bold block text-carbon">{slot.start} WIB</span>
+                            <span className="text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-fog text-carbon inline-block">
                               ● Dipesan
                             </span>
                           </div>
@@ -433,8 +433,8 @@ function BookingPageContent() {
                             key={slot.start}
                             className="p-3 rounded-2xl border border-amber/20 bg-amber/5 text-amber flex flex-col justify-between h-20 cursor-not-allowed opacity-90"
                           >
-                            <span className="text-xs font-bold block">{slot.start} WIB</span>
-                            <span className="text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-amber/15 text-amber inline-block">
+                            <span className="text-xs font-bold block text-[#78350f]">{slot.start} WIB</span>
+                            <span className="text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-[#fef3c7] text-[#78350f] inline-block">
                               ● Perawatan
                             </span>
                           </div>
@@ -448,8 +448,8 @@ function BookingPageContent() {
                           className="p-3 rounded-2xl bg-fog border border-ash/30 text-ash/60 flex flex-col justify-between h-20 pointer-events-none opacity-60"
                           aria-disabled="true"
                         >
-                          <span className="text-xs font-bold block">{slot.start} WIB</span>
-                          <span className="text-[10px] font-medium mt-1 px-2 py-0.5 rounded-full bg-ash/10 text-ash/80 inline-block w-fit">
+                          <span className="text-xs font-bold block text-carbon">{slot.start} WIB</span>
+                          <span className="text-[10px] font-medium mt-1 px-2 py-0.5 rounded-full bg-fog text-carbon inline-block w-fit">
                             Sudah Lewat
                           </span>
                         </div>
