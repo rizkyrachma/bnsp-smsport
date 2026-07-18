@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { BRAND_INFO } from "@/lib/assets";
 
 export default function AdminLoginPage() {
@@ -50,9 +51,7 @@ export default function AdminLoginPage() {
       <header className="p-6 border-b border-fog bg-paper-white/90 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-lg text-carbon tracking-tight">
-            <span className="w-8 h-8 rounded-full bg-lavender text-white flex items-center justify-center font-black text-sm shadow-subtle">
-              SM
-            </span>
+            <Image src="/images/logo.png" alt="SM Sports Logo" width={36} height={36} className="object-contain flex-shrink-0" priority />
             <span>{BRAND_INFO.name} <span className="text-xs font-bold bg-lavender/10 text-lavender px-2.5 py-0.5 rounded-full border border-lavender/20 ml-1">ADMIN PORTAL</span></span>
           </div>
           <Link
@@ -68,10 +67,8 @@ export default function AdminLoginPage() {
       <main className="flex-grow flex items-center justify-center p-4 sm:p-6 my-8">
         <div className="w-full max-w-md bg-paper-white border border-fog rounded-3xl p-6 sm:p-8 shadow-subtle-3 transition">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-lavender/10 text-lavender flex items-center justify-center mx-auto font-bold mb-3 shadow-subtle border border-lavender/20">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
+            <div className="w-16 h-16 rounded-2xl bg-paper-white border border-fog flex items-center justify-center mx-auto mb-4 shadow-subtle p-2">
+              <Image src="/images/logo.png" alt="SM Sports Logo" width={48} height={48} className="object-contain" priority />
             </div>
             <h1 className="text-2xl font-bold text-carbon tracking-tight">
               Portal Akses Admin

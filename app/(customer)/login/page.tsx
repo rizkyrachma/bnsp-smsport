@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { BRAND_INFO } from "@/lib/assets";
 
 function CustomerLoginPageContent() {
@@ -65,9 +66,7 @@ function CustomerLoginPageContent() {
       <header className="p-6 border-b border-fog bg-paper-white/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg text-carbon tracking-tight">
-            <span className="w-8 h-8 rounded-full bg-lavender text-white flex items-center justify-center font-black text-sm shadow-subtle">
-              SM
-            </span>
+            <Image src="/images/logo.png" alt="SM Sports Logo" width={36} height={36} className="object-contain flex-shrink-0" priority />
             <span>{BRAND_INFO.name}</span>
           </Link>
           <Link
@@ -84,8 +83,8 @@ function CustomerLoginPageContent() {
         <div className="w-full max-w-md bg-paper-white border border-fog rounded-3xl p-6 sm:p-8 shadow-subtle-3 transition">
           {/* Header icon & badge */}
           <div className="text-center mb-6">
-            <div className="w-14 h-14 rounded-full bg-lavender/15 text-lavender flex items-center justify-center text-2xl mx-auto font-black mb-3 shadow-subtle">
-              {isRegistering ? "✨" : "🔑"}
+            <div className="w-16 h-16 rounded-2xl bg-paper-white border border-fog flex items-center justify-center mx-auto mb-4 shadow-subtle p-2">
+              <Image src="/images/logo.png" alt="SM Sports Logo" width={48} height={48} className="object-contain" priority />
             </div>
             <h1 className="text-2xl font-bold text-carbon tracking-tight">
               {isRegistering ? "Buat Akun Pelanggan" : "Selamat Datang Kembali"}
