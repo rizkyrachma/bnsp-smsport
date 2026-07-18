@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { getAdminBookings } from "@/lib/admin-actions";
 import { BRAND_INFO } from "@/lib/assets";
 import { generateLaporanPDF } from "@/lib/generateLaporanPDF";
+import { formatTanggalWIB } from "@/lib/timezone";
 
 interface ReportItem {
   id: string;
@@ -57,8 +58,14 @@ export default function AdminLaporanPage() {
   }, [fetchReport]);
 
   const totalRevenue = items.reduce((sum, item) => (item.status === "paid" ? sum + item.totalPrice : sum), 0);
-  const paidCount = items.filter((item) => item.status === "paid").length;
-  const avgTicket = paidCount > 0 ? Math.round(totalRevenue / paidCount) : 0;
+
+  // Hitung pendapatan pada hari itu (Jika filter tanggal spesifik 1 hari dipilih, gunakan tanggal tsb. Jika tidak/rentang, gunakan Hari Ini WIB)
+  const todayStr = formatTanggalWIB(new Date());
+  const targetDateStr = (dateFrom && dateTo && dateFrom === dateTo) ? dateFrom : todayStr;
+  const isToday = targetDateStr === todayStr;
+  const dayRevenue = items
+    .filter((item) => item.status === "paid" && item.bookingDate === targetDateStr)
+    .reduce((sum, item) => sum + item.totalPrice, 0);
 
   const handleExportCSV = () => {
     setError("");
@@ -248,9 +255,14 @@ export default function AdminLaporanPage() {
         </div>
 
         <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle">
-          <p className="text-xs font-bold uppercase text-ash">Rata-Rata per Sesi Lunas</p>
+          <p className="text-xs font-bold uppercase text-ash">
+            {isToday ? "Pendapatan Hari Ini" : `Pendapatan Hari Itu (${targetDateStr})`}
+          </p>
           <p className="text-3xl font-black text-lavender mt-2">
-            Rp {avgTicket.toLocaleString("id-ID")}
+            Rp {dayRevenue.toLocaleString("id-ID")}
+          </p>
+          <p className="text-[10px] text-ash mt-1">
+            {isToday ? `Transaksi lunas tanggal ${todayStr}` : `Transaksi lunas tanggal ${targetDateStr}`}
           </p>
         </div>
       </div>
