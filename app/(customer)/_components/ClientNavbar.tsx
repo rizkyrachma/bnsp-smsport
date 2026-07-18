@@ -114,6 +114,7 @@ export default function ClientNavbar({ activePage = "home", initialSession = nul
                 <button
                   type="button"
                   onClick={handleLogout}
+                  aria-label="Keluar dari akun"
                   className="text-xs text-ash hover:text-red-600 transition font-semibold"
                 >
                   Keluar
@@ -251,6 +252,7 @@ export default function ClientNavbar({ activePage = "home", initialSession = nul
                       setIsMobileMenuOpen(false);
                       handleLogout();
                     }}
+                    aria-label="Keluar dari akun"
                     className="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-red-100 transition shrink-0 ml-2"
                   >
                     Keluar

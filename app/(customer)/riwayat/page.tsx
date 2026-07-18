@@ -190,6 +190,7 @@ function RiwayatPageContent() {
           <button
             type="button"
             onClick={fetchBookings}
+            aria-label="Segarkan data riwayat booking"
             className="bg-mist text-graphite border border-fog px-4 py-2 rounded-full text-xs font-semibold hover:bg-fog/50 transition flex items-center gap-2 shadow-subtle"
           >
             <span>Segarkan Data</span>
@@ -210,7 +211,7 @@ function RiwayatPageContent() {
             <div className="w-16 h-16 rounded-full bg-lavender/15 text-lavender flex items-center justify-center font-bold text-2xl mx-auto mb-4">
               📅
             </div>
-            <h3 className="font-bold text-carbon text-lg mb-2">Belum Ada Riwayat Reservasi</h3>
+            <h2 className="font-bold text-carbon text-lg mb-2">Belum Ada Riwayat Reservasi</h2>
             <p className="text-graphite text-sm mb-6 leading-relaxed">
               Kamu belum memiliki pesanan lapangan apa pun. Cek jadwal dan lakukan booking lapangan pertamamu sekarang!
             </p>
@@ -225,7 +226,7 @@ function RiwayatPageContent() {
           <div className="space-y-6">
             {/* Filter Bar */}
             <div className="flex flex-wrap items-center gap-4 bg-linen p-4 rounded-3xl border border-fog mb-6">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" role="group" aria-label="Filter kategori lapangan">
                 <span className="text-xs font-bold text-ash uppercase">Kategori:</span>
                 <div className="flex items-center gap-1 bg-paper-white p-1 rounded-full border border-fog">
                   {[
@@ -237,6 +238,8 @@ function RiwayatPageContent() {
                       key={c.val}
                       type="button"
                       onClick={() => setCourtTypeFilter(c.val)}
+                      aria-label={`Filter kategori ${c.label}`}
+                      aria-pressed={courtTypeFilter === c.val}
                       className={`px-3 py-1 rounded-full text-xs font-bold transition ${
                         courtTypeFilter === c.val ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
                       }`}
@@ -248,9 +251,11 @@ function RiwayatPageContent() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-ash uppercase">Tanggal Booking:</span>
+                <label htmlFor="date-filter-input" className="text-xs font-bold text-ash uppercase">Tanggal Booking:</label>
                 <input
+                  id="date-filter-input"
                   type="date"
+                  aria-label="Filter tanggal booking"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
                   className="bg-paper-white border border-fog rounded-full px-3 py-1.5 text-xs font-bold text-carbon focus:outline-none focus:ring-2 focus:ring-lavender transition shadow-subtle"
@@ -259,6 +264,7 @@ function RiwayatPageContent() {
                   <button
                     type="button"
                     onClick={() => setDateFilter("")}
+                    aria-label="Reset filter tanggal"
                     className="text-[10px] text-red-500 font-bold hover:underline"
                   >
                     Reset
@@ -269,7 +275,7 @@ function RiwayatPageContent() {
 
             {filteredBookings.length === 0 ? (
               <div className="bg-linen border border-fog rounded-3xl p-12 text-center max-w-lg mx-auto">
-                <h3 className="font-bold text-carbon text-sm">Tidak Ada Riwayat Booking Cocok</h3>
+                <h2 className="font-bold text-carbon text-sm">Tidak Ada Riwayat Booking Cocok</h2>
                 <p className="text-graphite text-xs mt-1">
                   Ubah filter kategori atau tanggal Anda untuk melihat data reservasi.
                 </p>
@@ -313,9 +319,9 @@ function RiwayatPageContent() {
                       )}
                     </div>
 
-                    <h3 className="text-xl font-bold text-carbon">
+                    <h2 className="text-xl font-bold text-carbon">
                       {item.court.name}
-                    </h3>
+                    </h2>
                     <p className="text-xs font-medium text-graphite">
                       {formatDateTime(item.bookingDate, item.startTime, item.endTime)}
                     </p>
@@ -346,6 +352,7 @@ function RiwayatPageContent() {
                             setPayError("");
                             setPaySuccess(false);
                           }}
+                          aria-label={`Lanjutkan pembayaran untuk ${item.court.name}`}
                           className="w-full sm:w-auto bg-lavender text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition"
                         >
                           Lanjutkan Pembayaran
@@ -360,6 +367,7 @@ function RiwayatPageContent() {
                             setPayError("");
                             setPaySuccess(false);
                           }}
+                          aria-label={`Perbarui pembayaran untuk ${item.court.name}`}
                           className="w-full sm:w-auto bg-amber text-carbon px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition"
                         >
                           Perbarui Pembayaran
@@ -370,6 +378,7 @@ function RiwayatPageContent() {
                         <button
                           type="button"
                           onClick={() => setTicketBooking(item)}
+                          aria-label={`Unduh E-Tiket untuk ${item.court.name}`}
                           className="w-full sm:w-auto bg-iris text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition flex items-center justify-center gap-1.5"
                         >
                           <span>Unduh E-Tiket</span>
@@ -390,10 +399,11 @@ function RiwayatPageContent() {
         <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-subtle-3 overflow-y-auto max-h-[90vh]">
             <div className="flex items-center justify-between pb-4 border-b border-fog mb-6">
-              <h3 className="font-bold text-lg text-carbon">Konfirmasi Pembayaran</h3>
+              <h2 className="font-bold text-lg text-carbon">Konfirmasi Pembayaran</h2>
               <button
                 type="button"
                 onClick={() => setActivePayBooking(null)}
+                aria-label="Tutup modal konfirmasi pembayaran"
                 className="w-8 h-8 rounded-full bg-mist text-graphite flex items-center justify-center font-bold hover:bg-fog transition"
               >
                 ✕
@@ -425,7 +435,7 @@ function RiwayatPageContent() {
                   <div className="bg-amber/10 border border-amber/30 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
                     <div className="text-amber text-lg shrink-0">⏳</div>
                     <div>
-                      <h4 className="font-bold text-[10px] text-amber-800 uppercase tracking-wider">QRIS Kadaluarsa</h4>
+                      <h3 className="font-bold text-[10px] text-amber-800 uppercase tracking-wider">QRIS Kadaluarsa</h3>
                       <p className="text-amber-700 text-xs mt-0.5 leading-relaxed">
                         Batas waktu pembayaran 10 menit telah habis. Kode QRIS sebelumnya tidak dapat digunakan lagi.
                       </p>
@@ -436,7 +446,7 @@ function RiwayatPageContent() {
                     <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
                       <div className="text-red-500 text-lg shrink-0">⚠️</div>
                       <div>
-                        <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                        <h3 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h3>
                         <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{payError}</p>
                       </div>
                     </div>
@@ -508,7 +518,7 @@ function RiwayatPageContent() {
                     <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
                       <div className="text-red-500 text-lg shrink-0">⚠️</div>
                       <div>
-                        <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                        <h3 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h3>
                         <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{payError}</p>
                       </div>
                     </div>
@@ -632,6 +642,7 @@ function RiwayatPageContent() {
               <button
                 type="button"
                 onClick={() => window.print()}
+                aria-label="Cetak atau unduh e-tiket PDF"
                 className="flex-1 bg-lavender text-white py-3 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition"
               >
                 🖨️ Cetak / Unduh PDF
@@ -639,6 +650,7 @@ function RiwayatPageContent() {
               <button
                 type="button"
                 onClick={() => setTicketBooking(null)}
+                aria-label="Tutup modal e-tiket"
                 className="bg-mist text-graphite border border-fog px-6 py-3 rounded-full font-semibold text-xs hover:bg-fog transition"
               >
                 Tutup
