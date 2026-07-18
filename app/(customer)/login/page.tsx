@@ -105,9 +105,8 @@ function CustomerLoginPageContent() {
                 setIsRegistering(false);
                 setError("");
               }}
-              className={`py-2 rounded-full text-xs font-bold transition ${
-                !isRegistering ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
-              }`}
+              className={`py-2 rounded-full text-xs font-bold transition ${!isRegistering ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
+                }`}
             >
               Masuk
             </button>
@@ -117,9 +116,8 @@ function CustomerLoginPageContent() {
                 setIsRegistering(true);
                 setError("");
               }}
-              className={`py-2 rounded-full text-xs font-bold transition ${
-                isRegistering ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
-              }`}
+              className={`py-2 rounded-full text-xs font-bold transition ${isRegistering ? "bg-lavender text-white shadow-subtle" : "text-graphite hover:text-carbon"
+                }`}
             >
               Daftar Akun Baru
             </button>
@@ -137,7 +135,7 @@ function CustomerLoginPageContent() {
                     name="name"
                     type="text"
                     required
-                    placeholder="Contoh: Rizky Pratama"
+                    placeholder="Contoh: Rizky Rachma"
                     className="w-full bg-mist border border-fog rounded-xl px-4 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:bg-white transition shadow-subtle placeholder-ash"
                   />
                 </div>

@@ -527,63 +527,78 @@ export async function createAdminBooking(input: {
     throw new Error("Jam mulai harus sebelum jam selesai.");
   }
 
-  return prisma.$transaction(async (tx) => {
-    // Check conflicts
-    const conflicts = await tx.booking.findMany({
-      where: {
-        courtId,
-        bookingDate: bookingDateObj,
-        status: { in: ["pending", "paid"] },
-      },
-    });
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // LAPISAN 3: Kunci baris lapangan (Court) agar semua pengecekan serentak pada lapangan yang sama mengantre
+      await tx.$queryRaw`SELECT id FROM courts WHERE id = ${courtId} FOR UPDATE`;
 
-    const utcStartObj = wibToUTC("1970-01-01", startTime);
-    const utcEndObj = wibToUTC("1970-01-01", endTime);
-    const inputStart = utcStartObj.getUTCHours() * 60 + utcStartObj.getUTCMinutes();
-    const inputEnd = utcEndObj.getUTCHours() * 60 + utcEndObj.getUTCMinutes();
-
-    const hasOverlap = conflicts.some((b) => {
-      const bStart = b.startTime.getUTCHours() * 60 + b.startTime.getUTCMinutes();
-      const bEnd = b.endTime.getUTCHours() * 60 + b.endTime.getUTCMinutes();
-      return inputStart < bEnd && inputEnd > bStart;
-    });
-
-    if (hasOverlap) {
-      throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
-    }
-
-    const court = await tx.court.findUniqueOrThrow({ where: { id: courtId } });
-    const [startH, startM] = startTime.split(":").map(Number);
-    const [endH, endM] = endTime.split(":").map(Number);
-    const durationHours = (endH * 60 + endM - (startH * 60 + startM)) / 60;
-    const totalPrice = Math.round(court.pricePerHour * durationHours);
-
-    const booking = await tx.booking.create({
-      data: {
-        userId,
-        courtId,
-        bookingDate: bookingDateObj,
-        startTime: utcStartObj,
-        endTime: utcEndObj,
-        totalPrice,
-        status,
-      },
-    });
-
-    if (status === "paid") {
-      await tx.payment.create({
-        data: {
-          bookingId: booking.id,
-          amount: totalPrice,
-          paymentMethod: "manual_transfer",
-          paymentStatus: "verified",
-          paidAt: new Date(),
+      // Check conflicts
+      const conflicts = await tx.booking.findMany({
+        where: {
+          courtId,
+          bookingDate: bookingDateObj,
+          status: { in: ["pending", "paid"] },
         },
       });
-    }
 
-    return booking;
-  });
+      const utcStartObj = wibToUTC("1970-01-01", startTime);
+      const utcEndObj = wibToUTC("1970-01-01", endTime);
+      const inputStart = utcStartObj.getUTCHours() * 60 + utcStartObj.getUTCMinutes();
+      const inputEnd = utcEndObj.getUTCHours() * 60 + utcEndObj.getUTCMinutes();
+
+      const hasOverlap = conflicts.some((b) => {
+        const bStart = b.startTime.getUTCHours() * 60 + b.startTime.getUTCMinutes();
+        const bEnd = b.endTime.getUTCHours() * 60 + b.endTime.getUTCMinutes();
+        return inputStart < bEnd && inputEnd > bStart;
+      });
+
+      if (hasOverlap) {
+        throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
+      }
+
+      const court = await tx.court.findUniqueOrThrow({ where: { id: courtId } });
+      const [startH, startM] = startTime.split(":").map(Number);
+      const [endH, endM] = endTime.split(":").map(Number);
+      const durationHours = (endH * 60 + endM - (startH * 60 + startM)) / 60;
+      const totalPrice = Math.round(court.pricePerHour * durationHours);
+
+      const booking = await tx.booking.create({
+        data: {
+          userId,
+          courtId,
+          bookingDate: bookingDateObj,
+          startTime: utcStartObj,
+          endTime: utcEndObj,
+          totalPrice,
+          status,
+        },
+      });
+
+      if (status === "paid") {
+        await tx.payment.create({
+          data: {
+            bookingId: booking.id,
+            amount: totalPrice,
+            paymentMethod: "manual_transfer",
+            paymentStatus: "verified",
+            paidAt: new Date(),
+          },
+        });
+      }
+
+      return booking;
+    }, { isolationLevel: "Serializable" });
+  } catch (err: any) {
+    if (
+      err?.code === "P2002" ||
+      err?.code === "P2034" ||
+      (typeof err?.message === "string" &&
+        (err.message.includes("23505") || err.message.includes("40001")))
+    ) {
+      throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
+    }
+    throw err;
+  }
 }
 
 export async function updateAdminBooking(
@@ -605,69 +620,84 @@ export async function updateAdminBooking(
     throw new Error("Jam mulai harus sebelum jam selesai.");
   }
 
-  return prisma.$transaction(async (tx) => {
-    // Check conflicts excluding this booking
-    const conflicts = await tx.booking.findMany({
-      where: {
-        courtId,
-        bookingDate: bookingDateObj,
-        status: { in: ["pending", "paid"] },
-        id: { not: bookingId },
-      },
-    });
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // LAPISAN 3: Kunci baris lapangan (Court) agar semua pengecekan serentak pada lapangan yang sama mengantre
+      await tx.$queryRaw`SELECT id FROM courts WHERE id = ${courtId} FOR UPDATE`;
 
-    const utcStartObj = wibToUTC("1970-01-01", startTime);
-    const utcEndObj = wibToUTC("1970-01-01", endTime);
-    const inputStart = utcStartObj.getUTCHours() * 60 + utcStartObj.getUTCMinutes();
-    const inputEnd = utcEndObj.getUTCHours() * 60 + utcEndObj.getUTCMinutes();
+      // Check conflicts excluding this booking
+      const conflicts = await tx.booking.findMany({
+        where: {
+          courtId,
+          bookingDate: bookingDateObj,
+          status: { in: ["pending", "paid"] },
+          id: { not: bookingId },
+        },
+      });
 
-    const hasOverlap = conflicts.some((b) => {
-      const bStart = b.startTime.getUTCHours() * 60 + b.startTime.getUTCMinutes();
-      const bEnd = b.endTime.getUTCHours() * 60 + b.endTime.getUTCMinutes();
-      return inputStart < bEnd && inputEnd > bStart;
-    });
+      const utcStartObj = wibToUTC("1970-01-01", startTime);
+      const utcEndObj = wibToUTC("1970-01-01", endTime);
+      const inputStart = utcStartObj.getUTCHours() * 60 + utcStartObj.getUTCMinutes();
+      const inputEnd = utcEndObj.getUTCHours() * 60 + utcEndObj.getUTCMinutes();
 
-    if (hasOverlap) {
+      const hasOverlap = conflicts.some((b) => {
+        const bStart = b.startTime.getUTCHours() * 60 + b.startTime.getUTCMinutes();
+        const bEnd = b.endTime.getUTCHours() * 60 + b.endTime.getUTCMinutes();
+        return inputStart < bEnd && inputEnd > bStart;
+      });
+
+      if (hasOverlap) {
+        throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
+      }
+
+      const updated = await tx.booking.update({
+        where: { id: bookingId },
+        data: {
+          courtId,
+          bookingDate: bookingDateObj,
+          startTime: utcStartObj,
+          endTime: utcEndObj,
+          totalPrice,
+          status,
+        },
+      });
+
+      if (status === "paid") {
+        await tx.payment.upsert({
+          where: { bookingId },
+          update: {
+            paymentStatus: "verified",
+            amount: totalPrice,
+            paidAt: new Date(),
+          },
+          create: {
+            bookingId,
+            amount: totalPrice,
+            paymentMethod: "manual_transfer",
+            paymentStatus: "verified",
+            paidAt: new Date(),
+          },
+        });
+      } else if (status === "cancelled") {
+        await tx.payment.updateMany({
+          where: { bookingId },
+          data: { paymentStatus: "cancelled" },
+        });
+      }
+
+      return updated;
+    }, { isolationLevel: "Serializable" });
+  } catch (err: any) {
+    if (
+      err?.code === "P2002" ||
+      err?.code === "P2034" ||
+      (typeof err?.message === "string" &&
+        (err.message.includes("23505") || err.message.includes("40001")))
+    ) {
       throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
     }
-
-    const updated = await tx.booking.update({
-      where: { id: bookingId },
-      data: {
-        courtId,
-        bookingDate: bookingDateObj,
-        startTime: utcStartObj,
-        endTime: utcEndObj,
-        totalPrice,
-        status,
-      },
-    });
-
-    if (status === "paid") {
-      await tx.payment.upsert({
-        where: { bookingId },
-        update: {
-          paymentStatus: "verified",
-          amount: totalPrice,
-          paidAt: new Date(),
-        },
-        create: {
-          bookingId,
-          amount: totalPrice,
-          paymentMethod: "manual_transfer",
-          paymentStatus: "verified",
-          paidAt: new Date(),
-        },
-      });
-    } else if (status === "cancelled") {
-      await tx.payment.updateMany({
-        where: { bookingId },
-        data: { paymentStatus: "cancelled" },
-      });
-    }
-
-    return updated;
-  });
+    throw err;
+  }
 }
 
 export async function getCourtsList() {

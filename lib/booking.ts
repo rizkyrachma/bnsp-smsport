@@ -55,6 +55,10 @@ export async function createBooking(input: CreateBookingInput) {
           throw new Error("Akun Anda telah dinonaktifkan/diblokir oleh Admin.");
         }
 
+        // LAPISAN 3: Kunci baris lapangan (Court) terlebih dahulu agar semua transaksi serentak
+        // pada lapangan yang sama wajib mengantre (mencegah TOCTOU saat baris booking belum ada).
+        await tx.$queryRaw`SELECT id FROM courts WHERE id = ${courtId} FOR UPDATE`;
+
         // Row lock: check overlap with SELECT ... FOR UPDATE (§4.1)
         const conflicts = await tx.$queryRaw<{ id: string }[]>`
           SELECT id FROM bookings
@@ -99,7 +103,21 @@ export async function createBooking(input: CreateBookingInput) {
     );
 
     return { success: true, booking };
-  } catch (err) {
+  } catch (err: any) {
+    // LAPISAN 1 & 2: Tangkap error pelanggaran Unique Constraint maupun kegagalan serialisasi dari Postgres/Prisma
+    if (
+      err?.code === "P2002" ||
+      err?.code === "P2034" ||
+      (typeof err?.message === "string" &&
+        (err.message.includes("23505") ||
+          err.message.includes("40001") ||
+          err.message.includes("Jadwal baru saja dipesan orang lain")))
+    ) {
+      return {
+        success: false,
+        error: "Jadwal baru saja dipesan orang lain.",
+      };
+    }
     const message =
       err instanceof Error ? err.message : "Terjadi kesalahan saat booking.";
     return { success: false, error: message };

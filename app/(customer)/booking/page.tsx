@@ -199,6 +199,8 @@ function BookingPageContent() {
           return;
         }
         setBookingError(data.error || "Booking gagal diproses.");
+        // LAPISAN 4: Otomatis refetch jadwal agar slot yang barusan direbut langsung berubah warna di kalender
+        fetchSchedule(selectedDate);
         return;
       }
 
