@@ -265,7 +265,7 @@ function RiwayatPageContent() {
                     type="button"
                     onClick={() => setDateFilter("")}
                     aria-label="Reset filter tanggal"
-                    className="text-[10px] text-red-500 font-bold hover:underline"
+                    className="text-[10px] text-red-700 font-bold hover:underline"
                   >
                     Reset
                   </button>

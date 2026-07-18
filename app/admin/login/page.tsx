@@ -133,7 +133,7 @@ export default function AdminLoginPage() {
               <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
                 <div className="text-red-500 text-lg shrink-0">⚠️</div>
                 <div>
-                  <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                  <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
                   <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{error}</p>
                 </div>
               </div>

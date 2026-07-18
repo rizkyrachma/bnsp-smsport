@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { EmberButton } from "@/components/ui/EmberButton";
 import { 
   getCustomersList, 
   toggleBlockCustomer,
@@ -196,7 +197,7 @@ export default function AdminCustomersPage() {
         <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative animate-fade-in">
           <div className="text-red-500 text-xl shrink-0">⚠️</div>
           <div className="flex-1">
-            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
             <p className="text-red-700 text-xs mt-1 leading-relaxed">{error}</p>
           </div>
           <button
@@ -213,7 +214,7 @@ export default function AdminCustomersPage() {
         <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative animate-fade-in">
           <div className="text-red-500 text-xl shrink-0">⚠️</div>
           <div className="flex-1">
-            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
             <p className="text-red-700 text-xs mt-1 leading-relaxed">{actionError}</p>
           </div>
           <button
@@ -312,55 +313,62 @@ export default function AdminCustomersPage() {
                       </span>
                       <p className="text-[10px] text-ash mt-0.5">({c.paidBookingsCount} lunas)</p>
                     </td>
-                    <td className="py-4 px-6 text-right font-black text-mint text-sm">
+                    <td className="py-4 px-6 text-right font-black text-carbon text-sm">
                       Rp {c.totalSpent.toLocaleString("id-ID")}
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider border ${
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
                           c.isBlocked
-                            ? "bg-ember/10 text-ember border-ember/20"
-                            : "bg-mint-wash text-mint border-mint/30"
-                        }`}
-                      >
-                        {c.isBlocked ? "DIBLOKIR" : "AKTIF"}
+                            ? "bg-ember/10 text-ember-800 border-ember/20"
+                            : "bg-mint-wash text-mint border-mint/20"
+                        }`}>
+                        {c.isBlocked ? "Terblokir" : "Aktif"}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedCustomer(c)}
-                        className="bg-linen hover:bg-mist text-graphite hover:text-carbon border border-fog px-2.5 py-1.5 rounded-xl font-bold transition text-[11px]"
-                      >
-                        Detail
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEditModal(c)}
-                        className="bg-linen hover:bg-mist text-lavender border border-fog px-2.5 py-1.5 rounded-xl font-bold transition text-[11px]"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        disabled={updatingId === c.id}
-                        onClick={() => handleToggleBlock(c)}
-                        className={`px-2.5 py-1.5 rounded-xl font-bold transition text-[11px] disabled:opacity-50 ${
-                          c.isBlocked
-                            ? "bg-mint-wash text-mint border border-mint/30 hover:opacity-80"
-                            : "bg-ember/10 text-ember border border-ember/20 hover:opacity-80"
-                        }`}
-                      >
-                        {c.isBlocked ? "Aktifkan" : "Blokir"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={updatingId === c.id}
-                        onClick={() => handleDeleteCustomer(c.id, c.name)}
-                        className="text-red-500 hover:text-red-700 bg-red-50 border border-red-100 hover:bg-red-100 px-2.5 py-1.5 rounded-xl font-bold transition text-[11px] disabled:opacity-50"
-                      >
-                        Hapus
-                      </button>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCustomer(c)}
+                          className="bg-paper-white border border-fog hover:bg-mist text-carbon px-2.5 py-1.5 rounded-xl font-bold transition text-[11px]"
+                        >
+                          Detail
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditModal(c)}
+                          className="bg-lavender/10 hover:bg-lavender/20 text-lavender border border-lavender/20 px-2.5 py-1.5 rounded-xl font-bold transition text-[11px]"
+                        >
+                          Edit
+                        </button>
+                        {c.isBlocked ? (
+                          <button
+                            type="button"
+                            disabled={updatingId === c.id}
+                            onClick={() => handleToggleBlock(c)}
+                            className="px-2.5 py-1.5 rounded-xl font-bold transition text-[11px] disabled:opacity-50 bg-mint-wash text-mint border border-mint/30 hover:opacity-80"
+                          >
+                            Aktifkan
+                          </button>
+                        ) : (
+                          <EmberButton
+                            size="sm"
+                            disabled={updatingId === c.id}
+                            onClick={() => handleToggleBlock(c)}
+                            className="!px-2.5 !py-1.5 !text-[11px] disabled:opacity-50"
+                          >
+                            Blokir
+                          </EmberButton>
+                        )}
+                        <button
+                          type="button"
+                          disabled={updatingId === c.id}
+                          onClick={() => handleDeleteCustomer(c.id, c.name)}
+                          className="text-red-700 hover:text-red-800 bg-red-50 border border-red-100 hover:bg-red-100 px-2.5 py-1.5 rounded-xl font-bold transition text-[11px] disabled:opacity-50"
+                        >
+                          Hapus
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -426,8 +434,8 @@ export default function AdminCustomersPage() {
                           b.status === "paid"
                             ? "bg-mint-wash text-mint border-mint/20"
                             : b.status === "pending"
-                            ? "bg-amber/10 text-amber border-amber/20 animate-pulse"
-                            : "bg-ember/10 text-ember border-ember/20"
+                            ? "bg-amber/10 text-amber-900 border-amber/20 animate-pulse"
+                            : "bg-ember/10 text-ember-800 border-ember/20"
                         }`}>
                           {b.status === "paid" ? "Lunas" : b.status === "pending" ? "Pending" : "Batal"}
                         </span>
@@ -609,7 +617,7 @@ export default function AdminCustomersPage() {
         <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-6">
             <div className="text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
+              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember-800 font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
                 ⚠️
               </div>
               <h3 className="font-bold text-base text-carbon">{confirmModal.title}</h3>

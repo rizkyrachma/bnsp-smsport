@@ -123,7 +123,7 @@ export default function AdminLaporanPage() {
         <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative print:hidden animate-fade-in">
           <div className="text-red-500 text-xl shrink-0">⚠️</div>
           <div className="flex-1">
-            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
             <p className="text-red-700 text-xs mt-1 leading-relaxed">{error}</p>
           </div>
           <button
@@ -170,11 +170,13 @@ export default function AdminLaporanPage() {
       {/* Filters Box */}
       <div className="print:hidden bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
+          <label htmlFor="filter-date-from" className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
             Dari Tanggal
           </label>
           <input
+            id="filter-date-from"
             type="date"
+            aria-label="Filter laporan dari tanggal"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
             className="w-full bg-linen border border-fog rounded-2xl px-3.5 py-2 text-xs text-carbon focus:outline-none focus:ring-2 focus:ring-lavender transition"
@@ -182,11 +184,13 @@ export default function AdminLaporanPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
+          <label htmlFor="filter-date-to" className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
             Sampai Tanggal
           </label>
           <input
+            id="filter-date-to"
             type="date"
+            aria-label="Filter laporan sampai tanggal"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
             className="w-full bg-linen border border-fog rounded-2xl px-3.5 py-2 text-xs text-carbon focus:outline-none focus:ring-2 focus:ring-lavender transition"
@@ -194,10 +198,12 @@ export default function AdminLaporanPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
+          <label htmlFor="filter-court-type" className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
             Kategori Lapangan
           </label>
           <select
+            id="filter-court-type"
+            aria-label="Filter kategori lapangan laporan"
             value={courtTypeFilter}
             onChange={(e) => setCourtTypeFilter(e.target.value)}
             className="w-full bg-linen border border-fog rounded-2xl px-3.5 py-2 text-xs text-carbon focus:outline-none focus:ring-2 focus:ring-lavender transition"
@@ -209,10 +215,12 @@ export default function AdminLaporanPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
+          <label htmlFor="filter-payment-status" className="block text-[10px] font-bold uppercase tracking-wider text-graphite mb-1.5">
             Status Pembayaran
           </label>
           <select
+            id="filter-payment-status"
+            aria-label="Filter status pembayaran laporan"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="w-full bg-linen border border-fog rounded-2xl px-3.5 py-2 text-xs text-carbon focus:outline-none focus:ring-2 focus:ring-lavender transition"
@@ -306,8 +314,8 @@ export default function AdminLaporanPage() {
                           item.status === "paid"
                             ? "bg-mint-wash print:bg-transparent text-mint print:text-green-700 border-mint/30 print:border-green-700"
                             : item.status === "pending"
-                            ? "bg-amber/10 print:bg-transparent text-amber print:text-yellow-700 border-amber/20 print:border-yellow-700"
-                            : "bg-ember/10 print:bg-transparent text-ember print:text-red-700 border-ember/20 print:border-red-700"
+                            ? "bg-amber/10 print:bg-transparent text-amber-900 print:text-yellow-700 border-amber/20 print:border-yellow-700"
+                            : "bg-ember/10 print:bg-transparent text-ember-800 print:text-red-700 border-ember/20 print:border-red-700"
                         }`}
                       >
                         {item.status}

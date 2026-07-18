@@ -14,9 +14,18 @@
   --color-mint: #146830;
   --color-mint-wash: #def6e4;
   --color-amber: #ffa600;
+  --color-amber-900: #78350f;
   --color-sky: #2c78fc;
   --color-magenta: #d6409f;
   --color-ember: #ff3e00;
+  --color-ember-700: #b32a00;
+  --color-ember-800: #992400;
+  --color-ember-text: #992400;
+  --color-ember-dark: #992400;
+  --color-amber-text: #78350f;
+  --color-amber-dark: #78350f;
+  --color-red-text: #b91c1c;
+  --color-red-dark: #b91c1c;
 
   /* Shadows */
   --shadow-subtle: rgba(0, 0, 0, 0.08) 0px 1px 1px 1px, rgba(0, 0, 0, 0.06) 0px 0px 0px 0.5px;
@@ -43,9 +52,18 @@
   --color-mint: var(--color-mint);
   --color-mint-wash: var(--color-mint-wash);
   --color-amber: var(--color-amber);
+  --color-amber-900: var(--color-amber-900);
+  --color-amber-text: var(--color-amber-text);
+  --color-amber-dark: var(--color-amber-dark);
   --color-sky: var(--color-sky);
   --color-magenta: var(--color-magenta);
   --color-ember: var(--color-ember);
+  --color-ember-700: var(--color-ember-700);
+  --color-ember-800: var(--color-ember-800);
+  --color-ember-text: var(--color-ember-text);
+  --color-ember-dark: var(--color-ember-dark);
+  --color-red-text: var(--color-red-text);
+  --color-red-dark: var(--color-red-dark);
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);

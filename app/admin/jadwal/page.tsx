@@ -169,7 +169,7 @@ export default function AdminJadwalPage() {
         <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative animate-fade-in">
           <div className="text-red-500 text-xl shrink-0">⚠️</div>
           <div className="flex-1">
-            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
             <p className="text-red-700 text-xs mt-1 leading-relaxed">{error}</p>
           </div>
           <button
@@ -186,7 +186,7 @@ export default function AdminJadwalPage() {
         <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative animate-fade-in">
           <div className="text-red-500 text-xl shrink-0">⚠️</div>
           <div className="flex-1">
-            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
             <p className="text-red-700 text-xs mt-1 leading-relaxed">{actionError}</p>
           </div>
           <button
@@ -225,10 +225,10 @@ export default function AdminJadwalPage() {
             !
           </div>
           <div>
-            <h3 className="font-bold text-sm text-carbon">Panduan Manajemen Lapangan</h3>
+            <h2 className="font-bold text-sm text-carbon">Panduan Manajemen Lapangan</h2>
             <p className="text-xs text-graphite mt-0.5 leading-relaxed">
               Semua perubahan detail lapangan (harga, tipe, nama) akan langsung ter-sinkronisasi ke halaman customer.
-              Mengubah status ke <strong className="text-amber">Dalam Perbaikan</strong> otomatis memblokir pesanan baru pada lapangan tersebut.
+              Mengubah status ke <strong className="text-amber-900">Dalam Perbaikan</strong> otomatis memblokir pesanan baru pada lapangan tersebut.
             </p>
           </div>
         </div>
@@ -250,7 +250,7 @@ export default function AdminJadwalPage() {
 
             if (c.status === "perbaikan") {
               statusBadge = (
-                <span className="bg-amber/15 text-amber border border-amber/30 px-3 py-1 rounded-full text-xs font-black">
+                <span className="bg-amber/15 text-amber-900 border border-amber/30 px-3 py-1 rounded-full text-xs font-black">
                   DALAM PERBAIKAN
                 </span>
               );
@@ -290,7 +290,7 @@ export default function AdminJadwalPage() {
                         type="button"
                         disabled={updatingId === c.id}
                         onClick={() => handleDeleteCourt(c.id, c.name)}
-                        className="text-xs text-red-500 hover:underline font-bold disabled:opacity-40"
+                        className="text-xs text-red-700 hover:underline font-bold disabled:opacity-40"
                       >
                         Hapus
                       </button>
@@ -508,7 +508,7 @@ export default function AdminJadwalPage() {
         <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-6">
             <div className="text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
+              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember-800 font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
                 ⚠️
               </div>
               <h3 className="font-bold text-base text-carbon">{confirmModal.title}</h3>

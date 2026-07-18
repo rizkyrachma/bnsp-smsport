@@ -236,11 +236,11 @@ export default function AdminRiwayatPage() {
             {alertState.type === "success" ? "✅" : "⚠️"}
           </div>
           <div className="flex-1">
-            <h4 className={`font-bold text-[10px] uppercase tracking-wider ${
+            <p className={`font-bold text-[10px] uppercase tracking-wider ${
               alertState.type === "success" ? "text-emerald-800" : "text-red-800"
             }`}>
               {alertState.type === "success" ? "Berhasil" : "Kesalahan"}
-            </h4>
+            </p>
             <p className={`text-xs mt-1 leading-relaxed ${
               alertState.type === "success" ? "text-emerald-700" : "text-red-700"
             }`}>
@@ -340,9 +340,11 @@ export default function AdminRiwayatPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-ash uppercase">Tanggal:</span>
+          <label htmlFor="admin-riwayat-date-filter" className="text-xs font-bold text-ash uppercase">Tanggal:</label>
           <input
+            id="admin-riwayat-date-filter"
             type="date"
+            aria-label="Filter tanggal booking"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
             className="bg-paper-white border border-fog rounded-full px-3 py-1.5 text-xs font-bold text-carbon focus:outline-none focus:ring-2 focus:ring-lavender transition shadow-subtle"
@@ -351,7 +353,7 @@ export default function AdminRiwayatPage() {
             <button
               type="button"
               onClick={() => setDateFilter("")}
-              className="text-[10px] text-red-500 font-bold hover:underline"
+              className="text-[10px] text-red-700 font-bold hover:underline"
             >
               Reset
             </button>
@@ -417,7 +419,7 @@ export default function AdminRiwayatPage() {
                             className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-wider border ${
                               b.status === "paid"
                                 ? "bg-mint-wash text-mint border-mint/30"
-                                : "bg-ember/10 text-ember border-ember/20"
+                                : "bg-ember/10 text-ember-800 border-ember/20"
                             }`}
                           >
                             {b.status === "paid" ? "LUNAS / TERVERIFIKASI" : "DIBATALKAN"}
@@ -490,9 +492,11 @@ export default function AdminRiwayatPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-ash uppercase tracking-wider">Tanggal Main</label>
+                <label htmlFor="create-date" className="text-[10px] font-bold text-ash uppercase tracking-wider">Tanggal Main</label>
                 <input
+                  id="create-date"
                   type="date"
+                  aria-label="Tanggal main pesanan baru"
                   value={createDate}
                   onChange={(e) => setCreateDate(e.target.value)}
                   className="w-full bg-paper-white border border-fog rounded-2xl px-3 py-2 text-xs text-carbon focus:outline-none focus:ring-2 focus:ring-lavender"
@@ -607,9 +611,11 @@ export default function AdminRiwayatPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-ash uppercase tracking-wider">Tanggal Main</label>
+                <label htmlFor="edit-date" className="text-[10px] font-bold text-ash uppercase tracking-wider">Tanggal Main</label>
                 <input
+                  id="edit-date"
                   type="date"
+                  aria-label="Tanggal main untuk ubah pesanan"
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
                   className="w-full bg-paper-white border border-fog rounded-2xl px-3 py-2 text-xs text-carbon focus:outline-none focus:ring-2 focus:ring-lavender"
@@ -701,7 +707,7 @@ export default function AdminRiwayatPage() {
         <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-paper-white border border-fog rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-subtle-3 space-y-6">
             <div className="text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
+              <div className="w-12 h-12 rounded-full bg-ember/10 text-ember-800 font-black flex items-center justify-center text-xl border border-ember/20 mx-auto">
                 ⚠️
               </div>
               <h3 className="font-bold text-base text-carbon">{confirmModal.title}</h3>

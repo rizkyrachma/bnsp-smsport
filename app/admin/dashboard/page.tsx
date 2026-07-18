@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
     return (
       <main className="p-6 sm:p-8 flex items-center justify-center min-h-[60vh] max-w-7xl mx-auto w-full">
         <div className="bg-paper-white border border-fog rounded-3xl p-8 max-w-md text-center space-y-4 shadow-subtle">
-          <div className="w-12 h-12 rounded-full bg-ember/10 text-ember flex items-center justify-center text-xl mx-auto font-bold">
+          <div className="w-12 h-12 rounded-full bg-ember/10 text-ember-800 flex items-center justify-center text-xl mx-auto font-bold">
             !
           </div>
           <h2 className="text-lg font-bold text-carbon">Gagal Memuat Dashboard</h2>
@@ -126,7 +126,7 @@ export default function AdminDashboardPage() {
         <div className="bg-red-50 border border-red-200/60 rounded-3xl p-5 flex items-start gap-3 text-left shadow-subtle relative">
           <div className="text-red-500 text-xl shrink-0">⚠️</div>
           <div className="flex-1">
-            <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+            <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
             <p className="text-red-700 text-xs mt-1 leading-relaxed">{actionError}</p>
           </div>
           <button
@@ -374,7 +374,7 @@ export default function AdminDashboardPage() {
             let badgeText = "TERSEDIA";
 
             if (c.status === "perbaikan") {
-              badgeClass = "bg-amber/15 text-amber border-amber/30";
+              badgeClass = "bg-amber/15 text-amber-900 border-amber/30";
               badgeText = "PERBAIKAN";
             } else if (c.status === "dipesan") {
               badgeClass = "bg-lavender/15 text-lavender border-lavender/30";

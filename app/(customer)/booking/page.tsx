@@ -247,6 +247,7 @@ function BookingPageContent() {
             <input
               id="date"
               type="date"
+              aria-label="Pilih tanggal reservasi lapangan"
               min={getTodayStr()}
               value={selectedDate}
               onChange={(e) => {
@@ -363,7 +364,7 @@ function BookingPageContent() {
                             className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                               court.courtStatus === "tersedia"
                                 ? "bg-mint-wash text-mint"
-                                : "bg-amber/15 text-amber"
+                                : "bg-amber/15 text-amber-900"
                             }`}
                           >
                             ● {court.courtStatus === "tersedia" ? "Aktif" : court.courtStatus}
@@ -543,7 +544,7 @@ function BookingPageContent() {
               <div className="w-full mt-4 bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
                 <div className="text-red-500 text-lg shrink-0">⚠️</div>
                 <div>
-                  <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</h4>
+                  <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
                   <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{bookingError}</p>
                 </div>
               </div>
@@ -660,9 +661,9 @@ function BookingPageContent() {
               <div className="w-full mt-4 bg-red-50 border border-red-200/60 rounded-2xl p-3.5 flex gap-2.5 text-left shadow-sm">
                 <div className="text-red-500 text-base shrink-0">⚠️</div>
                 <div>
-                  <h4 className="font-bold text-[10px] text-red-800 uppercase tracking-wider">
+                  <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">
                     Pesanan Ditolak
-                  </h4>
+                  </p>
                   <p className="text-red-700 text-xs mt-0.5 leading-relaxed font-semibold">
                     {bookingError}
                   </p>

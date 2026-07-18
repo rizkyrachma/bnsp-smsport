@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { BRAND_INFO } from "@/lib/assets";
+import { EmberButton } from "@/components/ui/EmberButton";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -65,7 +66,6 @@ export default function AdminSidebar() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    // Directly redirect to customer homepage upon exit
     window.location.href = "/";
   };
 
@@ -123,13 +123,12 @@ export default function AdminSidebar() {
           </div>
 
           <div className="pt-1">
-            <button
-              type="button"
+            <EmberButton
               onClick={handleLogout}
-              className="w-full text-center text-[11px] font-bold bg-ember/10 hover:bg-ember/20 text-ember py-2.5 rounded-xl border border-ember/20 transition cursor-pointer"
+              className="w-full text-center"
             >
               Keluar
-            </button>
+            </EmberButton>
           </div>
         </div>
       </aside>
@@ -144,13 +143,13 @@ export default function AdminSidebar() {
               <span className="text-[10px] text-lavender bg-lavender/10 px-1.5 py-0.5 rounded-full ml-1.5 font-bold">ADMIN</span>
             </span>
           </div>
-          <button
-            type="button"
+          <EmberButton
             onClick={handleLogout}
-            className="text-xs font-bold text-ember bg-ember/10 border border-ember/20 px-3 py-1.5 rounded-full transition cursor-pointer"
+            size="sm"
+            rounded="full"
           >
             Keluar
-          </button>
+          </EmberButton>
         </div>
 
         {/* Dropdown Menu Toggle */}
