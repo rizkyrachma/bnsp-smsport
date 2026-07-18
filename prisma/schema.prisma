@@ -71,6 +71,8 @@ model Booking {
   court   Court    @relation(fields: [courtId], references: [id])
   payment Payment?
 
+  @@unique([courtId, bookingDate, startTime])
+  @@index([courtId, bookingDate])
   @@map("bookings")
 }
 
@@ -86,4 +88,17 @@ model Payment {
   booking Booking @relation(fields: [bookingId], references: [id])
 
   @@map("payments")
+}
+
+model SlotLock {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  courtId     String   @map("court_id")
+  bookingDate DateTime @map("booking_date") @db.Date
+  startTime   DateTime @map("start_time") @db.Timetz()
+  expiredAt   DateTime @map("expired_at")
+
+  @@unique([courtId, bookingDate, startTime])
+  @@index([courtId, bookingDate])
+  @@map("slot_locks")
 }

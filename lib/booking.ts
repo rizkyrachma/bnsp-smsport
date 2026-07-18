@@ -59,19 +59,28 @@ export async function createBooking(input: CreateBookingInput) {
         // pada lapangan yang sama wajib mengantre (mencegah TOCTOU saat baris booking belum ada).
         await tx.$queryRaw`SELECT id FROM courts WHERE id = ${courtId} FOR UPDATE`;
 
-        // Row lock: check overlap with SELECT ... FOR UPDATE (§4.1)
-        const conflicts = await tx.$queryRaw<{ id: string }[]>`
-          SELECT id FROM bookings
-          WHERE court_id = ${courtId}
-            AND booking_date = ${bookingDateObj}::date
-            AND start_time < ${endTime}::time
-            AND end_time > ${startTime}::time
-            AND status IN ('pending', 'paid')
-          FOR UPDATE
-        `;
+        // Row lock: check overlap with findMany within the locked Court transaction (§4.1)
+        const utcStartObj = wibToUTC("1970-01-01", startTime);
+        const utcEndObj = wibToUTC("1970-01-01", endTime);
+        const inputStartMins = utcStartObj.getUTCHours() * 60 + utcStartObj.getUTCMinutes();
+        const inputEndMins = utcEndObj.getUTCHours() * 60 + utcEndObj.getUTCMinutes();
 
-        if (conflicts.length > 0) {
-          throw new Error("Jadwal baru saja dipesan orang lain.");
+        const existingBookings = await tx.booking.findMany({
+          where: {
+            courtId,
+            bookingDate: bookingDateObj,
+            status: { in: ["pending", "paid"] },
+          },
+        });
+
+        const hasOverlap = existingBookings.some((b) => {
+          const bStartMins = b.startTime.getUTCHours() * 60 + b.startTime.getUTCMinutes();
+          const bEndMins = b.endTime.getUTCHours() * 60 + b.endTime.getUTCMinutes();
+          return inputStartMins < bEndMins && inputEndMins > bStartMins;
+        });
+
+        if (hasOverlap) {
+          throw new Error("sudah dipesan, silahkan pesan jam lain");
         }
 
         // Calculate price (§4.3)
@@ -90,8 +99,8 @@ export async function createBooking(input: CreateBookingInput) {
             userId,
             courtId,
             bookingDate: bookingDateObj,
-            startTime: wibToUTC("1970-01-01", startTime),
-            endTime: wibToUTC("1970-01-01", endTime),
+            startTime: utcStartObj,
+            endTime: utcEndObj,
             totalPrice,
             status: "pending",
           },
@@ -111,11 +120,12 @@ export async function createBooking(input: CreateBookingInput) {
       (typeof err?.message === "string" &&
         (err.message.includes("23505") ||
           err.message.includes("40001") ||
+          err.message.includes("sudah dipesan, silahkan pesan jam lain") ||
           err.message.includes("Jadwal baru saja dipesan orang lain")))
     ) {
       return {
         success: false,
-        error: "Jadwal baru saja dipesan orang lain.",
+        error: "sudah dipesan, silahkan pesan jam lain",
       };
     }
     const message =

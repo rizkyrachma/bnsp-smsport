@@ -553,7 +553,7 @@ export async function createAdminBooking(input: {
       });
 
       if (hasOverlap) {
-        throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
+        throw new Error("sudah dipesan, silahkan pesan jam lain");
       }
 
       const court = await tx.court.findUniqueOrThrow({ where: { id: courtId } });
@@ -593,9 +593,12 @@ export async function createAdminBooking(input: {
       err?.code === "P2002" ||
       err?.code === "P2034" ||
       (typeof err?.message === "string" &&
-        (err.message.includes("23505") || err.message.includes("40001")))
+        (err.message.includes("23505") ||
+          err.message.includes("40001") ||
+          err.message.includes("sudah dipesan, silahkan pesan jam lain") ||
+          err.message.includes("Jadwal bentrok dengan booking aktif lainnya")))
     ) {
-      throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
+      throw new Error("sudah dipesan, silahkan pesan jam lain");
     }
     throw err;
   }
@@ -647,7 +650,7 @@ export async function updateAdminBooking(
       });
 
       if (hasOverlap) {
-        throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
+        throw new Error("sudah dipesan, silahkan pesan jam lain");
       }
 
       const updated = await tx.booking.update({
@@ -692,9 +695,12 @@ export async function updateAdminBooking(
       err?.code === "P2002" ||
       err?.code === "P2034" ||
       (typeof err?.message === "string" &&
-        (err.message.includes("23505") || err.message.includes("40001")))
+        (err.message.includes("23505") ||
+          err.message.includes("40001") ||
+          err.message.includes("sudah dipesan, silahkan pesan jam lain") ||
+          err.message.includes("Jadwal bentrok dengan booking aktif lainnya")))
     ) {
-      throw new Error("Jadwal bentrok dengan booking aktif lainnya.");
+      throw new Error("sudah dipesan, silahkan pesan jam lain");
     }
     throw err;
   }
