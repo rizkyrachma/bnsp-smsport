@@ -1,107 +1,186 @@
-# Analisis Menyeluruh Proyek SM Sport Center Reservation System
+# Analisis Sistem Menyeluruh - SM Sport Center Reservation System
 
-Dokumen ini berisi analisis arsitektur, basis data, aturan bisnis, alur kerja sistem, dan hasil perbaikan bug yang telah dilakukan pada sistem reservasi lapangan olahraga (Futsal & Badminton) milik **SM Sport Center**.
-
----
-
-## 1. Spesifikasi Teknis (Tech Stack)
-
-Sistem ini dirancang menggunakan arsitektur modern berbasis Fullstack Next.js:
-
-* **Framework Utama:** Next.js (App Router) menggunakan TypeScript. Menyediakan sisi client (UI interaktif) sekaligus server-side logic (Server Actions, API Route Handlers, dan Server-side rendering).
-* **Pemetaan Basis Data (ORM):** Prisma Client dengan database relasional **PostgreSQL** (yang di-hosting secara serverless di platform **Neon**).
-* **Desain UI & Styling:** Tailwind CSS v4 dengan sistem manajemen variabel terpusat untuk tema warna modern, tipografi geometris, dan tata letak mobile-first.
-* **Autentikasi & Otorisasi:** Kustomisasi session berbasis **JSON Web Token (JWT)** menggunakan library `jose` dan pengamanan hash password dengan `bcryptjs`.
-* **Visualisasi Data (Admin):** Library grafik **Recharts** untuk visualisasi pendapatan harian/bulanan serta tingkat okupansi per jenis lapangan secara real-time.
-* **Ekspor Dokumen:** Library **jsPDF** bersama plugin **jspdf-autotable** untuk mencetak invoice/tiket reservasi pelanggan serta mengunduh laporan bulanan berformat PDF resmi.
+Dokumen ini menyajikan analisis sistem secara komprehensif, mulai dari analisis kebutuhan fungsional dan non-fungsional, arsitektur basis data, ERD (Entity Relationship Diagram), alur bisnis kritis, hingga mekanisme keamanan yang diterapkan pada sistem reservasi lapangan olahraga (Futsal & Badminton) milik **SM Sport Center**.
 
 ---
 
-## 2. Struktur Folder & Routing
+## 1. Analisis Kebutuhan Sistem (System Requirements)
 
-Aplikasi ini disatukan dalam satu repositori Next.js untuk mencegah duplikasi logika bisnis, dengan pemisahan akses rute sebagai berikut:
+Sistem dirancang berdasarkan pembagian peran (*role-based*) yang jelas antara **Pelanggan (Customer)** dan **Pengelola (Admin)** dengan spesifikasi fungsional berikut:
 
+### 1.1 Kebutuhan Fungsional Pelanggan (Customer Features)
+* **Pendaftaran & Autentikasi:** Pelanggan dapat membuat akun baru menggunakan nama, email, nomor telepon, dan password yang aman, serta masuk ke dalam sistem.
+* **Lihat Jadwal Real-Time:** Pelanggan dapat memantau ketersediaan slot waktu (08:00 - 22:00 WIB) pada kalender interaktif untuk masing-masing lapangan (2 futsal & 3 badminton) secara real-time.
+* **Booking Lapangan:** Pelanggan dapat memilih tanggal, lapangan, jam awal mulai, serta durasi sewa (1 s.d. 4 jam).
+* **Multi-Slot Highlight:** Saat memilih durasi > 1 jam, sistem secara visual meng-highlight semua slot jam yang tercakup dalam durasi tersebut.
+* **Sistem Pembayaran Instan (Checkout):**
+  * Transaksi awal berstatus `pending` dan menahan slot selama **10 menit** (Hold Slot).
+  * Menampilkan QRIS dinamis/detail rekening transfer manual untuk pembayaran.
+  * Halaman checkout mandiri `/api/payments/checkout` yang responsif di HP untuk melakukan simulasi bayar instan.
+* **Manajemen Riwayat & E-Ticket:**
+  * Pelanggan dapat melihat riwayat reservasi beserta status bayar masing-masing (`pending`, `paid`, `cancelled`).
+  * Menyediakan fitur pencarian dan filter riwayat berdasarkan tanggal dan jenis lapangan.
+  * Mengunduh Bukti Sewa (E-Ticket) berformat PDF yang bersih dan profesional untuk ditunjukkan kepada petugas lapangan.
+
+### 1.2 Kebutuhan Fungsional Pengelola (Admin Features)
+* **Dasbor Statistik Utama:**
+  * Menampilkan ringkasan total pelanggan terdaftar, total pendapatan, dan antrean reservasi.
+  * Chart visualisasi pendapatan harian/bulanan menggunakan area chart.
+  * Chart tingkat hunian/okupansi per lapangan (membedakan Futsal & Badminton) menggunakan bar chart.
+  * Status real-time tiap lapangan saat ini (`tersedia`, `dipesan`, `perbaikan`).
+* **Manajemen Pelanggan (CRUD):** Admin dapat melihat list pelanggan, mencari berdasarkan nama/kontak, melakukan pemblokiran (suspend) akun pelanggan yang bermasalah, serta memperbarui profil mereka.
+* **Jadwal & Blokir Manual:** Admin dapat memblokir slot jam tertentu untuk keperluan turnamen atau perawatan rutin (*maintenance*) dengan mengubah status lapangan menjadi `perbaikan`.
+* **Verifikasi Pembayaran Manual:** Admin dapat meninjau bukti transfer yang diunggah pelanggan, menyetujui (`paid`), atau menolak pembayaran yang tidak valid (otomatis mengubah status booking ke `cancelled`).
+* **Laporan Bulanan & Ekspor PDF:** Fitur filter riwayat reservasi seluruh pelanggan berdasarkan rentang tanggal dan jenis lapangan, serta ekspor laporan rekapitulasi keuangan berformat PDF resmi dengan tanda tangan digital pengelola.
+
+### 1.3 Kebutuhan Non-Fungsional (Non-Functional Requirements)
+* **Keamanan Data:** Enkripsi password menggunakan hashing satu arah blowfish-crypt (`bcryptjs`).
+* **Autentikasi Sesi:** Token berbasis JSON Web Token (JWT) yang dienkripsi menggunakan library `jose` dengan penyimpanan aman di HTTP-Only Cookie.
+* **Konsistensi Zona Waktu:** Penggunaan WIB (Asia/Jakarta) sebagai basis perhitungan seluruh transaksi di server maupun client guna mencegah kesalahan akibat perbedaan zona waktu host server.
+* **Skalabilitas & Performa:** Integrasi basis data Neon Postgres (Serverless) dengan optimasi pooling koneksi agar andal saat menerima request bersamaan yang tinggi.
+
+---
+
+## 2. Entity Relationship Diagram (ERD) & Struktur Tabel
+
+Basis data menggunakan database relasional PostgreSQL dengan skema tabel yang didefinisikan dalam Prisma ORM.
+
+### 2.1 Visualisasi Relasi (Mermaid Diagram)
+```mermaid
+erDiagram
+    users ||--o{ bookings : "memiliki (1:N)"
+    courts ||--o{ bookings : "disewa (1:N)"
+    bookings ||--o? payments : "dibayar (1:1)"
+
+    users {
+        string id PK
+        string name
+        string email UK
+        string phone
+        string password
+        enum role "admin | customer"
+        boolean is_blocked
+        datetime created_at
+    }
+
+    courts {
+        string id PK
+        string name
+        enum type "futsal | badminton"
+        int price_per_hour
+        enum status "tersedia | dipesan | perbaikan"
+    }
+
+    bookings {
+        string id PK
+        string user_id FK
+        string court_id FK
+        date booking_date
+        timetz start_time
+        timetz end_time
+        int total_price
+        enum status "pending | paid | cancelled"
+        datetime created_at
+    }
+
+    payments {
+        string id PK
+        string booking_id FK "UK"
+        string payment_method
+        int amount
+        string proof_url
+        string payment_status "pending | paid | rejected"
+        datetime paid_at
+    }
 ```
-app/
-├── (customer)/             # Halaman & fitur sisi Pelanggan
-│   ├── _components/        # Komponen navbar pelanggan, badge countdown, dll.
-│   ├── booking/            # Halaman pemilihan jadwal & durasi
-│   ├── login/              # Portal masuk customer
-│   ├── riwayat/            # Riwayat transaksi & e-ticket
-│   └── page.tsx            # Landing page publik (Beranda)
-├── admin/                  # Halaman & fitur sisi Pengelola (Admin)
-│   ├── _components/        # Sidebar responsif admin, layout, dll.
-│   ├── dashboard/          # Panel statistik & status lapangan
-│   ├── jadwal/             # Kelola jadwal & blokir lapangan manual
-│   ├── laporan/            # Ekspor laporan PDF berfilter
-│   ├── pelanggan/          # Kelola daftar pelanggan
-│   └── login/              # Portal login terpisah khusus pengelola
-├── api/                    # Endpoint API publik/integrasi
-│   ├── auth/               # Endpoint masuk, daftar, & cek sesi
-│   ├── bookings/           # Endpoint CRUD booking & auto-cancel
-│   └── payments/           # Endpoint verifikasi & callback transaksi
-├── globals.css             # Tema variabel warna & style dasar Tailwind v4
-└── layout.tsx              # Root HTML & font wrapper
-```
+
+### 2.2 Kamus Data Struktur Tabel
+
+#### Tabel 1: `users`
+Menyimpan informasi akun pelanggan dan administrator.
+| Nama Kolom | Tipe Data | Atribut | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `id` | String (CUID) | PK, Default | ID unik untuk setiap pengguna. |
+| `name` | String | Not Null | Nama lengkap pengguna. |
+| `email` | String | Unique, Not Null | Alamat email unik (digunakan untuk login). |
+| `phone` | String | Nullable | Nomor telepon/WhatsApp. |
+| `password` | String | Not Null | Password akun yang telah di-hash menggunakan bcrypt. |
+| `role` | Enum (`Role`) | Default: `customer` | Hak akses pengguna (`admin` atau `customer`). |
+| `is_blocked`| Boolean | Default: `false` | Status blokir/suspend akun pelanggan. |
+| `created_at`| DateTime | Default: `now()` | Tanggal pembuatan akun. |
+
+#### Tabel 2: `courts`
+Menyimpan spesifikasi lapangan yang dimiliki SM Sport Center.
+| Nama Kolom | Tipe Data | Atribut | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `id` | String (CUID) | PK, Default | ID unik untuk setiap lapangan. |
+| `name` | String | Not Null | Nama lapangan (misal: Lapangan Futsal 1). |
+| `type` | Enum (`CourtType`)| Not Null | Jenis cabang olahraga (`futsal` atau `badminton`). |
+| `price_per_hour`| Int | Not Null | Tarif sewa lapangan per jam. |
+| `status` | Enum (`CourtStatus`)| Default: `tersedia` | Status operasional lapangan (`tersedia`, `dipesan`, `perbaikan`). |
+
+#### Tabel 3: `bookings`
+Menyimpan transaksi pemesanan lapangan oleh pelanggan.
+| Nama Kolom | Tipe Data | Atribut | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `id` | String (CUID) | PK, Default | ID unik transaksi reservasi. |
+| `user_id` | String (CUID) | FK, Not Null | Menghubungkan ke `users.id`. |
+| `court_id` | String (CUID) | FK, Not Null | Menghubungkan ke `courts.id`. |
+| `booking_date`| Date | Not Null | Tanggal pemesanan lapangan (Y-M-D). |
+| `start_time` | Time with Timezone | Not Null | Waktu mulai sewa lapangan (WIB). |
+| `end_time` | Time with Timezone | Not Null | Waktu selesai sewa lapangan (WIB). |
+| `total_price`| Int | Not Null | Total biaya sewa (durasi x price_per_hour). |
+| `status` | Enum (`BookingStatus`)| Default: `pending` | Status pemesanan (`pending`, `paid`, `cancelled`). |
+| `created_at`| DateTime | Default: `now()` | Waktu transaksi dibuat. |
+
+#### Tabel 4: `payments`
+Menyimpan informasi detail bukti transaksi pembayaran.
+| Nama Kolom | Tipe Data | Atribut | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `id` | String (CUID) | PK, Default | ID unik data pembayaran. |
+| `booking_id` | String (CUID) | FK, Unique, Not Null | Menghubungkan ke `bookings.id` (Relasi 1:1). |
+| `payment_method`| String | Nullable | Metode bayar yang dipilih (QRIS / Transfer). |
+| `amount` | Int | Not Null | Nominal uang yang harus dibayar. |
+| `proof_url` | String | Nullable | URL berkas foto/screenshot bukti transfer. |
+| `payment_status`| String | Default: `pending` | Status pembayaran (`pending`, `paid`, `rejected`). |
+| `paid_at` | DateTime | Nullable | Tanggal & waktu pelunasan terverifikasi. |
 
 ---
 
-## 3. Skema Basis Data (Prisma Schema)
+## 3. Logika & Alur Kerja Bisnis Utama (Core System Flow)
 
-Hubungan relasi antar-tabel diatur secara ketat dengan skema berikut:
+### 3.1 Logika Pencegahan Tabrakan Jadwal (Anti Double-Booking)
+Untuk menjamin integritas data, setiap pembuatan transaksi baru divalidasi secara ketat pada server-side:
+* Query akan mencari reservasi yang memiliki status aktif (`pending` atau `paid`), tanggal pemesanan yang sama (`bookingDate`), dan lapangan yang sama (`courtId`).
+* Pemesanan dinyatakan **bentrok/tumpang-tindih** apabila:
+  $$\text{start\_time\_baru} < \text{end\_time\_existing} \quad \text{dan} \quad \text{end\_time\_baru} > \text{start\_time\_existing}$$
+* Operasi ini dibungkus di dalam **Prisma Transaction** untuk menjamin isolasi ACID basis data, sehingga jika terjadi race condition oleh dua user berbeda pada waktu yang sama, salah satu request akan otomatis dibatalkan.
 
-1. **User (Pengguna):**
-   * Menyimpan kredensial pelanggan dan admin. Memiliki kolom `role` (`admin` / `customer`) untuk otorisasi akses.
-2. **Court (Lapangan):**
-   * Mengelola 5 lapangan (2 Futsal & 3 Badminton). Memiliki kolom `status` (`tersedia`, `dipesan`, `perbaikan`).
-3. **Booking (Reservasi):**
-   * Menyimpan detail waktu sewa (`bookingDate`, `startTime`, `endTime`), kalkulasi biaya (`totalPrice`), dan `status` (`pending`, `paid`, `cancelled`).
-4. **Payment (Pembayaran):**
-   * Menyimpan data bukti pembayaran, metode bayar (misal QRIS / transfer manual), status verifikasi, dan tanggal pelunasan (`paidAt`).
-
----
-
-## 4. Aturan Bisnis Kritis (Business Logic)
-
-Sistem ini menerapkan standar keamanan transaksi yang tinggi:
-
-### 4.1 Anti Double-Booking
-* Mencegah pemesanan jadwal yang bertabrakan pada lapangan dan tanggal yang sama untuk transaksi berstatus aktif (`pending` / `paid`).
-* Logika bentrok jadwal dihitung dengan formula:
-  ```
-  bentrok jika: (start_time_baru < end_time_existing) DAN (end_time_baru > start_time_existing)
-  ```
-* Didukung dengan *transaction lock* atau serialization agar jika terjadi *race condition* (2 request masuk di milidetik yang sama), salah satu otomatis gagal dengan pesan kesalahan.
-
-### 4.2 Hold Slot & Auto-Cancel (10 Menit)
-* Ketika pelanggan menekan "Pesan", slot lapangan akan ditahan (*hold*) dengan status `pending` selama **10 menit**.
-* Jika pembayaran tidak dilakukan/tidak terverifikasi dalam batas waktu tersebut, pesanan otomatis dibatalkan (`cancelled`) dan slot dikembalikan agar dapat dipesan orang lain.
-* Logika auto-cancel dipicu secara pasif pada query-query data (sehingga data admin & user selalu akurat saat dibuka) serta secara aktif via CRON Job.
-
-### 4.3 Sinkronisasi Waktu WIB (Asia/Jakarta)
-* Seluruh pencatatan tanggal, jam mulai, dan jam selesai dikonversi ke format WIB (+7) menggunakan library `dayjs/plugin/timezone`.
-* Mencegah pergeseran waktu akibat perbedaan zona waktu server (misalnya server Vercel di UTC) dengan zona waktu pelanggan.
+### 3.2 Alur Hold Slot & Pembatalan Otomatis (Auto-Cancel)
+Sistem menahan slot selama **10 menit** sejak transaksi dibuat:
+1. Saat booking dibuat, status diatur menjadi `pending`.
+2. Selama 10 menit ini, slot tersebut tidak dapat dipesan oleh orang lain.
+3. Klien menampilkan countdown dinamis (Timer) berdasarkan sisa waktu.
+4. **Mekanisme Pemicu Pasif:** Setiap kali database diakses oleh user atau admin, fungsi `cancelExpiredBookings()` akan dieksekusi secara otomatis untuk mencari transaksi `pending` yang dibuat lebih dari 10 menit yang lalu, kemudian mengubah statusnya menjadi `cancelled`. Hal ini membuat data di sisi admin maupun pelanggan selalu sinkron dan akurat secara instan.
+5. **Mekanisme Pemicu Aktif:** Cron job eksternal memanggil endpoint `/api/bookings/cancel-expired` secara periodik untuk membersihkan slot yang hangus di basis data.
 
 ---
 
-## 5. Ringkasan Perbaikan & Optimasi Terkini
+## 4. Fitur Keamanan Sistem (Security Measures)
 
-Selama proses pengembangan, beberapa penyempurnaan krusial telah berhasil diselesaikan:
+Sistem ini menerapkan standar keamanan aplikasi web modern:
 
-1. **Penerapan Tema Warna Baru (Brand Blue):**
-   * Mengubah seluruh elemen visual yang sebelumnya berwarna ungu/lavender menjadi warna biru tua formal **`#21257c`** (sesuai logo baru). Ini dilakukan secara efisien dengan mengubah CSS Variables di `app/globals.css` serta menyesuaikan warna diagram `Recharts` di dashboard admin.
-2. **Sidebar Admin Mobile yang Responsif:**
-   * Mengganti navigasi slider horizontal lama pada mobile menjadi dropdown menu satu kolom yang dinamis dengan transisi animasi halus (*slide & fade*).
-   * Dropdown dilengkapi dengan backdrop penutup otomatis saat diklik di luar area menu.
-3. **Penyelesaian Masalah Infinite Rebuild Dev Server:**
-   * Mengatasi isu penanganan file-watching pada sistem operasi Windows dengan beralih ke dev server berbasis Webpack (`--webpack`) dan menambahkan watch ignores untuk folder `.next`, `node_modules`, serta folder subproyek `my-app` di `next.config.ts`.
-4. **Perbaikan Loop HMR pada Halaman Riwayat & Verifikasi:**
-   * Memperbaiki loop pemanggilan berulang `getAdminBookings` pada sisi admin dan customer dengan mengimplementasikan *Latest Ref Pattern* (`useRef`) pada callback `onExpire` di komponen `CountdownBadge.tsx`. Ini mencegah `setInterval` terbuat ulang di setiap siklus render.
-   * Menambahkan pemicu auto-cancel `cancelExpiredBookings` pada aksi pembacaan data admin untuk memastikan sinkronisasi data yang presisi.
-5. **Penyempurnaan Teks & Visual:**
-   * Mengubah kata *"udunan"* menjadi *"patungan"* pada halaman testimoni pelanggan.
-   * Memperbaiki kontras visibilitas teks kecil `"Jangan Sampai Kehabisan Slot"` di atas latar belakang gelap pada landing page.
-   * Mengintegrasikan file logo baru `SM SPORTS.png` dari aset BNSP ke seluruh navbar, sidebar, dan favicon.
+* **Sesi JWT yang Aman (HTTP-Only):**
+  Token autentikasi disimpan di dalam cookie berlabel `HttpOnly` dan `Secure`. Ini melindungi token agar tidak dapat dibaca oleh script berbahaya dari sisi client (melindungi dari serangan *Cross-Site Scripting / XSS*).
+* **Role-Based Redirect Middleware:**
+  Sistem memisahkan alur masuk pengguna secara ketat:
+  * Customer login diarahkan ke halaman utama (`/`).
+  * Admin login diarahkan ke dashboard admin (`/admin/dashboard`).
+  * Middleware `/middleware.ts` (melalui wrapper `proxy.ts`) secara aktif memeriksa role di dalam token sesi sebelum mengizinkan browser mengakses rute sensitif `/admin/*`. Pengguna dengan role `customer` yang mencoba mengakses dashboard pengelola secara ilegal akan langsung di-redirect paksa kembali ke beranda.
+* **Pencegahan SQL Injection:**
+  Semua komunikasi data ke PostgreSQL dilakukan melalui Prisma ORM yang secara default menggunakan parameterized queries (Prepared Statements). Ini mencegah masuknya query SQL berbahaya dari input form.
+* **Keamanan Password:**
+  Password pengguna di-hash sebelum disimpan ke database menggunakan algoritma blowfish-crypt (`bcryptjs`) berkekuatan tinggi, sehingga tidak ada data sensitif yang disimpan dalam teks biasa (*plaintext*).
 
 ---
-*Dokumen ini dibuat secara otomatis sebagai rangkuman status final dan dokumentasi arsitektur proyek SM Sport Center.*
+*Dokumen ini diperbarui secara otomatis dan menjadi panduan arsitektur resmi sistem reservasi SM Sport Center.*
