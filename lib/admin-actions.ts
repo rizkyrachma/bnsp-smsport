@@ -4,7 +4,7 @@ import { prisma } from "./prisma";
 import { getSession } from "./auth";
 import { TIMEZONE } from "./constants";
 import { hash } from "bcryptjs";
-import { formatJamWIB, formatTanggalWIB, wibToUTC } from "./timezone";
+import { formatJamWIB, formatTanggalWIB, utcToWIB, wibToUTC } from "./timezone";
 
 type BookingWhereInput = NonNullable<Parameters<typeof prisma.booking.findMany>[0]>["where"];
 
@@ -143,8 +143,8 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const active = todayActiveBookings.find((b: any) => {
       if (b.courtId !== c.id) return false;
-      const startH = b.startTime.getUTCHours();
-      const endH = b.endTime.getUTCHours();
+      const startH = utcToWIB(b.startTime).hour();
+      const endH = utcToWIB(b.endTime).hour();
       return currentHour >= startH && currentHour < endH;
     });
 
@@ -157,8 +157,8 @@ export async function getAdminDashboardData(dateRange?: { startDate?: string; en
       activeBooking: active
         ? {
           id: active.id,
-          start: `${active.startTime.getUTCHours().toString().padStart(2, "0")}:00`,
-          end: `${active.endTime.getUTCHours().toString().padStart(2, "0")}:00`,
+          start: formatJamWIB(active.startTime),
+          end: formatJamWIB(active.endTime),
           status: active.status,
         }
         : null,

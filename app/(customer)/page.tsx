@@ -234,7 +234,7 @@ export default async function CustomerHomePage() {
                   R
                 </div>
                 <div>
-                  <h4 className="font-bold text-carbon text-sm">Rizky Pratama</h4>
+                  <h3 className="font-bold text-carbon text-sm">Rizky Pratama</h3>
                   <span className="text-xs text-ash">Kapten Tim Futsal FC</span>
                 </div>
               </div>
@@ -249,7 +249,7 @@ export default async function CustomerHomePage() {
                   D
                 </div>
                 <div>
-                  <h4 className="font-bold text-carbon text-sm">Diana Novita</h4>
+                  <h3 className="font-bold text-carbon text-sm">Diana Novita</h3>
                   <span className="text-xs text-ash">Komunitas Badminton Weekend</span>
                 </div>
               </div>
@@ -264,7 +264,7 @@ export default async function CustomerHomePage() {
                   A
                 </div>
                 <div>
-                  <h4 className="font-bold text-carbon text-sm">Ahmad Fauzi</h4>
+                  <h3 className="font-bold text-carbon text-sm">Ahmad Fauzi</h3>
                   <span className="text-xs text-ash">Pelanggan Setia Mingguan</span>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default async function CustomerHomePage() {
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">
                 Siap Bertanding di Lapangan Hari Ini?
               </h2>
-              <p className="text-ash text-base md:text-lg mb-8">
+              <p className="text-paper-white/90 text-base md:text-lg mb-8">
                 Pilih jadwal bertandingmu sekarang, amankan slot favoritmu, dan tunjukkan aksi terbaik timmu di atas lapangan.
               </p>
               <Link
@@ -305,6 +305,7 @@ export default async function CustomerHomePage() {
 
       {/* 8. FOOTER (§6.1 #8) */}
       <footer id="kontak" className="bg-linen border-t border-fog py-16 px-4">
+        <h2 className="sr-only">Informasi &amp; Navigasi</h2>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg text-carbon tracking-tight mb-4">
@@ -322,7 +323,7 @@ export default async function CustomerHomePage() {
           </div>
 
           <div>
-            <h4 className="font-bold text-carbon text-sm mb-4">Menu Navigasi</h4>
+            <h3 className="font-bold text-carbon text-sm mb-4">Menu Navigasi</h3>
             <ul className="space-y-2 text-sm text-graphite">
               <li><Link href="/" className="hover:text-carbon transition">Beranda</Link></li>
               <li><Link href="/booking" className="hover:text-carbon transition">Jadwal &amp; Booking</Link></li>
@@ -332,7 +333,7 @@ export default async function CustomerHomePage() {
           </div>
 
           <div>
-            <h4 className="font-bold text-carbon text-sm mb-4">Akses Akun</h4>
+            <h3 className="font-bold text-carbon text-sm mb-4">Akses Akun</h3>
             <ul className="space-y-2 text-sm text-graphite">
               <li><Link href="/login" className="hover:text-carbon transition">Masuk Akun</Link></li>
               <li><Link href="/login" className="hover:text-carbon transition">Daftar Pelanggan Baru</Link></li>
@@ -341,7 +342,7 @@ export default async function CustomerHomePage() {
           </div>
 
           <div>
-            <h4 className="font-bold text-carbon text-sm mb-4">Jam &amp; Kontak Operasional</h4>
+            <h3 className="font-bold text-carbon text-sm mb-4">Jam &amp; Kontak Operasional</h3>
             <ul className="space-y-2 text-sm text-graphite">
               <li className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-ash" fill="none" stroke="currentColor" viewBox="0 0 24 24">
