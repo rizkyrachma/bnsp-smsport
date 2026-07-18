@@ -71,7 +71,6 @@ model Booking {
   court   Court    @relation(fields: [courtId], references: [id])
   payment Payment?
 
-  @@unique([courtId, bookingDate, startTime])
   @@index([courtId, bookingDate])
   @@map("bookings")
 }
