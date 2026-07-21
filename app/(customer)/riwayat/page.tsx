@@ -290,7 +290,13 @@ function RiwayatPageContent() {
               return (
                 <div
                   key={item.id}
-                  className="bg-paper-white border border-fog rounded-3xl p-6 md:p-8 shadow-subtle-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition hover:border-lavender/40"
+                  className={`border-2 rounded-3xl p-6 md:p-8 shadow-subtle-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition ${
+                    isPending
+                      ? "border-amber/80 bg-gradient-to-r from-amber/10 to-paper-white shadow-amber/10 hover:border-amber"
+                      : isPaid
+                      ? "border-mint/30 bg-paper-white hover:border-mint/60"
+                      : "border-fog bg-paper-white hover:border-lavender/40 opacity-75"
+                  }`}
                 >
                   <div className="space-y-2 max-w-2xl">
                     <div className="flex flex-wrap items-center gap-2">
@@ -353,9 +359,10 @@ function RiwayatPageContent() {
                             setPaySuccess(false);
                           }}
                           aria-label={`Lanjutkan pembayaran untuk ${item.court.name}`}
-                          className="w-full sm:w-auto bg-lavender text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition"
+                          className="w-full sm:w-auto bg-gradient-to-r from-[#FFA600] to-[#FF7700] text-carbon hover:brightness-110 active:scale-95 hover:scale-105 hover:-translate-y-0.5 px-6 py-3 rounded-full font-black text-xs sm:text-sm shadow-md hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 border-2 border-carbon/15 cursor-pointer"
                         >
-                          Lanjutkan Pembayaran
+                          <span>💳</span>
+                          <span>Lanjutkan Pembayaran</span>
                         </button>
                       )}
 
@@ -368,7 +375,7 @@ function RiwayatPageContent() {
                             setPaySuccess(false);
                           }}
                           aria-label={`Perbarui pembayaran untuk ${item.court.name}`}
-                          className="w-full sm:w-auto bg-amber text-carbon px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition"
+                          className="w-full sm:w-auto bg-fog text-carbon hover:bg-ash/20 active:scale-95 hover:scale-105 hover:-translate-y-0.5 px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:shadow-md transition-all duration-200 cursor-pointer"
                         >
                           Perbarui Pembayaran
                         </button>
@@ -379,7 +386,7 @@ function RiwayatPageContent() {
                           type="button"
                           onClick={() => setTicketBooking(item)}
                           aria-label={`Unduh E-Tiket untuk ${item.court.name}`}
-                          className="w-full sm:w-auto bg-iris text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:opacity-95 transition flex items-center justify-center gap-1.5"
+                          className="w-full sm:w-auto bg-iris text-white hover:bg-iris/90 active:scale-95 hover:scale-105 hover:-translate-y-0.5 px-5 py-2.5 rounded-full font-bold text-xs shadow-subtle hover:shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <span>Unduh E-Tiket</span>
                           <span>📥</span>

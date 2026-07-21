@@ -8,7 +8,6 @@
 -- 1. DATA DEFINITION LANGUAGE (DDL) - PEMBENTUKAN ENUM & TABEL
 -- ----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS slot_locks CASCADE;
 DROP TABLE IF EXISTS payments CASCADE;
 DROP TABLE IF EXISTS bookings CASCADE;
 DROP TABLE IF EXISTS courts CASCADE;
@@ -78,21 +77,7 @@ CREATE TABLE payments (
     paid_at TIMESTAMP(3)
 );
 
--- Tabel 5: slot_locks (Mekanisme Penguncian Alternatif)
-CREATE TABLE slot_locks (
-    id VARCHAR(30) PRIMARY KEY,
-    user_id VARCHAR(30) NOT NULL,
-    court_id VARCHAR(30) NOT NULL,
-    booking_date DATE NOT NULL,
-    start_time TIMETZ NOT NULL,
-    expired_at TIMESTAMP(3) NOT NULL
-);
 
-CREATE UNIQUE INDEX slot_locks_court_id_booking_date_start_time_key 
-ON slot_locks(court_id, booking_date, start_time);
-
-CREATE INDEX slot_locks_court_id_booking_date_idx 
-ON slot_locks(court_id, booking_date);
 
 
 -- ----------------------------------------------------------------------------
@@ -110,7 +95,7 @@ INSERT INTO courts (id, name, type, price_per_hour, status) VALUES
 -- B. Masukkan Data Akun (1 Admin + 3 Pelanggan Terdaftar)
 INSERT INTO users (id, name, email, phone, password, role, is_blocked, created_at) VALUES
 ('user-admin-01', 'Super Administrator', 'admin@smsport.id', '081234567890', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/Lewe0uG.wD0R4Wv5W', 'admin', false, NOW()),
-('user-cust-01', 'Rizky Rachmawan', 'rizky@gmail.com', '089876543210', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/Lewe0uG.wD0R4Wv5W', 'customer', false, NOW()),
+('user-cust-01', 'Rizky Rachma', 'rizky@gmail.com', '089876543210', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/Lewe0uG.wD0R4Wv5W', 'customer', false, NOW()),
 ('user-cust-02', 'Budi Santoso', 'budi.santoso@yahoo.com', '085612345678', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/Lewe0uG.wD0R4Wv5W', 'customer', false, NOW()),
 ('user-cust-03', 'Siti Aminah', 'siti.aminah@outlook.com', '087711223344', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/Lewe0uG.wD0R4Wv5W', 'customer', false, NOW());
 
