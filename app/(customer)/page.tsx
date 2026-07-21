@@ -1,18 +1,19 @@
 import Link from "next/link";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { COURT_IMAGES, BRAND_INFO } from "@/lib/assets";
-import CourtSection from "./_components/CourtSection";
+import { BRAND_INFO } from "@/lib/assets";
 import ClientNavbar from "./_components/ClientNavbar";
 import { getSession } from "@/lib/auth";
+import HeroQuickSearch from "./_components/HeroQuickSearch";
+import FeaturedCourtsGrid from "./_components/FeaturedCourtsGrid";
+import FlySmartFooter from "./_components/Footer";
 
 /**
  * Customer Home / Marketing Landing Page (AGENTS.md §6.1)
- * Rendered as a Server Component.
- * Uses DESIGN.md tokens & visual guidelines (white-canvas, Carbon text, Lavender CTA, pill radius).
+ * Redesigned with FlySmart-inspired dynamic layout & asymmetric composition.
+ * Retains SM Sport Center design tokens (Navy primary, White canvas, Carbon text, Pill radius).
  */
 export default async function CustomerHomePage() {
-  // Query real stats from database via Prisma (§6.1 #5 & §6.1 rule 2) plus current session
+  // Query real stats from database via Prisma plus current session
   const [totalCourts, totalCustomers, totalBookings, dbCourts, session] = await Promise.all([
     prisma.court.count(),
     prisma.user.count({ where: { role: "customer" } }),
@@ -21,107 +22,37 @@ export default async function CustomerHomePage() {
     getSession(),
   ]);
 
-  // Group courts by type to calculate starting/average prices if available from DB
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const futsalCourts = dbCourts.filter((c: any) => c.type === "futsal");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const badmintonCourts = dbCourts.filter((c: any) => c.type === "badminton");
-
-  const futsalPrice =
-    futsalCourts.length > 0 ? futsalCourts[0].pricePerHour : 150000;
-  const badmintonPrice =
-    badmintonCourts.length > 0 ? badmintonCourts[0].pricePerHour : 60000;
-
   return (
     <div className="min-h-screen bg-paper-white text-carbon flex flex-col font-sans">
-      {/* 1. NAVBAR (Shared Client Component with smooth scroll to top & session state) */}
+      {/* 1. NAVBAR (Shared Client Component with smooth scroll & session state) */}
       <ClientNavbar activePage="home" initialSession={session} />
 
       <main className="flex-grow">
-        {/* 2. HERO SECTION */}
-        <section className="py-20 md:py-28 px-4 text-center max-w-5xl mx-auto">
+        {/* 2. HERO SECTION (Split Asymmetric Hero + Embedded Search Widget + Trust Badges + Offset Promo) */}
+        <HeroQuickSearch courts={dbCourts} />
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-carbon leading-[1.12] max-w-4xl mx-auto">
-            {BRAND_INFO.tagline}
-          </h1>
+        {/* 3. FEATURED COURTS GRID (FlySmart "Explore Top Destinations" 3-card style) */}
+        <FeaturedCourtsGrid courts={dbCourts} />
 
-          <p className="text-graphite text-base sm:text-lg md:text-xl max-w-2xl mx-auto mt-6 leading-relaxed font-normal">
-            Cek ketersediaan lapangan secara real-time, pilih jam mainmu, dan bayar online dalam hitungan detik. Tanpa antre, tanpa tumpang tindih jadwal.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-10">
-            <Link
-              href="/booking"
-              className="bg-lavender text-white px-8 py-4 rounded-full font-medium text-sm md:text-base shadow-subtle hover:opacity-95 transition flex items-center gap-2"
-            >
-              <span>Booking Sekarang</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
-            <a
-              href="#info-lapangan"
-              className="bg-mist text-graphite border border-fog px-8 py-4 rounded-full font-medium text-sm md:text-base hover:bg-fog/40 transition"
-            >
-              Lihat Tarif &amp; Fasilitas
-            </a>
-          </div>
-
-          {/* Decorative Trust Badge */}
-          <div className="mt-16 pt-10 border-t border-fog flex flex-wrap items-center justify-center gap-8 text-xs text-ash uppercase tracking-wider">
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-mint" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Garansi Jadwal 100% Aman
-            </span>
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-mint" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Hold Slot Otomatis 10 Menit
-            </span>
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-mint" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Konfirmasi Pembayaran Cepat
-            </span>
-          </div>
-        </section>
-
-        {/* 3. INFO LAPANGAN (§6.1 #3) */}
-        <section id="info-lapangan" className="py-20 bg-linen border-y border-fog px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-carbon tracking-tight">
-                Pilihan Lapangan Berkualitas
-              </h2>
-              <p className="text-graphite mt-3 text-base">
-                Fasilitas berstandar turnamen, pencahayaan LED terang, serta area penonton yang nyaman.
-              </p>
-            </div>
-
-            <CourtSection courts={dbCourts} />
-          </div>
-        </section>
-
-        {/* 4. KENAPA PILIH KAMI (§6.1 #4) */}
-        <section id="keunggulan" className="py-20 px-4 max-w-6xl mx-auto">
+        {/* 5. WHY CHOOSE US (Keunggulan SM Sport Center) */}
+        <section id="keunggulan" className="py-20 px-4 max-w-6xl mx-auto border-t border-fog/60">
           <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs font-bold uppercase tracking-wider text-ash block mb-2">
+              Kualitas &amp; Kenyamanan Terjamin
+            </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-carbon tracking-tight">
               Kenapa Memilih {BRAND_INFO.name}?
             </h2>
             <p className="text-graphite mt-3 text-base">
-              Kami merancang sistem dan venue untuk memberikan pengalaman berolahraga terbaik.
+              Kami memadukan sistem reservasi modern dan fasilitas arena berstandar profesional untuk performa bertanding maksimal.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Keunggulan 1 */}
-            <div className="bg-paper-white border border-fog rounded-2xl p-6 text-center flex flex-col items-center shadow-subtle-2">
-              <div className="w-12 h-12 rounded-full bg-lavender/15 text-lavender flex items-center justify-center mb-4">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-paper-white border border-fog rounded-3xl p-6 sm:p-8 text-center flex flex-col items-center shadow-subtle hover:border-lavender hover:shadow-subtle-3 transition">
+              <div className="w-14 h-14 rounded-full bg-lavender/10 text-lavender flex items-center justify-center mb-5">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -132,51 +63,51 @@ export default async function CustomerHomePage() {
             </div>
 
             {/* Keunggulan 2 */}
-            <div className="bg-paper-white border border-fog rounded-2xl p-6 text-center flex flex-col items-center shadow-subtle-2">
-              <div className="w-12 h-12 rounded-full bg-lavender/15 text-lavender flex items-center justify-center mb-4">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-paper-white border border-fog rounded-3xl p-6 sm:p-8 text-center flex flex-col items-center shadow-subtle hover:border-lavender hover:shadow-subtle-3 transition">
+              <div className="w-14 h-14 rounded-full bg-lavender/10 text-lavender flex items-center justify-center mb-5">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
               <h3 className="font-bold text-carbon text-lg mb-2">Bebas Bentrok Jadwal</h3>
               <p className="text-graphite text-sm leading-relaxed">
-                Teknologi proteksi *row-locking* database menjamin jadwal yang sudah kamu pesan tidak akan diduplikasi orang lain.
+                Proteksi *row-locking* database &amp; hold slot otomatis menjamin jadwal yang kamu pesan tidak akan diduplikasi orang lain.
               </p>
             </div>
 
             {/* Keunggulan 3 */}
-            <div className="bg-paper-white border border-fog rounded-2xl p-6 text-center flex flex-col items-center shadow-subtle-2">
-              <div className="w-12 h-12 rounded-full bg-lavender/15 text-lavender flex items-center justify-center mb-4">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-paper-white border border-fog rounded-3xl p-6 sm:p-8 text-center flex flex-col items-center shadow-subtle hover:border-lavender hover:shadow-subtle-3 transition">
+              <div className="w-14 h-14 rounded-full bg-lavender/10 text-lavender flex items-center justify-center mb-5">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </div>
               <h3 className="font-bold text-carbon text-lg mb-2">Pembayaran Mudah</h3>
               <p className="text-graphite text-sm leading-relaxed">
-                Mendukung pembayaran langsung serta fitur penahanan slot otomatis selama 10 menit agar kamu punya waktu bayar.
+                Mendukung verifikasi pembayaran instan serta penahanan slot otomatis 10 menit agar kamu leluasa berkoordinasi.
               </p>
             </div>
 
             {/* Keunggulan 4 */}
-            <div className="bg-paper-white border border-fog rounded-2xl p-6 text-center flex flex-col items-center shadow-subtle-2">
-              <div className="w-12 h-12 rounded-full bg-lavender/15 text-lavender flex items-center justify-center mb-4">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-paper-white border border-fog rounded-3xl p-6 sm:p-8 text-center flex flex-col items-center shadow-subtle hover:border-lavender hover:shadow-subtle-3 transition">
+              <div className="w-14 h-14 rounded-full bg-lavender/10 text-lavender flex items-center justify-center mb-5">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
               <h3 className="font-bold text-carbon text-lg mb-2">Lokasi Strategis &amp; Nyaman</h3>
               <p className="text-graphite text-sm leading-relaxed">
-                Berada di pusat kota dengan parkir luas, kantin bersih, mushola, dan ruang ganti pemain yang nyaman.
+                Berada di pusat kota dengan parkir luas, kantin bersih, mushola, dan ruang ganti pemain berpendingin udara.
               </p>
             </div>
           </div>
         </section>
 
-        {/* 5. STATISTIK ASLI DARI DATABASE (§6.1 #5 & §6.1 rule 2) */}
+        {/* 6. REAL-TIME STATS FROM DATABASE (§6.1 #5) */}
         <section className="py-16 bg-linen border-y border-fog px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-10">
+            <div className="text-center mb-12">
               <span className="text-xs font-bold uppercase tracking-wider text-ash block mb-1">
                 Transparansi Data Real-Time
               </span>
@@ -186,115 +117,56 @@ export default async function CustomerHomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-paper-white border border-fog rounded-2xl p-6 text-center shadow-subtle">
+              <div className="bg-paper-white border border-fog rounded-3xl p-8 text-center shadow-subtle hover:border-lavender transition">
                 <span className="text-4xl sm:text-5xl font-black text-carbon block mb-2">
                   {totalCourts}
                 </span>
-                <span className="text-sm font-medium text-graphite">Total Lapangan Aktif</span>
-                <span className="text-xs text-mint block mt-1">Futsal &amp; Badminton</span>
+                <span className="text-sm font-bold text-graphite">Total Lapangan Aktif</span>
+                <span className="text-xs text-mint font-semibold block mt-1.5">● Futsal &amp; Badminton</span>
               </div>
 
-              <div className="bg-paper-white border border-fog rounded-2xl p-6 text-center shadow-subtle">
+              <div className="bg-paper-white border border-fog rounded-3xl p-8 text-center shadow-subtle hover:border-lavender transition">
                 <span className="text-4xl sm:text-5xl font-black text-carbon block mb-2">
                   {totalCustomers}
                 </span>
-                <span className="text-sm font-medium text-graphite">Pelanggan Terdaftar</span>
-                <span className="text-xs text-ash block mt-1">Sistem member online</span>
+                <span className="text-sm font-bold text-graphite">Pelanggan Terdaftar</span>
+                <span className="text-xs text-ash block mt-1.5">Komunitas &amp; member online</span>
               </div>
 
-              <div className="bg-paper-white border border-fog rounded-2xl p-6 text-center shadow-subtle">
+              <div className="bg-paper-white border border-fog rounded-3xl p-8 text-center shadow-subtle hover:border-lavender transition">
                 <span className="text-4xl sm:text-5xl font-black text-carbon block mb-2">
                   {totalBookings}
                 </span>
-                <span className="text-sm font-medium text-graphite">Sesi Booking Selesai</span>
-                <span className="text-xs text-ash block mt-1">Diverifikasi &amp; dibayar</span>
+                <span className="text-sm font-bold text-graphite">Sesi Booking Selesai</span>
+                <span className="text-xs text-ash block mt-1.5">Terverifikasi &amp; berjalan lancar</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 6. TESTIMONI PELANGGAN (§6.1 #6) */}
-        <section className="py-20 px-4 max-w-6xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-carbon tracking-tight">
-              Kata Mereka yang Sudah Bermain
-            </h2>
-            <p className="text-graphite mt-3 text-base">
-              Pengalaman bermain di lapangan interlock dan badminton kami.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-paper-white border border-fog rounded-2xl p-8 shadow-subtle-2 flex flex-col justify-between">
-              <p className="text-graphite text-sm italic leading-relaxed mb-6">
-                &ldquo;Booking lewat web ini gampang banget! Gak perlu waswas bentrok jadwal pas sampai lokasi karena langsung terkunci otomatis waktu klik pesan.&rdquo;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-lavender/20 text-lavender font-bold flex items-center justify-center text-sm">
-                  R
-                </div>
-                <div>
-                  <h3 className="font-bold text-carbon text-sm">Rizky Pratama</h3>
-                  <span className="text-xs text-ash">Kapten Tim Futsal FC</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-paper-white border border-fog rounded-2xl p-8 shadow-subtle-2 flex flex-col justify-between">
-              <p className="text-graphite text-sm italic leading-relaxed mb-6">
-                &ldquo;Karpet badmintonnya empuk dan gak licin sama sekali. Lampu LED-nya juga pas banget terang tanpa bikin silau waktu smash bola tinggi.&rdquo;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-iris/20 text-iris font-bold flex items-center justify-center text-sm">
-                  D
-                </div>
-                <div>
-                  <h3 className="font-bold text-carbon text-sm">Diana Novita</h3>
-                  <span className="text-xs text-ash">Komunitas Badminton Weekend</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-paper-white border border-fog rounded-2xl p-8 shadow-subtle-2 flex flex-col justify-between">
-              <p className="text-graphite text-sm italic leading-relaxed mb-6">
-                &ldquo;Sistem hold slot 10 menitnya sangat membantu saat harus koordinasi patungan dulu sama teman-teman tim sebelum transfer pembayaran.&rdquo;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-mint/20 text-mint font-bold flex items-center justify-center text-sm">
-                  A
-                </div>
-                <div>
-                  <h3 className="font-bold text-carbon text-sm">Ahmad Fauzi</h3>
-                  <span className="text-xs text-ash">Pelanggan Setia Mingguan</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 7. CTA BANNER (§6.1 #7) */}
-        <section className="py-10 px-4 max-w-5xl mx-auto mb-16">
-          <div className="bg-carbon text-paper-white rounded-3xl p-10 md:p-16 text-center shadow-subtle-3 relative overflow-hidden border border-fog">
-            {/* Decorative Shimmer Ring */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-lavender/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-sky/10 blur-3xl pointer-events-none" />
+        {/* 7. CTA BANNER */}
+        <section className="py-16 px-4 max-w-6xl mx-auto">
+          <div className="bg-carbon text-paper-white rounded-3xl p-10 sm:p-16 text-center shadow-subtle-3 relative overflow-hidden border border-fog">
+            {/* Decorative Shimmer Rings */}
+            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-lavender/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-mint/15 blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-2xl mx-auto">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#60b8f0] block mb-3">
-                Jangan Sampai Kehabisan Slot
+              <span className="text-xs font-bold uppercase tracking-widest text-mint bg-mint/10 px-3 py-1 rounded-full border border-mint/20 inline-block mb-4">
+                Jangan Sampai Kehabisan Slot Jam Favorit
               </span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white mb-6">
                 Siap Bertanding di Lapangan Hari Ini?
               </h2>
-              <p className="text-paper-white/90 text-base md:text-lg mb-8">
-                Pilih jadwal bertandingmu sekarang, amankan slot favoritmu, dan tunjukkan aksi terbaik timmu di atas lapangan.
+              <p className="text-paper-white/85 text-base md:text-lg mb-8 leading-relaxed">
+                Amankan slot favoritmu sekarang, kumpulkan timmu, dan tunjukkan aksi terbaik di atas lapangan interlock &amp; vinyl bertaraf nasional.
               </p>
               <Link
                 href="/booking"
-                className="inline-flex items-center gap-2 bg-lavender text-white px-8 py-4 rounded-full font-medium text-sm md:text-base shadow-subtle hover:opacity-95 transition"
+                className="inline-flex items-center gap-2.5 bg-lavender text-white px-8 py-4 rounded-full font-bold text-sm md:text-base shadow-subtle hover:opacity-95 transition scale-105 hover:scale-110 duration-200"
               >
                 <span>Booking Lapangan Sekarang</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </Link>
@@ -303,78 +175,8 @@ export default async function CustomerHomePage() {
         </section>
       </main>
 
-      {/* 8. FOOTER (§6.1 #8) */}
-      <footer id="kontak" className="bg-linen border-t border-fog py-16 px-4">
-        <h2 className="sr-only">Informasi &amp; Navigasi</h2>
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 font-bold text-lg text-carbon tracking-tight mb-4">
-              <span className="w-8 h-8 rounded-full bg-lavender text-white flex items-center justify-center font-black text-sm">
-                SM
-              </span>
-              <span>{BRAND_INFO.name}</span>
-            </Link>
-            <p className="text-graphite text-xs leading-relaxed mb-4">
-              Pusat penyewaan lapangan futsal interlock profesional dan lapangan badminton vinyl berkualitas berstandar turnamen.
-            </p>
-            <p className="text-ash text-xs">
-              &copy; {new Date().getFullYear()} {BRAND_INFO.name}. All rights reserved.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-carbon text-sm mb-4">Menu Navigasi</h3>
-            <ul className="space-y-2 text-sm text-graphite">
-              <li><Link href="/" className="hover:text-carbon transition">Beranda</Link></li>
-              <li><Link href="/booking" className="hover:text-carbon transition">Jadwal &amp; Booking</Link></li>
-              <li><a href="#info-lapangan" className="hover:text-carbon transition">Info Lapangan</a></li>
-              <li><a href="#keunggulan" className="hover:text-carbon transition">Keunggulan Kami</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-carbon text-sm mb-4">Akses Akun</h3>
-            <ul className="space-y-2 text-sm text-graphite">
-              <li><Link href="/login" className="hover:text-carbon transition">Masuk Akun</Link></li>
-              <li><Link href="/login" className="hover:text-carbon transition">Daftar Pelanggan Baru</Link></li>
-              <li><Link href="/admin/login" className="hover:text-carbon transition">Portal Admin</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-carbon text-sm mb-4">Jam &amp; Kontak Operasional</h3>
-            <ul className="space-y-2 text-sm text-graphite">
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-ash" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{BRAND_INFO.operatingHours}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-ash" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>{BRAND_INFO.address}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#25D366] shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M11.996 0C5.372 0 0 5.373 0 11.998c0 2.115.552 4.18 1.602 6.002L.052 24l6.16-1.616a11.954 11.954 0 005.784 1.488h.005c6.624 0 11.996-5.373 11.996-11.998A11.996 11.996 0 0011.996 0zM11.996 21.84h-.004a9.96 9.96 0 01-5.075-1.385l-.364-.216-3.771.989 1.006-3.673-.237-.377a9.957 9.957 0 01-1.523-5.26c0-5.49 4.467-9.958 9.968-9.958 2.662 0 5.163 1.037 7.045 2.92 1.882 1.883 2.918 4.383 2.918 7.046 0 5.491-4.468 9.959-9.963 9.959zm5.464-7.464c-.299-.15-1.768-.872-2.042-.971-.274-.1-.474-.15-.674.15-.2.299-.773.971-.948 1.171-.174.199-.349.224-.648.075-.299-.15-1.261-.465-2.401-1.482-.888-.792-1.488-1.77-1.662-2.07-.174-.299-.019-.461.131-.611.135-.135.299-.35.449-.524.15-.175.2-.299.299-.499.1-.199.05-.374-.025-.524-.075-.15-.674-1.623-.923-2.223-.243-.585-.49-.505-.674-.514-.174-.009-.374-.009-.574-.009-.2 0-.524.075-.798.374-.274.299-1.048 1.024-1.048 2.498 0 1.474 1.073 2.897 1.223 3.097.15.199 2.112 3.224 5.116 4.521.715.309 1.273.493 1.708.631.718.228 1.371.196 1.888.119.578-.086 1.768-.722 2.017-1.421.249-.699.249-1.298.174-1.421-.074-.124-.274-.199-.573-.349z" />
-                </svg>
-                <a
-                  href={`https://wa.me/${BRAND_INFO.whatsapp}?text=${encodeURIComponent("Halo Admin SM Sport Center, saya ingin bertanya terkait jadwal dan reservasi lapangan.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition underline decoration-dotted underline-offset-4 text-[#25D366] font-semibold"
-                  title="Klik untuk chat langsung ke WhatsApp Admin"
-                >
-                  Telepon/WA: {BRAND_INFO.phone}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </footer>
+      {/* 9. FLYSMART FOOTER */}
+      <FlySmartFooter />
     </div>
   );
 }

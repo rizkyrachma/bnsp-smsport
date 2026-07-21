@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback, useTransition, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { COURT_IMAGES, BRAND_INFO } from "@/lib/assets";
 import { CourtSchedule, SlotStatus } from "@/lib/schedule";
 import ClientNavbar from "../_components/ClientNavbar";
+import BookingToolbar from "../_components/BookingToolbar";
+import FieldCard from "../_components/FieldCard";
+import BookingSummaryBar from "../_components/BookingSummaryBar";
 
 function BookingPageContent() {
   const router = useRouter();
@@ -29,14 +32,17 @@ function BookingPageContent() {
 
   const [selectedDate, setSelectedDate] = useState<string>(getTodayStr());
 
-  // Mount-time validation to reset if date is in the past
   useEffect(() => {
     const today = getTodayStr();
     if (selectedDate < today) {
       setSelectedDate(today);
     }
   }, []);
-  const [selectedCategory, setSelectedCategory] = useState<"all" | "futsal" | "badminton">("all");
+
+  const initialCategoryParam = (searchParams.get("type") || searchParams.get("category") || "all") as "all" | "futsal" | "badminton";
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "futsal" | "badminton">(
+    ["all", "futsal", "badminton"].includes(initialCategoryParam) ? initialCategoryParam : "all"
+  );
   const [schedules, setSchedules] = useState<CourtSchedule[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -50,8 +56,13 @@ function BookingPageContent() {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
-  const fetchSchedule = useCallback(async (dateStr: string) => {
-    setLoading(true);
+  const selectedCourtRef = useRef<CourtSchedule | null>(null);
+  useEffect(() => {
+    selectedCourtRef.current = selectedCourt;
+  }, [selectedCourt]);
+
+  const fetchSchedule = useCallback(async (dateStr: string, isBackground = false) => {
+    if (!isBackground) setLoading(true);
     setError("");
     try {
       const res = await fetch(`/api/schedule?date=${dateStr}`);
@@ -60,17 +71,26 @@ function BookingPageContent() {
         setError(data.error || "Gagal memuat jadwal.");
       } else {
         setSchedules(data.schedule || []);
-        if (initialCourtId && !selectedCourt) {
+        if (initialCourtId && !selectedCourtRef.current) {
           const match = (data.schedule as CourtSchedule[]).find((c) => c.courtId === initialCourtId);
-          if (match) setSelectedCourt(match);
+          if (match) {
+            setSelectedCourt(match);
+            setSelectedCategory(match.courtType as "all" | "futsal" | "badminton");
+            setTimeout(() => {
+              const cardEl = document.getElementById(`court-card-${match.courtId}`);
+              if (cardEl) {
+                cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+              }
+            }, 300);
+          }
         }
       }
     } catch {
       setError("Terjadi kesalahan koneksi saat memuat jadwal.");
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
-  }, [initialCourtId, selectedCourt]);
+  }, [initialCourtId]);
 
   useEffect(() => {
     fetchSchedule(selectedDate);
@@ -79,7 +99,7 @@ function BookingPageContent() {
   // Handle slot click
   const handleSelectSlot = (court: CourtSchedule, slot: SlotStatus) => {
     if (slot.status !== "tersedia") return;
-    
+
     setSelectedCourt(court);
     setSelectedSlot(slot);
     setBookingError("");
@@ -203,7 +223,7 @@ function BookingPageContent() {
         }
         setBookingError(data.error || "Booking gagal diproses.");
         // LAPISAN 4: Otomatis refetch jadwal agar slot yang barusan direbut langsung berubah warna di kalender
-        fetchSchedule(selectedDate);
+        fetchSchedule(selectedDate, true);
         return;
       }
 
@@ -238,320 +258,64 @@ function BookingPageContent() {
           </p>
         </div>
 
-        {/* Date Picker & Category Filters Panel */}
-        <div className="bg-linen border border-fog rounded-3xl p-6 mb-8 shadow-subtle flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <label htmlFor="date" className="text-sm font-bold text-carbon whitespace-nowrap">
-              Pilih Tanggal:
-            </label>
-            <input
-              id="date"
-              type="date"
-              aria-label="Pilih tanggal reservasi lapangan"
-              min={getTodayStr()}
-              value={selectedDate}
-              onChange={(e) => {
-                const dateVal = e.target.value;
-                const todayVal = getTodayStr();
-                if (dateVal < todayVal) {
-                  return;
-                }
-                setSelectedDate(dateVal);
-                setSelectedSlot(null);
-              }}
-              className="bg-paper-white border border-fog rounded-xl px-4 py-2 text-sm font-medium text-carbon shadow-subtle focus:outline-none focus:ring-2 focus:ring-lavender"
-            />
-          </div>
+        {/* Sticky Booking Toolbar: Date Picker, Category Tabs, Collapsible Legend */}
+        <BookingToolbar
+          selectedDate={selectedDate}
+          onDateChange={(date) => {
+            setSelectedDate(date);
+            setSelectedSlot(null);
+          }}
+          minDate={getTodayStr()}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          schedules={schedules}
+        />
 
-          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-            <button
-              type="button"
-              onClick={() => setSelectedCategory("all")}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition whitespace-nowrap ${
-                selectedCategory === "all"
-                  ? "bg-lavender text-white shadow-subtle"
-                  : "bg-paper-white text-graphite border border-fog hover:bg-mist"
-              }`}
-            >
-              Semua ({schedules.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedCategory("futsal")}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition whitespace-nowrap ${
-                selectedCategory === "futsal"
-                  ? "bg-lavender text-white shadow-subtle"
-                  : "bg-paper-white text-graphite border border-fog hover:bg-mist"
-              }`}
-            >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              Futsal ({schedules.filter((s: any) => s.courtType === "futsal").length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedCategory("badminton")}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition whitespace-nowrap ${
-                selectedCategory === "badminton"
-                  ? "bg-lavender text-white shadow-subtle"
-                  : "bg-paper-white text-graphite border border-fog hover:bg-mist"
-              }`}
-            >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              Badminton ({schedules.filter((s: any) => s.courtType === "badminton").length})
-            </button>
-          </div>
-        </div>
-
-        {/* Legend */}
-        <div className="flex flex-wrap items-center gap-6 text-xs font-medium text-graphite mb-6 px-2">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-mint shadow-sm" />
-            <span>Tersedia (Bisa Dipesan)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-ash/60" />
-            <span>Dipesan / Sedang Dipakai</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-amber" />
-            <span>Dalam Perawatan / Turnamen</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-fog border border-ash/30" />
-            <span>Sudah Lewat (Disabled)</span>
-          </div>
-        </div>
-
-        {/* Schedule Cards per Court */}
+        {/* Schedule Cards per Court (2 Columns on large desktop >= 1280px, 1 Column on mobile/tablet) */}
         {loading ? (
           <div className="py-24 text-center">
             <div className="w-10 h-10 border-4 border-lavender border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-graphite text-sm">Memuat jadwal real-time dari database...</p>
+            <p className="text-graphite text-sm font-semibold">Memuat jadwal real-time dari database...</p>
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-3xl text-center">
+          <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-3xl text-center shadow-subtle">
             <p className="font-bold">{error}</p>
           </div>
+        ) : filteredSchedules.length === 0 ? (
+          <div className="py-16 text-center bg-mist border border-fog rounded-3xl p-8">
+            <p className="text-carbon font-bold text-base">Tidak ada jadwal untuk kategori ini.</p>
+            <p className="text-graphite text-xs mt-1">Silakan pilih kategori lain atau ganti tanggal pemesanan.</p>
+          </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8 max-w-5xl mx-auto">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {filteredSchedules.map((court: any) => {
-              const isFutsal = court.courtType === "futsal";
-              const imageAsset = isFutsal ? COURT_IMAGES.futsal : COURT_IMAGES.badminton;
-
-              return (
-                <div
-                  key={court.courtId}
-                  className="bg-paper-white border border-fog rounded-3xl p-6 md:p-8 shadow-subtle-3 transition"
-                >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-fog">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl overflow-hidden relative bg-carbon/5 shrink-0 hidden sm:block">
-                        <Image
-                          src={imageAsset.url}
-                          alt={imageAsset.alt}
-                          fill
-                          sizes="64px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-bold uppercase tracking-wider bg-mist text-carbon px-2.5 py-0.5 rounded-full border border-fog">
-                            {court.courtType}
-                          </span>
-                          <span
-                            className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                              court.courtStatus === "tersedia"
-                                ? "bg-mint-wash text-mint"
-                                : "bg-amber/15 text-amber-900"
-                            }`}
-                          >
-                            ● {court.courtStatus === "tersedia" ? "Aktif" : court.courtStatus}
-                          </span>
-                        </div>
-                        <h2 className="text-xl font-bold text-carbon">{court.courtName}</h2>
-                      </div>
-                    </div>
-
-                    <div className="text-left md:text-right">
-                      <span className="text-2xl font-black text-carbon">
-                        Rp {court.pricePerHour.toLocaleString("id-ID")}
-                      </span>
-                      <span className="text-xs text-ash block">/ jam</span>
-                    </div>
-                  </div>
-
-                  {/* Slots Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {court.slots.map((slot: any) => {
-                      const isSelected =
-                        selectedCourt?.courtId === court.courtId &&
-                        selectedTimeRange.includes(slot.start);
-
-                      if (slot.status === "tersedia") {
-                        return (
-                          <button
-                            key={slot.start}
-                            type="button"
-                            onClick={() => handleSelectSlot(court, slot)}
-                            className={`p-3 rounded-2xl border text-left transition relative flex flex-col justify-between h-20 ${
-                              isSelected
-                                ? "bg-lavender text-white border-lavender shadow-subtle-2 ring-2 ring-lavender/30"
-                                : "bg-paper-white text-carbon border-fog hover:border-lavender hover:bg-lavender/5 shadow-subtle"
-                            }`}
-                          >
-                            <span className="text-xs font-bold block">{slot.start} WIB</span>
-                            <span
-                              className={`text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full inline-block ${
-                                isSelected ? "bg-white/20 text-white" : "bg-mint-wash text-mint"
-                              }`}
-                            >
-                              Tersedia
-                            </span>
-                          </button>
-                        );
-                      }
-
-                      if (slot.status === "dipesan") {
-                        return (
-                          <div
-                            key={slot.start}
-                            className="p-3 rounded-2xl border border-fog bg-mist text-ash flex flex-col justify-between h-20 cursor-not-allowed opacity-80"
-                          >
-                            <span className="text-xs font-bold block text-carbon">{slot.start} WIB</span>
-                            <span className="text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-fog text-carbon inline-block">
-                              ● Dipesan
-                            </span>
-                          </div>
-                        );
-                      }
-
-                      if (slot.status === "perbaikan") {
-                        return (
-                          <div
-                            key={slot.start}
-                            className="p-3 rounded-2xl border border-amber/20 bg-amber/5 text-amber flex flex-col justify-between h-20 cursor-not-allowed opacity-90"
-                          >
-                            <span className="text-xs font-bold block text-[#78350f]">{slot.start} WIB</span>
-                            <span className="text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-[#fef3c7] text-[#78350f] inline-block">
-                              ● Perawatan
-                            </span>
-                          </div>
-                        );
-                      }
-
-                      // status === 'lewat' (§4.4 validation frontend representation)
-                      return (
-                        <div
-                          key={slot.start}
-                          className="p-3 rounded-2xl bg-fog border border-ash/30 text-ash/60 flex flex-col justify-between h-20 pointer-events-none opacity-60"
-                          aria-disabled="true"
-                        >
-                          <span className="text-xs font-bold block text-carbon">{slot.start} WIB</span>
-                          <span className="text-[10px] font-medium mt-1 px-2 py-0.5 rounded-full bg-fog text-carbon inline-block w-fit">
-                            Sudah Lewat
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+            {filteredSchedules.map((court: any, index: number) => (
+              <FieldCard
+                key={court.courtId}
+                court={court}
+                selectedCourt={selectedCourt}
+                selectedTimeRange={selectedTimeRange}
+                onSelectSlot={handleSelectSlot}
+                defaultExpanded={index === 0 || filteredSchedules.length <= 1}
+              />
+            ))}
           </div>
         )}
       </main>
 
-      {/* 9. BOTTOM RESERVATION CONFIRMATION BAR */}
-      {selectedCourt && selectedSlot && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-paper-white border-t border-fog shadow-subtle-3 p-4 sm:p-6 backdrop-blur-lg bg-paper-white/95">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-lavender/15 text-lavender flex items-center justify-center font-black text-lg shrink-0">
-                ✓
-              </div>
-              <div>
-                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-lavender">
-                    Slot Dipilih ({selectedDate})
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-carbon">
-                  {selectedCourt.courtName} — Jam {selectedSlot.start} WIB
-                </h3>
-                <p className="text-xs text-graphite mt-0.5">
-                  Hold slot otomatis 10 menit setelah konfirmasi.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-4 w-full md:w-auto">
-              {/* Duration selector */}
-              <div className="flex items-center gap-2 bg-mist border border-fog rounded-full p-1 shadow-subtle">
-                <span className="text-xs font-semibold text-graphite px-3">Durasi:</span>
-                {[1, 2, 3, 4].map((dur: number) => {
-                  const isAvailable = checkConsecutiveAvailable(selectedCourt, selectedSlot, dur);
-                  return (
-                    <button
-                      key={dur}
-                      type="button"
-                      disabled={!isAvailable}
-                      onClick={() => handleSelectDuration(dur)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${
-                        durationHours === dur
-                          ? "bg-lavender text-white shadow-subtle"
-                          : isAvailable
-                          ? "hover:bg-paper-white text-carbon"
-                          : "opacity-40 cursor-not-allowed text-ash"
-                      }`}
-                    >
-                      {dur} Jam
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Price summary & Confirm button */}
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <span className="text-xs text-ash block">Total Biaya ({durationHours} jam)</span>
-                  <span className="text-xl font-black text-carbon">
-                    Rp {totalPrice.toLocaleString("id-ID")}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  disabled={submitting || !!bookingError}
-                  onClick={() => setShowConfirmModal(true)}
-                  className="bg-lavender text-white px-6 py-3.5 rounded-full font-bold text-sm shadow-subtle hover:opacity-95 transition disabled:opacity-50 flex items-center gap-2"
-                >
-                  {submitting ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Memproses...</span>
-                    </>
-                  ) : (
-                    <span>Konfirmasi &amp; Pesan</span>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {bookingError && (
-              <div className="w-full mt-4 bg-red-50 border border-red-200/60 rounded-2xl p-4 flex gap-3 text-left shadow-sm">
-                <div className="text-red-500 text-lg shrink-0">⚠️</div>
-                <div>
-                  <p className="font-bold text-[10px] text-red-800 uppercase tracking-wider">Kesalahan</p>
-                  <p className="text-red-700 text-xs mt-0.5 leading-relaxed">{bookingError}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* 9. FLOATING BOOKING SUMMARY BAR */}
+      <BookingSummaryBar
+        selectedCourt={selectedCourt}
+        selectedSlot={selectedSlot}
+        selectedDate={selectedDate}
+        durationHours={durationHours}
+        onDurationChange={handleSelectDuration}
+        checkConsecutiveAvailable={checkConsecutiveAvailable}
+        totalPrice={totalPrice}
+        submitting={submitting}
+        bookingError={bookingError}
+        onConfirm={() => setShowConfirmModal(true)}
+      />
 
       {/* LOGIN REQUIRED POPUP MODAL */}
       {showLoginModal && (
