@@ -24,10 +24,10 @@ const BookingToolbar: React.FC<BookingToolbarProps> = ({
   const badmintonCount = schedules.filter((s) => s.courtType === "badminton").length;
 
   return (
-    <div className="sticky top-[72px] z-30 bg-paper-white/95 backdrop-blur-md border-b border-fog shadow-subtle py-3 px-4 transition-all">
+    <div className="sticky top-[72px] z-30 py-3 transition-all">
       <div className="max-w-5xl mx-auto">
         {/* Unified Card for Date Picker & Category Tabs */}
-        <div className="bg-linen border border-fog rounded-2xl p-2 md:p-2.5 shadow-subtle flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="bg-paper-white/95 backdrop-blur-md border border-fog rounded-2xl p-2 md:p-2.5 shadow-subtle flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Date Picker Section */}
           <div className="flex items-center gap-2.5 px-2 py-1 sm:border-r sm:border-fog/80 shrink-0">
             <span className="text-xs font-semibold uppercase tracking-wider text-ash">
