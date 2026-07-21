@@ -57,7 +57,7 @@ const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
   ];
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-4 pt-1">
       {/* 1. AUTO-COLLAPSED PAST SLOTS BAR (if any past slots exist today) */}
       {pastSlots.length > 0 && (
         <div className="border border-fog/80 bg-fog/20 rounded-xl overflow-hidden transition-all">
@@ -107,16 +107,16 @@ const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
           if (group.slots.length === 0) return null;
 
           return (
-            <div key={group.id} className="space-y-3">
+            <div key={group.id} className="space-y-2 sm:space-y-2.5">
               {/* Clean Period Header without extra badges or icons */}
-              <div className="pb-1.5 border-b border-fog/70">
+              <div className="pb-1 border-b border-fog/70">
                 <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-graphite">
                   {group.label}
                 </span>
               </div>
 
               {/* Compact Slot Grid (3 columns on mobile, 4 on sm, 6 on md/lg) */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-2.5">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                 {group.slots.map((slot) => {
                   const isSelected =
                     selectedCourt?.courtId === court.courtId &&
@@ -128,7 +128,7 @@ const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
                         key={slot.start}
                         type="button"
                         onClick={() => onSelectSlot(court, slot)}
-                        className={`group py-2.5 px-2 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center cursor-pointer ${
+                        className={`group py-1.5 sm:py-2 px-1.5 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center cursor-pointer ${
                           isSelected
                             ? "bg-lavender text-white border-lavender ring-2 ring-lavender/40 shadow-subtle scale-[1.02]"
                             : "bg-mint-wash border-mint/50 text-carbon hover:bg-mint hover:text-white hover:border-mint shadow-subtle"
@@ -146,7 +146,7 @@ const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
                     return (
                       <div
                         key={slot.start}
-                        className="py-2.5 px-2 rounded-xl border border-fog bg-mist text-ash flex flex-col items-center justify-center text-center cursor-not-allowed opacity-80"
+                        className="py-1.5 sm:py-2 px-1.5 rounded-xl border border-fog bg-mist text-ash flex flex-col items-center justify-center text-center cursor-not-allowed opacity-80"
                       >
                         <span className="text-xs font-normal text-carbon/70">{slot.start} WIB</span>
                         <span className="text-[11px] font-normal text-ash mt-0.5">Dipesan</span>
@@ -158,7 +158,7 @@ const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
                     return (
                       <div
                         key={slot.start}
-                        className="py-2.5 px-2 rounded-xl border border-amber/30 bg-amber/10 text-amber flex flex-col items-center justify-center text-center cursor-not-allowed opacity-90"
+                        className="py-1.5 sm:py-2 px-1.5 rounded-xl border border-amber/30 bg-amber/10 text-amber flex flex-col items-center justify-center text-center cursor-not-allowed opacity-90"
                       >
                         <span className="text-xs font-normal text-[#78350f]">{slot.start} WIB</span>
                         <span className="text-[11px] font-normal text-[#78350f] mt-0.5">Perawatan</span>
