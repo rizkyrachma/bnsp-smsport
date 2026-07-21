@@ -57,8 +57,7 @@ export default function AdminLaporanPage() {
   }, [fetchReport]);
 
   const totalRevenue = items.reduce((sum, item) => (item.status === "paid" ? sum + item.totalPrice : sum), 0);
-  const paidCount = items.filter((item) => item.status === "paid").length;
-  const avgTicket = paidCount > 0 ? Math.round(totalRevenue / paidCount) : 0;
+  const uniqueUsersCount = new Set(items.map((item) => item.userPhone || item.userEmail || item.userName)).size;
 
   const handleExportCSV = () => {
     setError("");
@@ -233,8 +232,19 @@ export default function AdminLaporanPage() {
         </div>
       </div>
 
+      {/* Print exact color styling */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+        }
+      ` }} />
+
       {/* Summary Banner */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle">
           <p className="text-xs font-bold uppercase text-ash">Total Reservasi Terfilter</p>
           <p className="text-3xl font-black text-carbon mt-2">{items.length} sesi</p>
@@ -248,18 +258,18 @@ export default function AdminLaporanPage() {
         </div>
 
         <div className="bg-paper-white border border-fog rounded-3xl p-6 shadow-subtle">
-          <p className="text-xs font-bold uppercase text-ash">Rata-Rata per Sesi Lunas</p>
+          <p className="text-xs font-bold uppercase text-ash">Total Pengguna Booking</p>
           <p className="text-3xl font-black text-lavender mt-2">
-            Rp {avgTicket.toLocaleString("id-ID")}
+            {uniqueUsersCount} orang
           </p>
         </div>
       </div>
 
       {/* Table Section */}
-      <div className="bg-paper-white print:bg-white print:border-gray-300 print:text-black border border-fog rounded-3xl overflow-hidden shadow-subtle">
+      <div className="bg-paper-white border border-fog rounded-3xl overflow-hidden shadow-subtle">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs print:text-[10px]">
-            <thead className="bg-linen print:bg-gray-100 text-graphite print:text-black font-bold uppercase tracking-wider border-b border-fog print:border-gray-300">
+            <thead className="bg-linen text-graphite font-bold uppercase tracking-wider border-b border-fog">
               <tr>
                 <th className="py-4 px-6 print:py-2 print:px-3">No. / ID</th>
                 <th className="py-4 px-6 print:py-2 print:px-3">Pelanggan</th>
@@ -269,53 +279,53 @@ export default function AdminLaporanPage() {
                 <th className="py-4 px-6 print:py-2 print:px-3 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-fog print:divide-gray-200">
+            <tbody className="divide-y divide-fog">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-ash print:text-black animate-pulse">
+                  <td colSpan={6} className="py-12 text-center text-ash animate-pulse">
                     Memuat data laporan dari database...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-ash print:text-black">
+                  <td colSpan={6} className="py-12 text-center text-ash">
                     Tidak ada data transaksi yang cocok dengan filter laporan ini.
                   </td>
                 </tr>
               ) : (
                 items.map((item, idx) => (
-                  <tr key={item.id} className="hover:bg-mist print:hover:bg-transparent transition">
+                  <tr key={item.id} className="hover:bg-mist transition">
                     <td className="py-4 px-6 print:py-2 print:px-3">
-                      <p className="font-bold text-carbon print:text-black">{idx + 1}</p>
-                      <p className="text-[10px] text-ash print:text-gray-600 font-mono">{item.id.slice(0, 8)}</p>
+                      <p className="font-bold text-carbon">{idx + 1}</p>
+                      <p className="text-[10px] text-ash font-mono">{item.id.slice(0, 8)}</p>
                     </td>
                     <td className="py-4 px-6 print:py-2 print:px-3">
-                      <p className="font-bold text-carbon print:text-black">{item.userName}</p>
-                      <p className="text-[11px] text-ash print:text-gray-600">{item.userPhone}</p>
+                      <p className="font-bold text-carbon">{item.userName}</p>
+                      <p className="text-[11px] text-ash">{item.userPhone}</p>
                     </td>
                     <td className="py-4 px-6 print:py-2 print:px-3">
-                      <span className="bg-linen print:bg-transparent px-2 py-0.5 rounded-full text-[10px] font-bold text-graphite print:text-black border border-fog print:border-none uppercase">
+                      <span className="bg-linen px-2.5 py-1 rounded-full text-[10px] font-bold text-graphite border border-fog uppercase">
                         {item.courtType}
                       </span>
-                      <p className="font-bold text-carbon print:text-black mt-1">{item.courtName}</p>
+                      <p className="font-bold text-carbon mt-1">{item.courtName}</p>
                     </td>
                     <td className="py-4 px-6 print:py-2 print:px-3">
-                      <p className="font-bold text-carbon print:text-black">{item.bookingDate}</p>
-                      <p className="text-[11px] text-ash print:text-gray-600">
+                      <p className="font-bold text-carbon">{item.bookingDate}</p>
+                      <p className="text-[11px] text-ash">
                         {item.startTime} - {item.endTime} WIB
                       </p>
                     </td>
-                    <td className="py-4 px-6 print:py-2 print:px-3 text-right font-black text-carbon print:text-black">
+                    <td className="py-4 px-6 print:py-2 print:px-3 text-right font-black text-carbon">
                       Rp {item.totalPrice.toLocaleString("id-ID")}
                     </td>
                     <td className="py-4 px-6 print:py-2 print:px-3 text-center">
                       <span
                         className={`inline-block px-3 py-1 print:px-2 print:py-0.5 rounded-full text-[10px] font-black uppercase border ${
                           item.status === "paid"
-                            ? "bg-mint-wash print:bg-transparent text-mint print:text-green-700 border-mint/30 print:border-green-700"
+                            ? "bg-mint-wash text-mint border-mint/30"
                             : item.status === "pending"
-                            ? "bg-amber/10 print:bg-transparent text-amber-900 print:text-yellow-700 border-amber/20 print:border-yellow-700"
-                            : "bg-ember/10 print:bg-transparent text-ember-800 print:text-red-700 border-ember/20 print:border-red-700"
+                            ? "bg-amber/10 text-amber-900 border-amber/20"
+                            : "bg-ember/10 text-ember-800 border-ember/20"
                         }`}
                       >
                         {item.status}

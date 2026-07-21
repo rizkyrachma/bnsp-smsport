@@ -495,10 +495,13 @@ export default function AdminCustomersPage() {
               <div>
                 <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nomor Telepon</label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={13}
                   required
                   value={formPhone}
-                  onChange={(e) => setFormPhone(e.target.value)}
+                  onChange={(e) => setFormPhone(e.target.value.replace(/\D/g, "").slice(0, 13))}
                   placeholder="081234567890"
                   className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
                 />
@@ -572,10 +575,14 @@ export default function AdminCustomersPage() {
               <div>
                 <label className="block font-bold text-ash mb-1 uppercase tracking-wider">Nomor Telepon</label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={13}
                   required
                   value={formPhone}
-                  onChange={(e) => setFormPhone(e.target.value)}
+                  onChange={(e) => setFormPhone(e.target.value.replace(/\D/g, "").slice(0, 13))}
+                  placeholder="081234567890"
                   className="w-full bg-linen border border-fog rounded-2xl px-4 py-2.5 text-carbon"
                 />
               </div>

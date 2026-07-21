@@ -543,41 +543,39 @@ function RiwayatPageContent() {
         <div className="fixed inset-0 z-50 bg-carbon/60 backdrop-blur-sm flex items-center justify-center p-4 print-overlay">
           <style dangerouslySetInnerHTML={{ __html: `
             @media print {
-              /* Hide all page layouts */
-              nav, footer, main {
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+              }
+              /* Hide all page layouts and action buttons */
+              nav, footer, main, .print-actions {
                 display: none !important;
               }
-              /* Make print overlay background white and fill window */
+              /* Make print overlay clean and centered */
               .print-overlay {
                 position: absolute !important;
                 background: white !important;
                 inset: 0 !important;
-                padding: 0 !important;
+                padding: 24px !important;
                 margin: 0 !important;
-                display: block !important;
+                display: flex !important;
+                align-items: flex-start !important;
+                justify-content: center !important;
                 backdrop-filter: none !important;
               }
-              /* Style the e-ticket card container as a structural Courier thermal receipt */
+              /* Style the e-ticket card container matching our modern web card design */
               #tiket-booking-container {
-                max-width: 380px !important;
-                margin: 20px auto !important;
-                border: 2px dashed #000000 !important;
-                border-radius: 0px !important;
-                box-shadow: none !important;
-                padding: 24px !important;
-                background: white !important;
-                color: black !important;
-                font-family: Courier, monospace !important;
-              }
-              /* Force all inner elements to be pure black for thermal printing */
-              #tiket-booking-container * {
-                color: black !important;
-                background: transparent !important;
-                border-color: #000000 !important;
-              }
-              /* Hide action buttons and close buttons */
-              .print-actions {
-                display: none !important;
+                max-width: 420px !important;
+                width: 100% !important;
+                margin: 0 auto !important;
+                border: 1px solid #CBD5E1 !important;
+                border-radius: 24px !important;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+                padding: 28px !important;
+                background: #FFFFFF !important;
+                color: #181925 !important;
+                font-family: inherit, system-ui, -apple-system, sans-serif !important;
               }
             }
           ` }} />

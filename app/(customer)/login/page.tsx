@@ -146,7 +146,14 @@ function CustomerLoginPageContent() {
                     id="phone"
                     name="phone"
                     type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={13}
                     required
+                    onInput={(e) => {
+                      const input = e.target as HTMLInputElement;
+                      input.value = input.value.replace(/\D/g, "").slice(0, 13);
+                    }}
                     placeholder="Contoh: 081234567890"
                     className="w-full bg-mist border border-fog rounded-xl px-4 py-3 text-xs font-medium text-carbon focus:outline-none focus:ring-2 focus:ring-lavender focus:bg-white transition shadow-subtle placeholder-ash"
                   />
