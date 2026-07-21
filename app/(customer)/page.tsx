@@ -152,13 +152,13 @@ export default async function CustomerHomePage() {
             <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-mint/15 blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-2xl mx-auto">
-              <span className="text-xs font-bold uppercase tracking-widest text-mint bg-mint/10 px-3 py-1 rounded-full border border-mint/20 inline-block mb-4">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#6ee7b7] bg-mint/20 px-3 py-1 rounded-full border border-mint/30 inline-block mb-4">
                 Jangan Sampai Kehabisan Slot Jam Favorit
               </span>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white mb-6">
                 Siap Bertanding di Lapangan Hari Ini?
               </h2>
-              <p className="text-paper-white/85 text-base md:text-lg mb-8 leading-relaxed">
+              <p className="text-paper-white/95 text-base md:text-lg mb-8 leading-relaxed">
                 Amankan slot favoritmu sekarang, kumpulkan timmu, dan tunjukkan aksi terbaik di atas lapangan interlock &amp; vinyl bertaraf nasional.
               </p>
               <Link

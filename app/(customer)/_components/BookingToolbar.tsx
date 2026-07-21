@@ -30,9 +30,9 @@ const BookingToolbar: React.FC<BookingToolbarProps> = ({
         <div className="bg-paper-white/95 backdrop-blur-md border border-fog rounded-2xl p-2 md:p-2.5 shadow-subtle flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Date Picker Section */}
           <div className="flex items-center gap-2.5 px-2 py-1 sm:border-r sm:border-fog/80 shrink-0">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ash">
+            <label htmlFor="date" className="text-xs font-semibold uppercase tracking-wider text-ash cursor-pointer">
               Tanggal
-            </span>
+            </label>
             <input
               id="date"
               type="date"

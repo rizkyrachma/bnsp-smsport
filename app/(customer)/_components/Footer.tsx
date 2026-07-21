@@ -19,7 +19,7 @@ export default function FlySmartFooter() {
                 </span>
                 <span>{BRAND_INFO.name}</span>
               </Link>
-              <p className="text-paper-white/80 text-xs sm:text-sm leading-relaxed max-w-sm mb-6">
+              <p className="text-paper-white/90 text-xs sm:text-sm leading-relaxed max-w-sm mb-6">
                 Pusat penyewaan lapangan futsal interlock profesional dan lapangan badminton vinyl berkualitas turnamen. Reservasi real-time 100% bebas bentrok.
               </p>
             </div>
@@ -65,7 +65,7 @@ export default function FlySmartFooter() {
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-5 border-l-2 border-lavender pl-3">
               Layanan Kami
             </h3>
-            <ul className="space-y-3 text-sm text-paper-white/80">
+            <ul className="space-y-3 text-sm text-paper-white/90">
               <li>
                 <Link href="/booking" className="hover:text-white transition flex items-center gap-1.5">
                   <span className="text-xs text-lavender">→</span>
@@ -98,7 +98,7 @@ export default function FlySmartFooter() {
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-5 border-l-2 border-lavender pl-3">
               Info &amp; Bantuan
             </h3>
-            <ul className="space-y-3 text-sm text-paper-white/80">
+            <ul className="space-y-3 text-sm text-paper-white/90">
               <li>
                 <a href="#keunggulan" className="hover:text-white transition">Tentang Kami</a>
               </li>
@@ -119,7 +119,7 @@ export default function FlySmartFooter() {
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-5 border-l-2 border-lavender pl-3">
               Kontak Operasional
             </h3>
-            <ul className="space-y-3.5 text-sm text-paper-white/80">
+            <ul className="space-y-3.5 text-sm text-paper-white/90">
               <li className="flex items-start gap-2.5">
                 <svg className="w-4 h-4 text-lavender shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -152,7 +152,7 @@ export default function FlySmartFooter() {
         </div>
 
         {/* Copyright Row */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-paper-white/60">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-paper-white/80">
           <p>
             &copy; {currentYear} {BRAND_INFO.name}. All rights reserved.
           </p>

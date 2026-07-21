@@ -587,7 +587,7 @@ function RiwayatPageContent() {
                   SM
                 </span>
                 <h2 className="text-2xl font-black text-carbon tracking-tight">{BRAND_INFO.name}</h2>
-                <span className="text-xs font-bold uppercase tracking-widest text-mint bg-mint-wash px-3 py-1 rounded-full inline-block mt-2">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#065F46] bg-mint-wash px-3 py-1 rounded-full inline-block mt-2">
                   E-Tiket Resmi / Lunas
                 </span>
               </div>

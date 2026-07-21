@@ -125,11 +125,12 @@ export default function HeroQuickSearch({ courts }: HeroQuickSearchProps) {
             <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
               {/* Jenis Lapangan / Info */}
               <div className="sm:col-span-4">
-                <label className="block text-xs font-bold uppercase tracking-wider text-ash mb-2">
+                <label htmlFor="quick-search-category" className="block text-xs font-bold uppercase tracking-wider text-ash mb-2">
                   1. Kategori Lapangan
                 </label>
                 <div className="relative">
                   <select
+                    id="quick-search-category"
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value as any)}
                     className="w-full bg-mist border border-fog rounded-2xl px-4 py-3.5 text-sm font-semibold text-carbon focus:outline-none focus:ring-2 focus:ring-lavender appearance-none cursor-pointer"
@@ -148,11 +149,12 @@ export default function HeroQuickSearch({ courts }: HeroQuickSearchProps) {
 
               {/* Tanggal Main */}
               <div className="sm:col-span-4">
-                <label className="block text-xs font-bold uppercase tracking-wider text-ash mb-2">
+                <label htmlFor="quick-search-date" className="block text-xs font-bold uppercase tracking-wider text-ash mb-2">
                   2. Tanggal Bermain
                 </label>
                 <div className="relative">
                   <input
+                    id="quick-search-date"
                     type="date"
                     value={selectedDate}
                     min={(() => {
@@ -167,11 +169,12 @@ export default function HeroQuickSearch({ courts }: HeroQuickSearchProps) {
 
               {/* Jam Estimasi / Slot */}
               <div className="sm:col-span-4 sm:hidden md:block md:col-span-4">
-                <label className="block text-xs font-bold uppercase tracking-wider text-ash mb-2">
+                <label htmlFor="quick-search-timeslot" className="block text-xs font-bold uppercase tracking-wider text-ash mb-2">
                   3. Jam Bertanding
                 </label>
                 <div className="relative">
                   <select
+                    id="quick-search-timeslot"
                     value={selectedTimeSlot}
                     onChange={(e) => setSelectedTimeSlot(e.target.value)}
                     className="w-full bg-mist border border-fog rounded-2xl px-4 py-3.5 text-sm font-semibold text-carbon focus:outline-none focus:ring-2 focus:ring-lavender appearance-none cursor-pointer"
@@ -267,7 +270,8 @@ export default function HeroQuickSearch({ courts }: HeroQuickSearchProps) {
             <button
               type="button"
               onClick={() => setActiveSlide((prev) => (prev === "futsal" ? "badminton" : "futsal"))}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-paper-white/20 hover:bg-paper-white/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              aria-label="Slide Sebelumnya"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-paper-white/20 hover:bg-paper-white/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
               title="Slide Sebelumnya"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,7 +282,8 @@ export default function HeroQuickSearch({ courts }: HeroQuickSearchProps) {
             <button
               type="button"
               onClick={() => setActiveSlide((prev) => (prev === "futsal" ? "badminton" : "futsal"))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-paper-white/20 hover:bg-paper-white/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              aria-label="Slide Berikutnya"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-paper-white/20 hover:bg-paper-white/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
               title="Slide Berikutnya"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,9 +297,9 @@ export default function HeroQuickSearch({ courts }: HeroQuickSearchProps) {
                 <span className="bg-lavender text-white font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider">
                   {activeSlide === "futsal" ? "Arena Futsal" : "Arena Badminton"}
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold mt-2 leading-tight">
+                <h2 className="text-xl sm:text-2xl font-bold mt-2 leading-tight">
                   {activeSlide === "futsal" ? "Standar Turnamen Internasional" : "Karpet Vinyl Standar BWF"}
-                </h3>
+                </h2>
                 <p className="text-xs sm:text-sm text-paper-white/80 mt-1">
                   {activeSlide === "futsal"
                     ? "Lantai interlock antislip berdaya cengkeram tinggi."
@@ -307,17 +312,25 @@ export default function HeroQuickSearch({ courts }: HeroQuickSearchProps) {
                 <button
                   type="button"
                   onClick={() => setActiveSlide("futsal")}
-                  className={`h-2 rounded-full transition-all cursor-pointer ${activeSlide === "futsal" ? "w-6 bg-mint" : "w-2 bg-white/40 hover:bg-white/70"
-                    }`}
-                  title="Foto Futsal"
-                />
+                  aria-label="Slide 1 dari 2: Foto Futsal"
+                  className="p-3 -m-3 cursor-pointer flex items-center justify-center"
+                >
+                  <span
+                    className={`h-2 rounded-full transition-all block ${activeSlide === "futsal" ? "w-6 bg-mint" : "w-2 bg-white/40 hover:bg-white/70"
+                      }`}
+                  />
+                </button>
                 <button
                   type="button"
                   onClick={() => setActiveSlide("badminton")}
-                  className={`h-2 rounded-full transition-all cursor-pointer ${activeSlide === "badminton" ? "w-6 bg-mint" : "w-2 bg-white/40 hover:bg-white/70"
-                    }`}
-                  title="Foto Badminton"
-                />
+                  aria-label="Slide 2 dari 2: Foto Badminton"
+                  className="p-3 -m-3 cursor-pointer flex items-center justify-center"
+                >
+                  <span
+                    className={`h-2 rounded-full transition-all block ${activeSlide === "badminton" ? "w-6 bg-mint" : "w-2 bg-white/40 hover:bg-white/70"
+                      }`}
+                  />
+                </button>
               </div>
             </div>
           </div>
