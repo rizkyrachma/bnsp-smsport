@@ -128,14 +128,14 @@ const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
                         key={slot.start}
                         type="button"
                         onClick={() => onSelectSlot(court, slot)}
-                        className={`py-2.5 px-2 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center cursor-pointer ${
+                        className={`group py-2.5 px-2 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center cursor-pointer ${
                           isSelected
                             ? "bg-lavender text-white border-lavender ring-2 ring-lavender/40 shadow-subtle scale-[1.02]"
                             : "bg-mint-wash border-mint/50 text-carbon hover:bg-mint hover:text-white hover:border-mint shadow-subtle"
                         }`}
                       >
-                        <span className="text-xs sm:text-sm font-medium tracking-tight">{slot.start} WIB</span>
-                        <span className={`text-[11px] font-normal mt-0.5 ${isSelected ? "text-white/90" : "text-mint group-hover:text-white/90"}`}>
+                        <span className="text-xs sm:text-sm font-medium tracking-tight group-hover:text-white transition-colors">{slot.start} WIB</span>
+                        <span className={`text-[11px] font-normal mt-0.5 transition-colors ${isSelected ? "text-white/90" : "text-mint group-hover:text-white"}`}>
                           {isSelected ? "Dipilih ✓" : "Tersedia"}
                         </span>
                       </button>
